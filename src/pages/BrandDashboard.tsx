@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { DirectPitchModal } from '../components/DirectPitchModal';
+import { ThemeToggle } from '../components/ThemeToggle';
 import {
   Building2,
   PlusCircle,
@@ -325,17 +326,20 @@ export const BrandDashboard: React.FC = () => {
           </nav>
         </div>
 
-        {/* Brand Mini Card */}
-        <div className="pt-6 border-t border-slate-800 flex items-center gap-3">
-          <img
-            src={brandProfile.logo_url || 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=100'}
-            alt={brandProfile.company_name}
-            className="w-9 h-9 rounded-xl object-cover border border-slate-700"
-          />
-          <div className="overflow-hidden">
-            <div className="text-xs font-bold text-white truncate">{brandProfile.company_name}</div>
-            <div className="text-[11px] text-slate-500 truncate">{brandProfile.category}</div>
+        {/* Brand Mini Card & Theme Toggle */}
+        <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={brandProfile.logo_url || 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=100'}
+              alt={brandProfile.company_name}
+              className="w-9 h-9 rounded-xl object-cover border border-slate-700"
+            />
+            <div className="overflow-hidden">
+              <div className="text-xs font-bold text-white truncate">{brandProfile.company_name}</div>
+              <div className="text-[11px] text-slate-500 truncate">{brandProfile.category}</div>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
       </aside>
 

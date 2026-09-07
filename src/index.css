@@ -5,10 +5,20 @@
     color-scheme: light;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
     background-color: #fafafa;
     color: #09090b;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark body {
+    background-color: #09090b;
+    color: #f4f4f5;
   }
   
   h1, h2, h3, h4, .font-heading {
@@ -16,11 +26,17 @@
   }
 }
 
-/* Smooth Scrolling & Neutral Light Scrollbar */
+/* Smooth Scrolling & Responsive Scrollbars */
 html {
   scroll-behavior: smooth;
   background-color: #fafafa;
   color: #09090b;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html.dark {
+  background-color: #09090b;
+  color: #f4f4f5;
 }
 
 ::-webkit-scrollbar {
@@ -32,129 +48,265 @@ html {
   background: #f4f4f5;
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: #121215;
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(161, 161, 170, 0.5);
   border-radius: 9999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(113, 113, 122, 0.4);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(113, 113, 122, 0.7);
 }
 
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 170, 0.6);
+}
+
 /* ==========================================================================
-   Comprehensive Neutral Light Theme Design System
-   Harmonizes existing slate/dark utilities into modern neutral light tokens
+   1. LIGHT THEME SYSTEM (Active when NOT in .dark mode)
    ========================================================================== */
 
 /* Base Canvas & Backgrounds */
-.bg-slate-950,
-.bg-zinc-950:not(button):not(a):not(.btn):not([type="submit"]):not([role="button"]):not(.bg-white *) {
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-zinc-950:not(button):not(a):not(.btn):not([type="submit"]):not([role="button"]):not(.bg-white *) {
   background-color: #fafafa !important;
   color: #09090b;
 }
 
 /* Elevated Card Surfaces & Containers */
-.bg-slate-900,
-.bg-slate-900\/80,
-.bg-slate-900\/70,
-.bg-slate-900\/60,
-.bg-slate-900\/50,
-.bg-slate-900\/40,
-.bg-slate-900\/30,
-.bg-zinc-900\/80,
-.bg-zinc-900\/70,
-.bg-zinc-900\/60,
-.bg-zinc-900\/50,
-.bg-zinc-900\/40 {
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-900\/70,
+html:not(.dark) .bg-slate-900\/60,
+html:not(.dark) .bg-slate-900\/50,
+html:not(.dark) .bg-slate-900\/40,
+html:not(.dark) .bg-slate-900\/30,
+html:not(.dark) .bg-zinc-900\/80,
+html:not(.dark) .bg-zinc-900\/70,
+html:not(.dark) .bg-zinc-900\/60,
+html:not(.dark) .bg-zinc-900\/50,
+html:not(.dark) .bg-zinc-900\/40 {
   background-color: #ffffff !important;
   color: #09090b;
 }
 
 /* Secondary Panels, Sub-cards & Muted Surface Fill */
-.bg-slate-800,
-.bg-slate-800\/80,
-.bg-slate-800\/60,
-.bg-slate-800\/40 {
+html:not(.dark) .bg-slate-800,
+html:not(.dark) .bg-slate-800\/80,
+html:not(.dark) .bg-slate-800\/60,
+html:not(.dark) .bg-slate-800\/40 {
   background-color: #f4f4f5 !important;
   color: #18181b;
 }
 
 /* Precision Neutral Borders */
-.border-slate-800,
-.border-slate-800\/80,
-.border-slate-800\/60,
-.border-slate-700,
-.border-slate-700\/80,
-.border-slate-700\/60 {
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-800\/60,
+html:not(.dark) .border-slate-700,
+html:not(.dark) .border-slate-700\/80,
+html:not(.dark) .border-slate-700\/60 {
   border-color: #e4e4e7 !important;
 }
 
-/* Neutral Typography & Legibility */
-.text-slate-100,
-.text-slate-200 {
+/* Neutral Typography */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 {
   color: #09090b !important;
 }
 
-.text-slate-300 {
+html:not(.dark) .text-slate-300 {
   color: #27272a !important;
 }
 
-.text-slate-400 {
+html:not(.dark) .text-slate-400 {
   color: #52525b !important;
 }
 
-.text-slate-500 {
+html:not(.dark) .text-slate-500 {
   color: #71717a !important;
 }
 
-.text-slate-600 {
+html:not(.dark) .text-slate-600 {
   color: #52525b !important;
 }
 
 /* Interactive Hover States */
-.hover\:bg-slate-800:hover,
-.hover\:bg-slate-800\/60:hover,
-.hover\:bg-slate-900:hover,
-.hover\:bg-slate-700:hover {
+html:not(.dark) .hover\:bg-slate-800:hover,
+html:not(.dark) .hover\:bg-slate-800\/60:hover,
+html:not(.dark) .hover\:bg-slate-900:hover,
+html:not(.dark) .hover\:bg-slate-700:hover {
   background-color: #f4f4f5 !important;
   color: #09090b !important;
 }
 
-.hover\:border-slate-700:hover,
-.hover\:border-slate-600:hover {
+html:not(.dark) .hover\:border-slate-700:hover,
+html:not(.dark) .hover\:border-slate-600:hover {
   border-color: #d4d4d8 !important;
 }
 
-/* Form Controls & Inputs */
-input.bg-slate-950,
-input.bg-slate-900,
-input.bg-slate-800,
-textarea.bg-slate-950,
-textarea.bg-slate-900,
-textarea.bg-slate-800,
-select.bg-slate-950,
-select.bg-slate-900,
-select.bg-slate-800 {
+/* Form Controls & Inputs in Light Mode */
+html:not(.dark) input.bg-slate-950,
+html:not(.dark) input.bg-slate-900,
+html:not(.dark) input.bg-slate-800,
+html:not(.dark) textarea.bg-slate-950,
+html:not(.dark) textarea.bg-slate-900,
+html:not(.dark) textarea.bg-slate-800,
+html:not(.dark) select.bg-slate-950,
+html:not(.dark) select.bg-slate-900,
+html:not(.dark) select.bg-slate-800 {
   background-color: #f4f4f5 !important;
   border-color: #e4e4e7 !important;
   color: #09090b !important;
 }
 
-input.bg-slate-950:focus,
-input.bg-slate-900:focus,
-input.bg-slate-800:focus,
-textarea.bg-slate-950:focus,
-textarea.bg-slate-900:focus,
-textarea.bg-slate-800:focus,
-select.bg-slate-950:focus,
-select.bg-slate-900:focus,
-select.bg-slate-800:focus {
+html:not(.dark) input.bg-slate-950:focus,
+html:not(.dark) input.bg-slate-900:focus,
+html:not(.dark) input.bg-slate-800:focus,
+html:not(.dark) textarea.bg-slate-950:focus,
+html:not(.dark) textarea.bg-slate-900:focus,
+html:not(.dark) textarea.bg-slate-800:focus,
+html:not(.dark) select.bg-slate-950:focus,
+html:not(.dark) select.bg-slate-900:focus,
+html:not(.dark) select.bg-slate-800:focus {
   background-color: #ffffff !important;
   border-color: #18181b !important;
 }
 
 /* Modal Backdrops in Light Theme */
-.bg-slate-950\/80,
-.bg-slate-900\/90 {
+html:not(.dark) .bg-slate-950\/80,
+html:not(.dark) .bg-slate-900\/90 {
   background-color: rgba(9, 9, 11, 0.45) !important;
+}
+
+
+/* ==========================================================================
+   2. DARK THEME SYSTEM (Active when html.dark is set)
+   ========================================================================== */
+
+/* Dark Background Overrides */
+html.dark .bg-\[\#fafafa\] {
+  background-color: #09090b !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark .bg-white {
+  background-color: #121215 !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark .bg-white\/90,
+html.dark .bg-white\/95 {
+  background-color: rgba(18, 18, 21, 0.92) !important;
+}
+
+html.dark .bg-white\/80 {
+  background-color: rgba(18, 18, 21, 0.8) !important;
+}
+
+/* Header & Footer in Dark Mode */
+html.dark header {
+  background-color: rgba(9, 9, 11, 0.88) !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark footer {
+  background-color: #09090b !important;
+  border-color: #27272a !important;
+  color: #a1a1aa !important;
+}
+
+/* Secondary and Muted Surfaces */
+html.dark .bg-zinc-50,
+html.dark .bg-zinc-100 {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark .hover\:bg-zinc-50:hover,
+html.dark .hover\:bg-zinc-100:hover,
+html.dark .hover\:bg-zinc-200:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+/* Precision Dark Borders */
+html.dark .border-zinc-200,
+html.dark .border-zinc-100 {
+  border-color: #27272a !important;
+}
+
+/* Typography in Dark Mode */
+html.dark .text-zinc-950,
+html.dark .text-zinc-900 {
+  color: #f4f4f5 !important;
+}
+
+html.dark .text-zinc-800 {
+  color: #e4e4e7 !important;
+}
+
+html.dark .text-zinc-700,
+html.dark .text-zinc-600 {
+  color: #a1a1aa !important;
+}
+
+html.dark .text-zinc-500 {
+  color: #71717a !important;
+}
+
+/* Inputs & Form Fields in Dark Mode */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #71717a !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #52525b !important;
+}
+
+/* High Contrast Pearl Action Buttons in Dark Mode */
+html.dark button.bg-zinc-950,
+html.dark a.bg-zinc-950,
+html.dark button.bg-zinc-900,
+html.dark a.bg-zinc-900 {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+}
+
+html.dark button.bg-zinc-950:hover,
+html.dark a.bg-zinc-950:hover,
+html.dark button.bg-zinc-900:hover,
+html.dark a.bg-zinc-900:hover {
+  background-color: #e4e4e7 !important;
+}
+
+/* Dropdown Menus and Popups in Dark Mode */
+html.dark .shadow-xl,
+html.dark .shadow-2xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Modal Backdrops in Dark Mode */
+html.dark .bg-zinc-900\/60,
+html.dark .bg-slate-950\/80 {
+  background-color: rgba(0, 0, 0, 0.75) !important;
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { LandingPage } from './pages/LandingPage';
@@ -34,7 +35,7 @@ function MainLayout() {
   const { toasts } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafafa] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 transition-colors">
+    <div className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 selection:text-zinc-900 dark:selection:bg-zinc-800 dark:selection:text-zinc-100 transition-colors">
       <Navbar />
 
       <main className="flex-1">
@@ -59,20 +60,21 @@ function MainLayout() {
           <Route path="/brand/applications" element={<BrandDashboard />} />
           <Route path="/creator/dashboard" element={<CreatorDashboard />} />
           <Route path="/creator/applications" element={<CreatorDashboard />} />
-          <Route path="/creator/collaborations" element={<CreatorDashboard />} />
-          <Route path="/creator/deliverables" element={<CreatorDashboard />} />
           <Route path="/creator/earnings" element={<CreatorDashboard />} />
-          <Route path="/creator/instagram-analytics" element={<CreatorDashboard />} />
-          <Route path="/dashboard" element={<DashboardRedirect />} />
-          <Route path="/creator-dashboard" element={<Navigate to="/creator/feed" replace />} />
-          <Route path="/brand-dashboard" element={<Navigate to="/brand/dashboard" replace />} />
+          <Route path="/creator/collaborations" element={<CreatorDashboard />} />
 
-          {/* Collaborations, Messages, Profiles */}
+          {/* Dedicated Features */}
+          <Route path="/creator/explore-campaigns" element={<ExploreCampaignsPage />} />
+          <Route path="/creator/instagram-analytics" element={<CreatorDashboard />} />
           <Route path="/collaborations" element={<CollaborationsPage />} />
-          <Route path="/messages" element={<MessagesPage />} />
           <Route path="/creator/messages" element={<MessagesPage />} />
+          <Route path="/brand/messages" element={<MessagesPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
           <Route path="/creators/:id" element={<CreatorProfilePage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+
+          {/* Fallback */}
+          <Route path="/dashboard" element={<DashboardRedirect />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -84,12 +86,12 @@ function MainLayout() {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className="pointer-events-auto bg-slate-900 text-white border border-slate-700 shadow-2xl px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2.5 animate-bounce-short"
+            className="pointer-events-auto bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border border-zinc-700 dark:border-zinc-300 shadow-2xl px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2.5 animate-bounce-short"
           >
             {toast.type === 'error' ? (
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-rose-400 dark:text-rose-600 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600 shrink-0" />
             )}
             <span>{toast.message}</span>
           </div>
@@ -103,7 +105,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <MainLayout />
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   );

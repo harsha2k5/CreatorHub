@@ -25,9 +25,12 @@ import {
   Send,
   Crown
 } from 'lucide-react';
+import { ThemeToggle } from '../ThemeToggle';
+import { useTheme } from '../../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
   const { user, logout, unreadNotifications, activeRole, showToast } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -176,6 +179,8 @@ export const Navbar: React.FC = () => {
 
         {/* Right Header Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+
           {user ? (
             <div className="relative flex items-center gap-2">
               <button
@@ -345,6 +350,20 @@ export const Navbar: React.FC = () => {
                       <ShieldCheck className="w-4 h-4" /> Admin Portal
                     </Link>
                   )}
+
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="w-full p-2 rounded-xl text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-zinc-600" />}
+                      <span>Appearance</span>
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                      {theme}
+                    </span>
+                  </button>
 
                   <hr className="my-1 border-zinc-200" />
 

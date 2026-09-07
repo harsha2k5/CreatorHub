@@ -34,6 +34,7 @@ import { AICreatorAnalysisCard } from '../components/analytics/AICreatorAnalysis
 import { InstagramPerformanceCard } from '../components/analytics/InstagramPerformanceCard';
 import { InstagramAnalyticsPage } from '../components/analytics/InstagramAnalyticsPage';
 import { CreatorSubscriptionModal } from '../components/CreatorSubscriptionModal';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { CreatorSubscriptionStatus } from '../types';
 
 export const CreatorDashboard: React.FC = () => {
@@ -510,18 +511,21 @@ export const CreatorDashboard: React.FC = () => {
           </nav>
         </div>
 
-        {/* User Mini Profile */}
+        {/* User Mini Profile & Theme Toggle */}
         <div className="pt-6 border-t border-slate-800">
-          <div className="flex items-center gap-3">
-            <img
-              src={profile.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
-              alt={profile.full_name || 'Creator'}
-              className="w-9 h-9 rounded-xl object-cover border border-slate-700"
-            />
-            <div className="overflow-hidden">
-              <div className="text-xs font-bold text-white truncate">{profile.full_name || 'Creator'}</div>
-              <div className="text-[11px] text-slate-500 truncate">@{profile.username}</div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img
+                src={profile.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                alt={profile.full_name || 'Creator'}
+                className="w-9 h-9 rounded-xl object-cover border border-slate-700"
+              />
+              <div className="overflow-hidden">
+                <div className="text-xs font-bold text-white truncate">{profile.full_name || 'Creator'}</div>
+                <div className="text-[11px] text-slate-500 truncate">@{profile.username}</div>
+              </div>
             </div>
+            <ThemeToggle />
           </div>
         </div>
       </aside>
