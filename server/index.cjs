@@ -87,7 +87,7 @@ async function startServer() {
         await initDB();
         await seed();
 
-        app.listen(PORT, '0.0.0.0', () => {
+        app.listen(PORT, () => {
             console.log(`\n=================================================`);
             console.log(`🚀 CreaterHub Core API Server Running on Port ${PORT}`);
             console.log(`📍 Health Check: http://localhost:${PORT}/api/health`);
