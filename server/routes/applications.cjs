@@ -147,7 +147,11 @@ router.get('/', authenticateToken, async (req, res) => {
             if (!creator) return res.status(404).json({ success: false, error: 'Creator not found.' });
 
             const apps = query(`
-                SELECT a.*, COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
+                SELECT a.*, 
+                       col.id as collaboration_id,
+                       col.status as collaboration_status,
+                       col.current_step as collaboration_step,
+                       COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
                        c.category as campaign_category,
                        COALESCE(a.proposed_budget, c.reward_per_creator, 5000) as reward_per_creator,
                        c.image_url as campaign_image,
@@ -156,6 +160,7 @@ router.get('/', authenticateToken, async (req, res) => {
                 FROM campaign_applications a
                 LEFT JOIN campaigns c ON a.campaign_id = c.id
                 LEFT JOIN brand_profiles b ON a.brand_id = b.id
+                LEFT JOIN collaborations col ON (col.application_id = a.id OR (col.campaign_id = a.campaign_id AND col.creator_id = a.creator_id))
                 WHERE a.creator_id = ?
                 ORDER BY a.applied_at DESC
             `, [creator.id]);

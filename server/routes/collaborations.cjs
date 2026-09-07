@@ -133,7 +133,35 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
         const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
         if (!creator) return res.status(403).json({ success: false, error: 'Creator not found.' });
 
-        const collab = queryOne('SELECT * FROM collaborations WHERE id = ? AND creator_id = ?', [id, creator.id]);
+        let collab = queryOne('SELECT * FROM collaborations WHERE (id = ? OR application_id = ?) AND creator_id = ?', [id, id, creator.id]);
+        
+        if (!collab) {
+            const app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND creator_id = ?', [id, creator.id]);
+            if (app) {
+                const collabId = generateId('collab');
+                const campaign = queryOne('SELECT reward_per_creator, title FROM campaigns WHERE id = ?', [app.campaign_id]);
+                const amount = app.proposed_budget || campaign?.reward_per_creator || 5000;
+
+                transaction(() => {
+                    run(
+                        `INSERT INTO collaborations (id, campaign_id, application_id, brand_id, creator_id, status, current_step)
+                         VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1)`,
+                        [collabId, app.campaign_id, app.id, app.brand_id, app.creator_id]
+                    );
+
+                    run(
+                        `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, status, is_simulated, transaction_ref)
+                         VALUES (?, ?, ?, ?, ?, 'HELD_IN_ESCROW', 1, ?)`,
+                        [generateId('pay'), collabId, app.brand_id, app.creator_id, amount, 'TXN_ESCROW_' + Date.now()]
+                    );
+
+                    run("UPDATE campaign_applications SET status = 'ACCEPTED' WHERE id = ?", [app.id]);
+                });
+
+                collab = queryOne('SELECT * FROM collaborations WHERE id = ?', [collabId]);
+            }
+        }
+
         if (!collab) return res.status(404).json({ success: false, error: 'Collaboration not found or unauthorized.' });
 
         const delivId = generateId('del');
@@ -143,14 +171,14 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
                     id, collaboration_id, live_post_url, platform, caption,
                     screenshot_url, notes, status
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, 'SUBMITTED')`,
-                [delivId, id, live_post_url.trim(), platform, caption || '', screenshot_url || '', notes || '']
+                [delivId, collab.id, live_post_url.trim(), platform, caption || '', screenshot_url || '', notes || '']
             );
 
             run(
                 `UPDATE collaborations
                  SET status = 'SUBMITTED', current_step = 3
                  WHERE id = ?`,
-                [id]
+                [collab.id]
             );
 
             // Notify brand
@@ -185,7 +213,8 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
 router.post('/:id/review', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { action, feedback } = req.body; // 'APPROVE' | 'REVISION'
+        const action = req.body.action || req.body.decision;
+        const feedback = req.body.feedback;
 
         if (!['APPROVE', 'REVISION'].includes(action)) {
             return res.status(400).json({ success: false, error: 'Action must be either APPROVE or REVISION.' });

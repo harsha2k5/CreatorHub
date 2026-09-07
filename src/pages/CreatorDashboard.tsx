@@ -25,7 +25,8 @@ import {
   Crown,
   Award,
   Zap,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { Instagram } from '../components/icons/InstagramIcon';
 import { InstagramIntegrationView } from '../components/instagram/InstagramIntegrationView';
@@ -241,13 +242,16 @@ export const CreatorDashboard: React.FC = () => {
 
       if (res.success) {
         setProofSuccess(true);
+        showToast('🚀 Deliverable proof submitted! Brand has been notified to verify & release escrow.');
         setTimeout(() => {
           setSelectedCollab(null);
           setProofSuccess(false);
           setLiveUrl('');
           setProofNotes('');
           loadAllData();
-        }, 1500);
+        }, 1600);
+      } else {
+        setProofError(res.error || 'Failed to submit proof.');
       }
     } catch (err: any) {
       setProofError(err.message || 'Failed to submit proof.');
@@ -255,6 +259,17 @@ export const CreatorDashboard: React.FC = () => {
       setSubmittingProof(false);
     }
   };
+
+  const isDirectPitch = (a: any) =>
+    a.status === 'SHORTLISTED' ||
+    a.status === 'OFFERED' ||
+    Boolean(
+      a.pitch &&
+      (a.pitch.startsWith('Direct Brand Pitch:') ||
+       a.pitch.startsWith('Direct Brand Offer:') ||
+       a.pitch.startsWith('Direct Pitch:') ||
+       a.pitch.toLowerCase().includes('direct'))
+    );
 
   const isIgConnected = Boolean(instagramData && instagramData.is_connected);
   const currentTier = subscriptionData?.tier || (profile.subscription_tier as any) || 'free';
@@ -898,15 +913,15 @@ export const CreatorDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <h3 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-400" /> Direct Brand Pitches & Collaboration Offers
-                  {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED').length > 0 && (
+                  {applications.filter(isDirectPitch).length > 0 && (
                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-600 text-white animate-pulse">
-                      {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED').length} Pending
+                      {applications.filter(isDirectPitch).length} Offer{applications.filter(isDirectPitch).length > 1 ? 's' : ''}
                     </span>
                   )}
                 </h3>
               </div>
 
-              {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED' || (a.pitch && a.pitch.startsWith('Direct Brand Pitch:'))).length === 0 ? (
+              {applications.filter(isDirectPitch).length === 0 ? (
                 <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-2">
                   <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-2 text-xl">
                     🎯
@@ -919,7 +934,7 @@ export const CreatorDashboard: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 gap-4">
                   {applications
-                    .filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED' || (a.pitch && a.pitch.startsWith('Direct Brand Pitch:')))
+                    .filter(isDirectPitch)
                     .map(app => (
                       <div
                         key={app.id}
@@ -975,36 +990,58 @@ export const CreatorDashboard: React.FC = () => {
                             Received {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : 'Recently'}
                           </div>
 
-                          <div className="flex items-center gap-2.5">
-                            {app.status === 'ACCEPTED' ? (
-                              <button
-                                onClick={() => setActiveTab('collaborations')}
-                                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer"
-                              >
-                                <CheckCircle2 className="w-4 h-4" /> View in Active Deliverables
-                              </button>
-                            ) : app.status === 'REJECTED' ? (
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            {app.status === 'REJECTED' ? (
                               <span className="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold">
                                 Offer Declined
                               </span>
+                            ) : app.collaboration_step === 3 ? (
+                              <div className="flex items-center gap-2">
+                                <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+                                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Proof Submitted • In Review
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const matchedCollab = collaborations.find(c => c.application_id === app.id || c.campaign_id === app.campaign_id);
+                                    setSelectedCollab(matchedCollab || {
+                                      id: app.collaboration_id || app.id,
+                                      campaign_title: app.campaign_title || 'Direct Collaboration Offer',
+                                      brand_name: app.brand_name || 'Brand Partner',
+                                      reward_per_creator: app.proposed_budget || app.reward_per_creator
+                                    });
+                                  }}
+                                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all cursor-pointer"
+                                >
+                                  Update Proof
+                                </button>
+                              </div>
+                            ) : app.collaboration_status === 'COMPLETED' ? (
+                              <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-black flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Deliverable Approved & Paid Out ✓
+                              </span>
                             ) : (
                               <>
+                                <Link
+                                  to="/creator/messages"
+                                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all flex items-center gap-1.5"
+                                >
+                                  <MessageSquare className="w-3.5 h-3.5 text-purple-400" /> Chat with Brand
+                                </Link>
                                 <button
                                   type="button"
-                                  disabled={actionLoadingId === app.id}
-                                  onClick={() => handleDeclineApplication(app.id)}
-                                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+                                  onClick={() => {
+                                    const matchedCollab = collaborations.find(c => c.application_id === app.id || c.campaign_id === app.campaign_id);
+                                    setSelectedCollab(matchedCollab || {
+                                      id: app.collaboration_id || app.id,
+                                      campaign_title: app.campaign_title || 'Direct Collaboration Offer',
+                                      brand_name: app.brand_name || 'Brand Partner',
+                                      reward_per_creator: app.proposed_budget || app.reward_per_creator
+                                    });
+                                  }}
+                                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
                                 >
-                                  Decline
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={actionLoadingId === app.id}
-                                  onClick={() => handleAcceptApplication(app.id)}
-                                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 hover:opacity-95 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all cursor-pointer disabled:opacity-50"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  {actionLoadingId === app.id ? 'Starting Collaboration...' : 'Accept Offer & Start Collaboration'}
+                                  <Send className="w-3.5 h-3.5" /> Submit Proof
                                 </button>
                               </>
                             )}
@@ -1019,10 +1056,10 @@ export const CreatorDashboard: React.FC = () => {
             {/* Section 2: Submitted Campaign Applications */}
             <div className="space-y-4 pt-4 border-t border-slate-800/80">
               <h3 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-blue-400" /> Submitted Campaign Applications ({applications.filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:'))).length})
+                <FileCheck className="w-5 h-5 text-blue-400" /> Submitted Campaign Applications ({applications.filter(a => !isDirectPitch(a)).length})
               </h3>
 
-              {applications.filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:'))).length === 0 ? (
+              {applications.filter(a => !isDirectPitch(a)).length === 0 ? (
                 <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-3">
                   <p className="text-xs text-slate-400">You haven't submitted any campaign applications yet.</p>
                   <Link
@@ -1035,7 +1072,7 @@ export const CreatorDashboard: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 gap-4">
                   {applications
-                    .filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:')))
+                    .filter(a => !isDirectPitch(a))
                     .map(app => (
                       <div
                         key={app.id}
@@ -1180,106 +1217,6 @@ export const CreatorDashboard: React.FC = () => {
                         ))}
                       </div>
                     )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Submit Proof Modal */}
-            {selectedCollab && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
-                  {proofSuccess ? (
-                    <div className="text-center py-8">
-                      <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-2" />
-                      <h3 className="text-lg font-bold text-white mb-1">Deliverable Submitted!</h3>
-                      <p className="text-xs text-slate-400">The brand will review and release your escrow payment.</p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmitProof} className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-black text-white">Submit Deliverable Proof</h3>
-                        <button onClick={() => setSelectedCollab(null)} className="text-slate-400 hover:text-white">✕</button>
-                      </div>
-
-                      {proofError && (
-                        <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 text-xs">{proofError}</div>
-                      )}
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">
-                          Live Instagram Post / Reel URL *
-                        </label>
-                        <input
-                          type="url"
-                          required
-                          value={liveUrl}
-                          onChange={e => setLiveUrl(e.target.value)}
-                          placeholder="https://www.instagram.com/reel/..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">
-                          Notes / Collaboration Remarks (Optional)
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={proofNotes}
-                          onChange={e => setProofNotes(e.target.value)}
-                          placeholder="Mention metrics, audio credits, or brand mentions..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={submittingProof}
-                        className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold disabled:opacity-50"
-                      >
-                        {submittingProof ? 'Submitting...' : 'Confirm Submission'}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tab 5: Applications */}
-        {activeTab === 'applications' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-white mb-1">My Applications</h2>
-            {applications.length === 0 ? (
-              <div className="text-center py-16 bg-slate-900/30 rounded-3xl border border-slate-800 text-xs text-slate-400">
-                You have not submitted any applications yet.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {applications.map(app => (
-                  <div key={app.id} className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider block mb-0.5">
-                        {app.campaign_category}
-                      </span>
-                      <h4 className="text-base font-black text-white">{app.campaign_title}</h4>
-                      <div className="text-xs text-slate-400 mt-1">
-                        Brand: {app.brand_name} • Offered: ₹{app.proposed_budget || app.reward_per_creator}
-                      </div>
-                      <p className="text-xs text-slate-500 mt-2 line-clamp-1 italic">"{app.pitch}"</p>
-                    </div>
-
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      app.status === 'ACCEPTED'
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : app.status === 'REJECTED'
-                        ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                        : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                    }`}>
-                      {app.status}
-                    </span>
                   </div>
                 ))}
               </div>
@@ -1699,6 +1636,165 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Submit Deliverable Proof Modal - Globally Accessible Across All Tabs */}
+        {selectedCollab && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl shadow-purple-950/50 relative overflow-hidden">
+              {/* Background gradient glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+
+              {proofSuccess ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto animate-bounce">
+                    <CheckCircle2 className="w-9 h-9" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white">🎉 Deliverable Proof Submitted!</h3>
+                    <p className="text-xs text-slate-300 mt-1 max-w-sm mx-auto leading-relaxed">
+                      Your post link has been forwarded to <strong className="text-white">{selectedCollab.brand_name || 'the brand'}</strong> for review.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-slate-950/70 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-semibold inline-block">
+                    Escrow payout of ₹{Number(selectedCollab.reward_per_creator || selectedCollab.payment_amount || 5000).toLocaleString()} will be automatically released upon brand approval.
+                  </div>
+                  <div className="text-[11px] text-slate-500 animate-pulse">
+                    Refreshing dashboard data...
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmitProof} className="space-y-4">
+                  {/* Modal Header */}
+                  <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-extrabold text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                          Deliverable Verification
+                        </span>
+                        <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" /> Escrow Protected
+                        </span>
+                      </div>
+                      <h3 className="text-base font-black text-white">
+                        {selectedCollab.campaign_title || 'Direct Brand Collaboration'}
+                      </h3>
+                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+                        <span>Brand: <strong className="text-slate-200">{selectedCollab.brand_name || 'Brand Partner'}</strong></span>
+                        <span>•</span>
+                        <span className="text-emerald-400 font-extrabold">
+                          ₹{Number(selectedCollab.reward_per_creator || selectedCollab.payment_amount || 5000).toLocaleString()} Payout
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCollab(null);
+                        setProofError('');
+                      }}
+                      className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Collaboration Progress Pipeline */}
+                  <div className="grid grid-cols-4 gap-1.5 py-1 text-center">
+                    {[
+                      { step: 1, label: 'Offer Accepted', done: true },
+                      { step: 2, label: 'Content Created', done: true },
+                      { step: 3, label: 'Submit Proof', active: true },
+                      { step: 4, label: 'Escrow Released' }
+                    ].map(s => (
+                      <div
+                        key={s.step}
+                        className={`p-1.5 rounded-xl border text-[9px] font-bold ${
+                          s.done
+                            ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                            : s.active
+                            ? 'bg-purple-600/30 text-purple-200 border-purple-500 ring-1 ring-purple-500/50'
+                            : 'bg-slate-950/40 text-slate-500 border-slate-800'
+                        }`}
+                      >
+                        {s.step}. {s.label}
+                      </div>
+                    ))}
+                  </div>
+
+                  {proofError && (
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{proofError}</span>
+                    </div>
+                  )}
+
+                  {/* Post URL Input */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                      Live Instagram Post / Reel URL <span className="text-rose-400">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      value={liveUrl}
+                      onChange={e => setLiveUrl(e.target.value)}
+                      placeholder="https://www.instagram.com/reel/... or https://www.instagram.com/p/..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-purple-500 transition-colors"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Provide the live public link to your published Reel, Feed Post, or Story.
+                    </p>
+                  </div>
+
+                  {/* Deliverable Notes */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                      Collaboration Remarks / Performance Highlights (Optional)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={proofNotes}
+                      onChange={e => setProofNotes(e.target.value)}
+                      placeholder="E.g. Reel achieved 15k views in first 6 hours, tagged brand official handle and used campaign hashtags..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+                    />
+                  </div>
+
+                  {/* Escrow Guarantee Callout */}
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start gap-3">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="text-[11px] text-slate-300 leading-relaxed">
+                      <strong className="text-emerald-400 font-bold block">100% Escrow Protected:</strong>
+                      Brand funds (₹{Number(selectedCollab.reward_per_creator || selectedCollab.payment_amount || 5000).toLocaleString()}) are held safely in escrow. As soon as the brand confirms your deliverable, payment will be released instantly into your wallet ledger.
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCollab(null);
+                        setProofError('');
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submittingProof || !liveUrl.trim()}
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 disabled:opacity-50 transition-all cursor-pointer"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      {submittingProof ? 'Submitting Deliverable...' : 'Submit Deliverable for Review'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         )}
 

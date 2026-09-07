@@ -338,7 +338,7 @@ router.post('/:id/pitch', authenticateToken, requireBrand, async (req, res) => {
             campaign = queryOne('SELECT * FROM campaigns WHERE id = ?', [newCampId]);
         }
 
-        // 2. Always record in campaign_applications as SHORTLISTED (direct brand offer)
+        // 2. Always record in campaign_applications as ACCEPTED (direct brand offer)
         let existingApp = queryOne(
             'SELECT id, status FROM campaign_applications WHERE campaign_id = ? AND creator_id = ?',
             [campaign.id, creator.id]
@@ -351,20 +351,48 @@ router.post('/:id/pitch', authenticateToken, requireBrand, async (req, res) => {
                 `INSERT INTO campaign_applications (
                     id, campaign_id, creator_id, brand_id, pitch,
                     proposed_budget, proposed_deliverables, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'SHORTLISTED')`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'ACCEPTED')`,
                 [
                     appId,
                     campaign.id,
                     creator.id,
                     brand.id,
-                    `Direct Brand Offer: ${pitchText}`,
+                    `Direct Brand Pitch: ${pitchText}`,
                     proposedBudget,
                     deliverables
                 ]
             );
+        } else {
+            run("UPDATE campaign_applications SET status = 'ACCEPTED' WHERE id = ?", [appId]);
         }
 
-        // 3. Create or update conversation
+        // 3. Immediately initialize active collaboration and escrow for direct pitch
+        let existingCollab = queryOne(
+            'SELECT id FROM collaborations WHERE application_id = ? OR (campaign_id = ? AND creator_id = ?)',
+            [appId, campaign.id, creator.id]
+        );
+        let collabId = existingCollab?.id;
+
+        if (!existingCollab) {
+            collabId = `collab_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+            run(
+                `INSERT INTO collaborations (id, campaign_id, application_id, brand_id, creator_id, status, current_step)
+                 VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1)`,
+                [collabId, campaign.id, appId, brand.id, creator.id]
+            );
+
+            // Increment hired count on campaign
+            run('UPDATE campaigns SET creators_hired = creators_hired + 1 WHERE id = ?', [campaign.id]);
+
+            // Create escrow payment held in escrow
+            run(
+                `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, status, is_simulated, transaction_ref)
+                 VALUES (?, ?, ?, ?, ?, 'HELD_IN_ESCROW', 1, ?)`,
+                [`pay_${Date.now()}`, collabId, brand.id, creator.id, proposedBudget, 'TXN_ESCROW_' + Date.now()]
+            );
+        }
+
+        // 4. Create or update conversation
         let conv = queryOne('SELECT id FROM conversations WHERE brand_id = ? AND creator_id = ?', [brand.id, creator.id]);
         let convId = conv?.id;
 
