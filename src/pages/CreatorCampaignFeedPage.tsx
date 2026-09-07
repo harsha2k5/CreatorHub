@@ -24,6 +24,7 @@ import {
   Zap,
   Award
 } from 'lucide-react';
+import { Instagram } from '../components/icons/InstagramIcon';
 import { CreatorSubscriptionModal } from '../components/CreatorSubscriptionModal';
 import { CreatorSubscriptionStatus } from '../types';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
@@ -94,6 +95,12 @@ export const CreatorCampaignFeedPage: React.FC = () => {
   const [subscriptionData, setSubscriptionData] = useState<CreatorSubscriptionStatus | null>(null);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
+  // Instagram Connection State
+  const [isInstagramConnected, setIsInstagramConnected] = useState<boolean>(
+    Boolean(user?.instagram && (user.instagram.is_connected === 1 || user.instagram.is_connected === true))
+  );
+  const [isInstagramPromptOpen, setIsInstagramPromptOpen] = useState(false);
+
   const creatorProfile = (user?.profile as any) || {};
   const creatorLat = Number(creatorProfile.lat) || 12.9716;
   const creatorLng = Number(creatorProfile.lng) || 77.5946;
@@ -111,9 +118,28 @@ export const CreatorCampaignFeedPage: React.FC = () => {
     }
   };
 
+  const checkInstagramStatus = async () => {
+    if (user?.role !== 'creator') return;
+    if (user?.instagram && (user.instagram.is_connected === 1 || user.instagram.is_connected === true)) {
+      setIsInstagramConnected(true);
+      return;
+    }
+    try {
+      const igRes = await api.getInstagramAnalytics();
+      if (igRes && igRes.success && (igRes.is_connected === 1 || igRes.is_connected === true)) {
+        setIsInstagramConnected(true);
+      } else {
+        setIsInstagramConnected(false);
+      }
+    } catch {
+      setIsInstagramConnected(false);
+    }
+  };
+
   useEffect(() => {
     if (user?.role === 'creator') {
       loadSubscription();
+      checkInstagramStatus();
     }
   }, [user]);
 
@@ -134,6 +160,11 @@ export const CreatorCampaignFeedPage: React.FC = () => {
   };
 
   const handleOpenApply = (camp: any) => {
+    if (user?.role === 'creator' && !isInstagramConnected) {
+      setSelectedCampaign(camp);
+      setIsInstagramPromptOpen(true);
+      return;
+    }
     const reqTier = getRequiredTierForCampaign(camp.reward_per_creator || 0);
     if (getTierOrder(currentTier) < getTierOrder(reqTier)) {
       setSelectedCampaign(camp);
@@ -188,6 +219,12 @@ export const CreatorCampaignFeedPage: React.FC = () => {
     e.preventDefault();
     if (!selectedCampaign || !pitchText.trim()) return;
 
+    if (!isInstagramConnected) {
+      setApplyError('You must connect your Instagram account before applying to campaigns.');
+      setIsInstagramPromptOpen(true);
+      return;
+    }
+
     setApplying(true);
     setApplyError('');
     try {
@@ -208,7 +245,11 @@ export const CreatorCampaignFeedPage: React.FC = () => {
         }, 1800);
       }
     } catch (err: any) {
-      setApplyError(err.message || 'Failed to submit application.');
+      const msg = err.message || 'Failed to submit application.';
+      setApplyError(msg);
+      if (msg.toLowerCase().includes('instagram') || err.code === 'INSTAGRAM_REQUIRED') {
+        setIsInstagramConnected(false);
+      }
     } finally {
       setApplying(false);
     }
@@ -356,6 +397,29 @@ export const CreatorCampaignFeedPage: React.FC = () => {
           </form>
         </div>
 
+        {/* Instagram Required Banner for Creators */}
+        {!isInstagramConnected && user?.role === 'creator' && (
+          <div className="mb-6 p-4 rounded-3xl bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-amber-500/10 border border-pink-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-pink-600 flex items-center justify-center text-white flex-shrink-0 shadow-md shadow-pink-500/20">
+                <Instagram className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-zinc-900">Instagram Connection Required to Apply</h4>
+                <p className="text-xs text-zinc-600 mt-0.5">
+                  Brands require verified audience insights & engagement analytics before accepting proposals. Connect your Instagram account to unlock campaign applications.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/creator/dashboard?tab=instagram"
+              className="px-4 py-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold whitespace-nowrap shadow-sm transition-all flex items-center gap-2 cursor-pointer self-stretch sm:self-auto justify-center"
+            >
+              <Instagram className="w-3.5 h-3.5" /> Connect Instagram
+            </Link>
+          </div>
+        )}
+
         {/* View Mode 1: Interactive Map View */}
         {viewMode === 'map' ? (
           <div className="h-[550px] w-full rounded-3xl overflow-hidden border border-zinc-200 shadow-sm relative">
@@ -405,9 +469,19 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         )}
                         <button
                           onClick={() => handleOpenApply(c)}
-                          className="w-full py-1 rounded bg-zinc-900 text-white font-bold text-[11px] cursor-pointer"
+                          className={`w-full py-1.5 rounded font-bold text-[11px] cursor-pointer transition-all flex items-center justify-center gap-1 ${
+                            !isInstagramConnected && user?.role === 'creator'
+                              ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-sm'
+                              : 'bg-zinc-900 text-white hover:bg-zinc-800'
+                          }`}
                         >
-                          Quick Apply
+                          {!isInstagramConnected && user?.role === 'creator' ? (
+                            <>
+                              <Instagram className="w-3 h-3" /> Connect to Apply
+                            </>
+                          ) : (
+                            'Quick Apply'
+                          )}
                         </button>
                       </div>
                     </Popup>
@@ -516,12 +590,18 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                     <button
                       onClick={() => handleOpenApply(camp)}
                       className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-center shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                        isTierLocked
+                        !isInstagramConnected && user?.role === 'creator'
+                          ? 'bg-gradient-to-r from-pink-600 via-rose-600 to-amber-600 hover:opacity-95 text-white'
+                          : isTierLocked
                           ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-zinc-950 font-black shadow-amber-500/20'
                           : 'bg-zinc-950 hover:bg-zinc-800 text-white'
                       }`}
                     >
-                      {isTierLocked ? (
+                      {!isInstagramConnected && user?.role === 'creator' ? (
+                        <>
+                          <Instagram className="w-3.5 h-3.5" /> Connect to Apply
+                        </>
+                      ) : isTierLocked ? (
                         <>
                           <Crown className="w-3.5 h-3.5" /> Upgrade to Apply
                         </>
@@ -577,6 +657,15 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-500" />
                         <span className="font-semibold">{applyError}</span>
                       </div>
+                      {(applyError.toLowerCase().includes('instagram') ||
+                        applyError.toLowerCase().includes('connect')) && (
+                        <Link
+                          to="/creator/dashboard?tab=instagram"
+                          className="w-full mt-1.5 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Instagram className="w-3.5 h-3.5" /> Connect Instagram on Dashboard
+                        </Link>
+                      )}
                       {(applyError.toLowerCase().includes('subscription') ||
                         applyError.toLowerCase().includes('quota') ||
                         applyError.toLowerCase().includes('tier') ||
@@ -747,9 +836,21 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                     setBriefCampaign(null);
                     handleOpenApply(c);
                   }}
-                  className="flex-1 py-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold text-center shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className={`flex-1 py-3 rounded-xl text-xs font-bold text-center shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    !isInstagramConnected && user?.role === 'creator'
+                      ? 'bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white'
+                      : 'bg-zinc-950 hover:bg-zinc-800 text-white'
+                  }`}
                 >
-                  <Send className="w-3.5 h-3.5" /> Apply Now
+                  {!isInstagramConnected && user?.role === 'creator' ? (
+                    <>
+                      <Instagram className="w-3.5 h-3.5" /> Connect Instagram to Apply
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" /> Apply Now
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -766,6 +867,52 @@ export const CreatorCampaignFeedPage: React.FC = () => {
             loadCampaigns();
           }}
         />
+
+        {/* Instagram Required Modal */}
+        {isInstagramPromptOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative text-zinc-900 text-center">
+              <button
+                type="button"
+                onClick={() => setIsInstagramPromptOpen(false)}
+                className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1.5 rounded-xl hover:bg-zinc-100 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-pink-600 flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-pink-500/25">
+                <Instagram className="w-8 h-8" />
+              </div>
+
+              <span className="text-[11px] font-black uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full inline-block mb-3">
+                Instagram Connection Required
+              </span>
+
+              <h3 className="text-xl font-black text-zinc-900 mb-2">Connect Instagram to Apply</h3>
+              
+              <p className="text-xs text-zinc-500 leading-relaxed mb-6">
+                Brands on CreatorHub require verified Instagram analytics (followers, engagement rate, and verified reach) before reviewing campaign applications. Connect your account in 30 seconds on your creator dashboard to unlock applications.
+              </p>
+
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => navigate('/creator/dashboard?tab=instagram')}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-amber-600 hover:opacity-95 text-white font-extrabold text-xs shadow-md shadow-pink-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Instagram className="w-4 h-4" /> Go to Connect Instagram
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsInstagramPromptOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs transition-all cursor-pointer"
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

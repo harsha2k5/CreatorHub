@@ -15,6 +15,19 @@ router.post('/apply', authenticateToken, requireCreator, async (req, res) => {
         const creator = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [req.user.id]);
         if (!creator) return res.status(403).json({ success: false, error: 'Creator profile not found.' });
 
+        // Check if creator has connected an active Instagram account
+        const igAccount = queryOne(
+            'SELECT id, username, is_connected FROM instagram_accounts WHERE creator_id = ? AND is_connected = 1',
+            [creator.id]
+        );
+        if (!igAccount || !igAccount.is_connected) {
+            return res.status(403).json({
+                success: false,
+                code: 'INSTAGRAM_REQUIRED',
+                error: 'Instagram connection required. You must connect your Instagram account before applying to campaigns. Brands require verified profile analytics to evaluate creator proposals.'
+            });
+        }
+
         const {
             campaign_id,
             pitch,

@@ -5,6 +5,15 @@ export interface User {
   is_verified: number;
   profileId?: string;
   profile?: Brand | Creator;
+  instagram?: {
+    id?: string;
+    username: string;
+    full_name?: string;
+    profile_picture_url?: string;
+    is_connected: number | boolean;
+    connection_status?: string;
+    last_synced_at?: string;
+  } | null;
 }
 
 export interface Brand {

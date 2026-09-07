@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import {
   RefreshCw,
   Sparkles,
@@ -42,6 +43,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
   onRefresh,
   syncing
 }) => {
+  const { refreshSessionUser } = useAuth();
   const [profileLink, setProfileLink] = useState('');
   const [connectingLink, setConnectingLink] = useState(false);
   const [connectingOAuth, setConnectingOAuth] = useState(false);
@@ -243,6 +245,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
           isError: false
         });
         onRefresh();
+        refreshSessionUser?.();
       } else {
         setConnectError(res.error || 'Failed to connect Instagram account.');
       }
@@ -306,6 +309,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       });
       setShowDisconnectModal(false);
       onRefresh();
+      refreshSessionUser?.();
     } catch (err: any) {
       alert('Failed to disconnect: ' + err.message);
     } finally {
