@@ -215,20 +215,20 @@ export const CreatorCampaignFeedPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fafafa] text-zinc-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-slate-900/60 p-6 rounded-3xl border border-slate-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wider mb-1">
-              <Compass className="w-4 h-4" /> Live Neighborhood Feed
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-zinc-600 uppercase tracking-wider mb-1">
+              <Compass className="w-4 h-4 text-zinc-700" /> Live Neighborhood Feed
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight">
               Campaign Discovery
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-zinc-500 mt-0.5">
               Exploring brand briefs near{' '}
-              <span className="text-white font-semibold">{creatorProfile.area || creatorProfile.city || 'your location'}</span>
+              <span className="text-zinc-900 font-semibold">{creatorProfile.area || creatorProfile.city || 'your location'}</span>
             </p>
           </div>
 
@@ -237,35 +237,35 @@ export const CreatorCampaignFeedPage: React.FC = () => {
             {user?.role === 'creator' && (
               <button
                 onClick={() => setIsSubscriptionModalOpen(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-950 border border-slate-800 hover:border-purple-500/40 text-xs transition-all shadow-sm group"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 text-xs transition-all shadow-sm group cursor-pointer"
               >
-                <Crown className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span className="font-black text-white capitalize">{currentTier} Plan</span>
-                <span className="text-[11px] text-slate-400">
+                <Crown className="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-black text-zinc-900 capitalize">{currentTier} Plan</span>
+                <span className="text-[11px] text-zinc-500">
                   • {subscriptionData?.applications_remaining === 'unlimited' ? 'Unlimited' : `${subscriptionData?.applications_remaining ?? 3} apps left`}
                 </span>
-                <span className="text-[10px] font-bold text-purple-400 ml-1">Upgrade ↗</span>
+                <span className="text-[10px] font-bold text-zinc-700 ml-1">Upgrade ↗</span>
               </button>
             )}
 
             {/* View Mode Toggle */}
-            <div className="inline-flex p-1 bg-slate-950 rounded-2xl border border-slate-800">
+            <div className="inline-flex p-1 bg-zinc-100 rounded-2xl border border-zinc-200">
               <button
                 onClick={() => setViewMode('feed')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'feed'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-zinc-900 text-white shadow-sm'
+                    : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
                 <Grid className="w-3.5 h-3.5" /> Feed View
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'map'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-zinc-900 text-white shadow-sm'
+                    : 'text-zinc-600 hover:text-zinc-900'
                 }`}
               >
                 <MapIcon className="w-3.5 h-3.5" /> Map View
@@ -274,7 +274,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
             <Link
               to="/creator/dashboard"
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-all"
+              className="px-4 py-2 rounded-xl bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold border border-zinc-200 shadow-sm transition-all"
             >
               Dashboard
             </Link>
@@ -282,20 +282,20 @@ export const CreatorCampaignFeedPage: React.FC = () => {
         </div>
 
         {/* Filter Controls */}
-        <div className="space-y-4 mb-8 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/80">
+        <div className="space-y-4 mb-8 bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm">
           {/* Radius Selector Pills */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 mr-2 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-purple-400" /> Radius:
+            <span className="text-xs font-bold text-zinc-500 mr-2 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-zinc-600" /> Radius:
             </span>
             {radiusOptions.map(r => (
               <button
                 key={r}
                 onClick={() => setSelectedRadius(r)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   selectedRadius === r
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-zinc-900 text-white shadow-sm'
+                    : 'bg-zinc-50 text-zinc-600 hover:text-zinc-900 border border-zinc-200'
                 }`}
               >
                 {r === 'all' ? 'All Pan-India' : r === 'custom' ? 'Custom' : `${r} km`}
@@ -310,24 +310,24 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                   max="100"
                   value={customRadius}
                   onChange={e => setCustomRadius(Number(e.target.value))}
-                  className="w-24 accent-purple-500"
+                  className="w-24 accent-zinc-900"
                 />
-                <span className="text-xs font-bold text-purple-400">{customRadius} km</span>
+                <span className="text-xs font-bold text-zinc-900">{customRadius} km</span>
               </div>
             )}
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/60">
-            <span className="text-xs font-bold text-slate-400 mr-2">Category:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-100">
+            <span className="text-xs font-bold text-zinc-500 mr-2">Category:</span>
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    ? 'bg-zinc-900 text-white font-bold shadow-sm'
+                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
                 }`}
               >
                 {cat}
@@ -336,20 +336,20 @@ export const CreatorCampaignFeedPage: React.FC = () => {
           </div>
 
           {/* Keyword Search Input */}
-          <form onSubmit={handleSearchSubmit} className="pt-2 border-t border-slate-800/60 flex items-center gap-2">
+          <form onSubmit={handleSearchSubmit} className="pt-2 border-t border-zinc-100 flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search campaigns by keyword, outlet, or brand name..."
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all"
+              className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold transition-all cursor-pointer"
             >
               Search
             </button>
@@ -358,7 +358,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
         {/* View Mode 1: Interactive Map View */}
         {viewMode === 'map' ? (
-          <div className="h-[550px] w-full rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
+          <div className="h-[550px] w-full rounded-3xl overflow-hidden border border-zinc-200 shadow-sm relative">
             <MapContainer
               center={[creatorLat, creatorLng]}
               zoom={13}
@@ -373,9 +373,9 @@ export const CreatorCampaignFeedPage: React.FC = () => {
               {/* Creator Center Location Marker */}
               <Marker position={[creatorLat, creatorLng]} icon={creatorMarkerIcon}>
                 <Popup>
-                  <div className="text-xs font-bold text-slate-900">
+                  <div className="text-xs font-bold text-zinc-900">
                     📍 Your Profile Location
-                    <div className="text-[10px] text-slate-600 font-normal mt-0.5">{creatorProfile.area || 'Current Spot'}</div>
+                    <div className="text-[10px] text-zinc-600 font-normal mt-0.5">{creatorProfile.area || 'Current Spot'}</div>
                   </div>
                 </Popup>
               </Marker>
@@ -385,7 +385,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                 <Circle
                   center={[creatorLat, creatorLng]}
                   radius={(selectedRadius === 'custom' ? customRadius : Number(selectedRadius)) * 1000}
-                  pathOptions={{ color: '#8b5cf6', fillColor: '#8b5cf6', fillOpacity: 0.1, weight: 1.5 }}
+                  pathOptions={{ color: '#18181b', fillColor: '#18181b', fillOpacity: 0.08, weight: 1.5 }}
                 />
               )}
 
@@ -396,16 +396,16 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                 return (
                   <Marker key={c.id} position={[lat, lng]} icon={brandMarkerIcon}>
                     <Popup>
-                      <div className="text-xs max-w-[220px] p-1 text-slate-900">
-                        <strong className="block text-blue-600 font-bold mb-1">{c.title}</strong>
-                        <div className="text-[11px] text-slate-600 mb-1">{c.brand_name}</div>
+                      <div className="text-xs max-w-[220px] p-1 text-zinc-900">
+                        <strong className="block text-zinc-900 font-bold mb-1">{c.title}</strong>
+                        <div className="text-[11px] text-zinc-600 mb-1">{c.brand_name}</div>
                         <div className="font-bold text-emerald-600 mb-2">Reward: ₹{c.reward_per_creator?.toLocaleString()}</div>
                         {c.distance_km !== null && (
-                          <div className="text-[10px] text-purple-700 font-semibold mb-2">📍 {c.distance_km} km away</div>
+                          <div className="text-[10px] text-zinc-700 font-semibold mb-2">📍 {c.distance_km} km away</div>
                         )}
                         <button
                           onClick={() => handleOpenApply(c)}
-                          className="w-full py-1 rounded bg-purple-600 text-white font-bold text-[11px]"
+                          className="w-full py-1 rounded bg-zinc-900 text-white font-bold text-[11px] cursor-pointer"
                         >
                           Quick Apply
                         </button>
@@ -419,19 +419,19 @@ export const CreatorCampaignFeedPage: React.FC = () => {
         ) : loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-80 rounded-3xl bg-slate-900/60 animate-pulse border border-slate-800" />
+              <div key={i} className="h-80 rounded-3xl bg-zinc-100 animate-pulse border border-zinc-200" />
             ))}
           </div>
         ) : campaigns.length === 0 ? (
-          <div className="text-center py-20 bg-slate-900/30 rounded-3xl border border-slate-800">
-            <Compass className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-white mb-1">No campaigns found within this radius</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto mb-6">
+          <div className="text-center py-20 bg-white rounded-3xl border border-zinc-200 shadow-sm">
+            <Compass className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-zinc-900 mb-1">No campaigns found within this radius</h3>
+            <p className="text-xs text-zinc-500 max-w-sm mx-auto mb-6">
               Try increasing your search radius or clearing category filters to discover more opportunities.
             </p>
             <button
               onClick={() => { setSelectedRadius('25'); setSelectedCategory('All'); setSearchQuery(''); }}
-              className="px-5 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-lg"
+              className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
             >
               Expand to 25 km
             </button>
@@ -446,27 +446,27 @@ export const CreatorCampaignFeedPage: React.FC = () => {
               return (
                 <div
                   key={camp.id}
-                  className="bg-slate-900/70 rounded-3xl border border-slate-800 hover:border-purple-500/40 transition-all flex flex-col justify-between overflow-hidden group shadow-xl"
+                  className="bg-white rounded-3xl border border-zinc-200 hover:border-zinc-300 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group shadow-sm"
                 >
                   <div>
-                    <div className="relative h-48 overflow-hidden bg-slate-800">
+                    <div className="relative h-48 overflow-hidden bg-zinc-100">
                       <img
                         src={camp.image_url}
                         alt={camp.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-purple-300 border border-purple-500/20">
+                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-zinc-800 border border-zinc-200 shadow-sm">
                         {camp.category}
                       </div>
 
                       {isTierLocked && (
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-lg border border-amber-300/40 backdrop-blur-md">
-                          <Crown className="w-3 h-3 text-slate-950" />
+                        <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm border border-amber-300/40 backdrop-blur-md">
+                          <Crown className="w-3 h-3 text-zinc-950" />
                           {reqTier === 'diamond' ? 'Diamond Brief' : reqTier === 'gold' ? 'Gold+ Brief' : 'Silver+ Brief'}
                         </div>
                       )}
 
-                      <div className="absolute bottom-3 right-3 bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-sm font-black text-emerald-400 border border-emerald-500/30">
+                      <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-sm font-black text-emerald-700 border border-emerald-200 shadow-sm">
                         ₹{camp.reward_per_creator?.toLocaleString()}
                       </div>
                     </div>
@@ -476,29 +476,29 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         <img
                           src={camp.brand_logo}
                           alt={camp.brand_name}
-                          className="w-6 h-6 rounded-full object-cover border border-slate-700"
+                          className="w-6 h-6 rounded-full object-cover border border-zinc-200"
                         />
-                        <span className="text-xs font-bold text-slate-300">{camp.brand_name}</span>
+                        <span className="text-xs font-bold text-zinc-600">{camp.brand_name}</span>
                       </div>
 
-                      <h3 className="text-lg font-black text-white mb-2 group-hover:text-purple-300 transition-colors line-clamp-1">
+                      <h3 className="text-lg font-black text-zinc-900 mb-2 group-hover:text-zinc-700 transition-colors line-clamp-1">
                         {camp.title}
                       </h3>
 
-                      <p className="text-slate-400 text-xs line-clamp-2 leading-relaxed mb-4">
+                      <p className="text-zinc-500 text-xs line-clamp-2 leading-relaxed mb-4">
                         {camp.description}
                       </p>
 
                       {/* Metadata Badges */}
-                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 mb-4">
-                        <div className="flex items-center gap-1.5 text-blue-400 font-semibold">
-                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-100 mb-4">
+                        <div className="flex items-center gap-1.5 text-zinc-700 font-semibold">
+                          <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
                           <span className="truncate">
                             {camp.distance_km !== null ? `${camp.distance_km} km away` : camp.city}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-300">
-                          <Users className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                        <div className="flex items-center gap-1.5 text-zinc-700 font-semibold">
+                          <Users className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
                           <span>{camp.creators_required} creators</span>
                         </div>
                       </div>
@@ -509,16 +509,16 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setBriefCampaign(camp)}
-                      className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold text-center border border-slate-700 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold text-center border border-zinc-200 transition-all cursor-pointer"
                     >
                       View Brief
                     </button>
                     <button
                       onClick={() => handleOpenApply(camp)}
-                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-center shadow-lg transition-all flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-center shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         isTierLocked
-                          ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black shadow-amber-500/20'
-                          : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-600/25'
+                          ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-zinc-950 font-black shadow-amber-500/20'
+                          : 'bg-zinc-950 hover:bg-zinc-800 text-white'
                       }`}
                     >
                       {isTierLocked ? (
@@ -538,43 +538,43 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
         {/* Quick Apply Modal */}
         {selectedCampaign && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
+            <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative text-zinc-900">
               <button
                 onClick={() => setSelectedCampaign(null)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg"
+                className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               {applySuccess ? (
                 <div className="text-center py-8">
-                  <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-14 h-14 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Application Submitted!</h3>
-                  <p className="text-xs text-slate-400">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-2">Application Submitted!</h3>
+                  <p className="text-xs text-zinc-500">
                     The brand has been notified and will review your proposal shortly.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleApply}>
                   <div className="mb-6">
-                    <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider block mb-1">
+                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">
                       Apply to Campaign
                     </span>
-                    <h2 className="text-xl font-black text-white mb-1">{selectedCampaign.title}</h2>
-                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <h2 className="text-xl font-black text-zinc-900 mb-1">{selectedCampaign.title}</h2>
+                    <div className="flex items-center gap-3 text-xs text-zinc-500">
                       <span>{selectedCampaign.brand_name}</span>
                       <span>•</span>
-                      <span className="text-emerald-400 font-bold">₹{selectedCampaign.reward_per_creator?.toLocaleString()}</span>
+                      <span className="text-emerald-600 font-bold">₹{selectedCampaign.reward_per_creator?.toLocaleString()}</span>
                     </div>
                   </div>
 
                   {applyError && (
-                    <div className="mb-4 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs space-y-2">
+                    <div className="mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs space-y-2">
                       <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
+                        <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-500" />
                         <span className="font-semibold">{applyError}</span>
                       </div>
                       {(applyError.toLowerCase().includes('subscription') ||
@@ -587,9 +587,9 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                             setSelectedCampaign(null);
                             setIsSubscriptionModalOpen(true);
                           }}
-                          className="w-full mt-1.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs shadow-md flex items-center justify-center gap-1.5"
+                          className="w-full mt-1.5 py-2 rounded-xl bg-zinc-900 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          <Crown className="w-3.5 h-3.5 text-amber-300" /> Upgrade Subscription Tier
+                          <Crown className="w-3.5 h-3.5 text-amber-400" /> Upgrade Subscription Tier
                         </button>
                       )}
                     </div>
@@ -597,7 +597,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
                   <div className="space-y-4 mb-6">
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                         Your Pitch / Content Idea *
                       </label>
                       <textarea
@@ -606,12 +606,12 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         value={pitchText}
                         onChange={e => setPitchText(e.target.value)}
                         placeholder="Describe how you plan to showcase this brand (e.g. 30s 4K Reel with tasting notes and ambiance)..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs focus:outline-none focus:border-zinc-400"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                         Relevant Experience or Past Brands (Optional)
                       </label>
                       <input
@@ -619,12 +619,12 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         value={experienceText}
                         onChange={e => setExperienceText(e.target.value)}
                         placeholder="e.g. Created reels for local cafes reaching 25k+ views"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs focus:outline-none focus:border-zinc-400"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                      <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                         Availability
                       </label>
                       <input
@@ -632,7 +632,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                         value={availabilityText}
                         onChange={e => setAvailabilityText(e.target.value)}
                         placeholder="e.g. This Saturday afternoon"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-purple-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs focus:outline-none focus:border-zinc-400"
                       />
                     </div>
                   </div>
@@ -640,7 +640,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={applying}
-                    className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     {applying ? 'Submitting...' : 'Send Application to Brand'}
@@ -653,68 +653,68 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
         {/* View Campaign Brief Modal */}
         {briefCampaign && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto text-zinc-900">
               <button
                 type="button"
                 onClick={() => setBriefCampaign(null)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg"
+                className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-700 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex items-center gap-3.5 mb-5 pb-5 border-b border-slate-800">
+              <div className="flex items-center gap-3.5 mb-5 pb-5 border-b border-zinc-100">
                 <img
                   src={briefCampaign.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
                   alt={briefCampaign.brand_name || 'Brand'}
-                  className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                  className="w-12 h-12 rounded-2xl object-cover border border-zinc-200"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-semibold">
                     <span>{briefCampaign.brand_name || 'Brand Partner'}</span>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 fill-blue-400/20" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-zinc-700" />
                     <span>• {briefCampaign.category || 'General'}</span>
                   </div>
-                  <h2 className="text-xl font-black text-white">{briefCampaign.title}</h2>
+                  <h2 className="text-xl font-black text-zinc-900">{briefCampaign.title}</h2>
                 </div>
               </div>
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Campaign Brief & Objectives</h4>
-                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                  <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Campaign Brief & Objectives</h4>
+                  <p className="text-xs text-zinc-700 leading-relaxed bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
                     {briefCampaign.description || 'Collaborate with the brand to create authentic, engaging content for audiences.'}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Reward Payout</div>
-                    <div className="font-heading text-lg font-extrabold text-emerald-400">
+                  <div className="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Reward Payout</div>
+                    <div className="font-heading text-lg font-extrabold text-emerald-600">
                       ₹{(briefCampaign.reward_per_creator || 0).toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Escrow Protected
+                    <div className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Escrow Protected
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Requirements</div>
-                    <div className="font-bold text-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Requirements</div>
+                    <div className="font-bold text-zinc-800">
                       {(briefCampaign.min_followers || 0).toLocaleString()}+ Followers
                     </div>
-                    <div className="text-[10px] text-blue-400 font-semibold mt-0.5">
+                    <div className="text-[10px] text-zinc-500 font-semibold mt-0.5">
                       {briefCampaign.platform || 'Instagram'}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Required Deliverables</h4>
+                  <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Required Deliverables</h4>
                   <div className="space-y-2">
                     {getDeliverablesList(briefCampaign).map((del, i) => (
-                      <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-200 font-semibold">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 text-xs text-zinc-800 font-semibold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span>{del}</span>
                       </div>
                     ))}
@@ -722,12 +722,12 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                 </div>
 
                 {(briefCampaign.hashtags || briefCampaign.mentions) && (
-                  <div className="p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1 text-xs">
+                  <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-2xl space-y-1 text-xs">
                     {briefCampaign.hashtags && (
-                      <div className="text-blue-400 font-mono text-[11px]">{briefCampaign.hashtags}</div>
+                      <div className="text-zinc-600 font-mono text-[11px]">{briefCampaign.hashtags}</div>
                     )}
                     {briefCampaign.mentions && (
-                      <div className="text-purple-400 font-mono text-[11px]">{briefCampaign.mentions}</div>
+                      <div className="text-zinc-600 font-mono text-[11px]">{briefCampaign.mentions}</div>
                     )}
                   </div>
                 )}
@@ -736,7 +736,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
               <div className="flex items-center gap-3 pt-2">
                 <Link
                   to={`/campaigns/${briefCampaign.id}`}
-                  className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold text-center border border-slate-700 transition-all"
+                  className="flex-1 py-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold text-center border border-zinc-200 transition-all"
                 >
                   Open Full Page
                 </Link>
@@ -747,7 +747,7 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                     setBriefCampaign(null);
                     handleOpenApply(c);
                   }}
-                  className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold text-center shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" /> Apply Now
                 </button>

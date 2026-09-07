@@ -27,27 +27,27 @@ export const CreatorAuthPage: React.FC = () => {
 
   if (user) {
     return (
-      <div className="min-h-screen bg-slate-950 py-12 px-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-5 shadow-2xl">
-          <div className="w-14 h-14 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex items-center justify-center mx-auto text-purple-400">
+      <div className="min-h-screen bg-[#fafafa] py-12 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white border border-zinc-200 rounded-3xl p-8 text-center space-y-5 shadow-xl text-zinc-900">
+          <div className="w-14 h-14 bg-zinc-100 border border-zinc-200 rounded-2xl flex items-center justify-center mx-auto text-zinc-800">
             <Users className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="font-extrabold text-2xl text-white">Already Signed In</h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Logged in as <strong className="text-white">{user.email}</strong>
+            <h2 className="font-extrabold text-2xl text-zinc-950">Already Signed In</h2>
+            <p className="text-xs text-zinc-500 mt-1">
+              Logged in as <strong className="text-zinc-900">{user.email}</strong>
             </p>
           </div>
           <div className="space-y-2.5 pt-2">
             <button
               onClick={() => navigate(user.role === 'brand' ? '/brand/dashboard' : '/creator/feed')}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all"
+              className="w-full py-3 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               Go to {user.role === 'brand' ? 'Brand Studio' : 'Campaign Feed'} <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => logout()}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-extrabold text-xs rounded-xl transition-all"
+              className="w-full py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
             >
               Log Out & Switch Account
             </button>
@@ -84,7 +84,6 @@ export const CreatorAuthPage: React.FC = () => {
           min_budget: Number(minBudget),
           radius_km: Number(radiusKm)
         });
-        // Section 6: Send directly to Creator Campaign Feed!
         navigate('/creator/feed');
       } else {
         const loggedUser = await login(email, password);
@@ -102,22 +101,20 @@ export const CreatorAuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 py-12 px-4 flex items-center justify-center relative overflow-hidden">
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-purple-600/15 blur-[130px] rounded-full pointer-events-none" />
-
-      <div className="max-w-md w-full bg-slate-900/80 border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 backdrop-blur-md">
+    <div className="min-h-screen bg-[#fafafa] py-12 px-4 flex items-center justify-center relative overflow-hidden text-zinc-900">
+      <div className="max-w-md w-full bg-white border border-zinc-200 rounded-3xl p-8 shadow-xl relative z-10">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-base">
-              C
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-4 group">
+            <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center font-black text-white text-base">
+              <Sparkles className="w-4 h-4 text-zinc-200" />
             </div>
-            <span className="text-lg font-black text-white tracking-tight">CreaterHub</span>
+            <span className="text-lg font-black text-zinc-950 tracking-tight">CreaterHub</span>
           </Link>
 
-          <h2 className="text-2xl font-black text-white">
+          <h2 className="text-2xl font-black text-zinc-950">
             {isRegister ? 'Creator Registration' : 'Creator Portal Login'}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-zinc-500 mt-1">
             {isRegister
               ? 'Discover paid brand briefs near your neighborhood'
               : 'Access your campaign feed, Instagram analytics & earnings'}
@@ -125,7 +122,7 @@ export const CreatorAuthPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3 mb-6 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+          <div className="p-3 mb-6 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -135,75 +132,75 @@ export const CreatorAuthPage: React.FC = () => {
           {isRegister && (
             <>
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Full Name *</label>
+                <label className="block font-semibold text-zinc-700 mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Ananya Rao"
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Username *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">Username *</label>
                   <input
                     type="text"
                     required
                     placeholder="ananya_bites"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Phone (Optional)</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">Phone (Optional)</label>
                   <input
                     type="tel"
                     placeholder="+91 9876543210"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">City *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">City *</label>
                   <input
                     type="text"
                     required
                     placeholder="Bengaluru"
                     value={city}
                     onChange={e => setCity(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Neighborhood / Area *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">Neighborhood / Area *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Indiranagar"
                     value={area}
                     onChange={e => setArea(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Primary Niche *</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">Primary Niche *</label>
                   <select
                     value={niche}
                     onChange={e => setNiche(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   >
                     <option value="Food & Beverage">Food & Beverage</option>
                     <option value="Fitness & Wellness">Fitness & Wellness</option>
@@ -215,75 +212,75 @@ export const CreatorAuthPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Min Budget (₹)</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">Min Budget (₹)</label>
                   <input
                     type="number"
                     value={minBudget}
                     onChange={e => setMinBudget(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Bio / Profile Summary</label>
+                <label className="block font-semibold text-zinc-700 mb-1">Bio / Profile Summary</label>
                 <textarea
                   rows={2}
                   placeholder="Tell local businesses about your content style and audience..."
                   value={bio}
                   onChange={e => setBio(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Instagram Profile Link</label>
+                <label className="block font-semibold text-zinc-700 mb-1">Instagram Profile Link</label>
                 <input
                   type="text"
                   placeholder="https://instagram.com/your_handle"
                   value={socialLink}
                   onChange={e => setSocialLink(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                 />
               </div>
             </>
           )}
 
           <div>
-            <label className="block font-bold text-slate-300 mb-1">Email Address *</label>
+            <label className="block font-semibold text-zinc-700 mb-1">Email Address *</label>
             <input
               type="email"
               required
               placeholder="ananya@creatorhub.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
             />
           </div>
 
           <div className={isRegister ? 'grid grid-cols-2 gap-3' : ''}>
             <div>
-              <label className="block font-bold text-slate-300 mb-1">Password *</label>
+              <label className="block font-semibold text-zinc-700 mb-1">Password *</label>
               <input
                 type="password"
                 required
                 placeholder="••••••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
               />
             </div>
 
             {isRegister && (
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Confirm Password *</label>
+                <label className="block font-semibold text-zinc-700 mb-1">Confirm Password *</label>
                 <input
                   type="password"
                   required
                   placeholder="••••••••••••"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
                 />
               </div>
             )}
@@ -292,17 +289,17 @@ export const CreatorAuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold shadow-xl shadow-purple-600/25 flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50"
+            className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-bold shadow-sm flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50 cursor-pointer"
           >
             <span>{isRegister ? 'Create Profile & Discover Briefs' : 'Log In to Creator Studio'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-slate-800 text-center">
+        <div className="mt-6 pt-6 border-t border-zinc-100 text-center">
           <button
             onClick={() => { setIsRegister(!isRegister); setError(''); }}
-            className="text-xs text-purple-400 font-bold hover:underline"
+            className="text-xs text-zinc-900 font-bold hover:underline cursor-pointer"
           >
             {isRegister ? 'Already have an account? Sign in here' : "New to CreaterHub? Create creator profile"}
           </button>

@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
   body {
+    background-color: #fafafa;
+    color: #09090b;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   
@@ -10,9 +16,11 @@
   }
 }
 
-/* Smooth Scrolling & Custom Scrollbars */
+/* Smooth Scrolling & Neutral Light Scrollbar */
 html {
   scroll-behavior: smooth;
+  background-color: #fafafa;
+  color: #09090b;
 }
 
 ::-webkit-scrollbar {
@@ -21,14 +29,132 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f4f4f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(161, 161, 170, 0.5);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.7);
+  background: rgba(113, 113, 122, 0.7);
+}
+
+/* ==========================================================================
+   Comprehensive Neutral Light Theme Design System
+   Harmonizes existing slate/dark utilities into modern neutral light tokens
+   ========================================================================== */
+
+/* Base Canvas & Backgrounds */
+.bg-slate-950,
+.bg-zinc-950:not(button):not(a):not(.btn):not([type="submit"]):not([role="button"]):not(.bg-white *) {
+  background-color: #fafafa !important;
+  color: #09090b;
+}
+
+/* Elevated Card Surfaces & Containers */
+.bg-slate-900,
+.bg-slate-900\/80,
+.bg-slate-900\/70,
+.bg-slate-900\/60,
+.bg-slate-900\/50,
+.bg-slate-900\/40,
+.bg-slate-900\/30,
+.bg-zinc-900\/80,
+.bg-zinc-900\/70,
+.bg-zinc-900\/60,
+.bg-zinc-900\/50,
+.bg-zinc-900\/40 {
+  background-color: #ffffff !important;
+  color: #09090b;
+}
+
+/* Secondary Panels, Sub-cards & Muted Surface Fill */
+.bg-slate-800,
+.bg-slate-800\/80,
+.bg-slate-800\/60,
+.bg-slate-800\/40 {
+  background-color: #f4f4f5 !important;
+  color: #18181b;
+}
+
+/* Precision Neutral Borders */
+.border-slate-800,
+.border-slate-800\/80,
+.border-slate-800\/60,
+.border-slate-700,
+.border-slate-700\/80,
+.border-slate-700\/60 {
+  border-color: #e4e4e7 !important;
+}
+
+/* Neutral Typography & Legibility */
+.text-slate-100,
+.text-slate-200 {
+  color: #09090b !important;
+}
+
+.text-slate-300 {
+  color: #27272a !important;
+}
+
+.text-slate-400 {
+  color: #52525b !important;
+}
+
+.text-slate-500 {
+  color: #71717a !important;
+}
+
+.text-slate-600 {
+  color: #52525b !important;
+}
+
+/* Interactive Hover States */
+.hover\:bg-slate-800:hover,
+.hover\:bg-slate-800\/60:hover,
+.hover\:bg-slate-900:hover,
+.hover\:bg-slate-700:hover {
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+}
+
+.hover\:border-slate-700:hover,
+.hover\:border-slate-600:hover {
+  border-color: #d4d4d8 !important;
+}
+
+/* Form Controls & Inputs */
+input.bg-slate-950,
+input.bg-slate-900,
+input.bg-slate-800,
+textarea.bg-slate-950,
+textarea.bg-slate-900,
+textarea.bg-slate-800,
+select.bg-slate-950,
+select.bg-slate-900,
+select.bg-slate-800 {
+  background-color: #f4f4f5 !important;
+  border-color: #e4e4e7 !important;
+  color: #09090b !important;
+}
+
+input.bg-slate-950:focus,
+input.bg-slate-900:focus,
+input.bg-slate-800:focus,
+textarea.bg-slate-950:focus,
+textarea.bg-slate-900:focus,
+textarea.bg-slate-800:focus,
+select.bg-slate-950:focus,
+select.bg-slate-900:focus,
+select.bg-slate-800:focus {
+  background-color: #ffffff !important;
+  border-color: #18181b !important;
+}
+
+/* Modal Backdrops in Light Theme */
+.bg-slate-950\/80,
+.bg-slate-900\/90 {
+  background-color: rgba(9, 9, 11, 0.45) !important;
 }

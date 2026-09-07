@@ -34,7 +34,7 @@ function MainLayout() {
   const { toasts } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-purple-500 selection:text-white transition-colors">
+    <div className="min-h-screen flex flex-col bg-[#fafafa] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 transition-colors">
       <Navbar />
 
       <main className="flex-1">

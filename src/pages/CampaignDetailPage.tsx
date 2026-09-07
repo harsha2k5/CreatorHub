@@ -135,14 +135,14 @@ export const CampaignDetailPage: React.FC = () => {
   const rewardPayout = campaign.reward_per_creator || 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fafafa] py-8 px-4 sm:px-6 lg:px-8 text-zinc-900">
       <div className="max-w-4xl mx-auto space-y-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer">
           <ArrowLeft className="w-4 h-4" /> Back to Campaigns
         </button>
 
         {/* Brand & Brief Header */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
               <img
@@ -207,38 +207,38 @@ export const CampaignDetailPage: React.FC = () => {
 
         {/* Requirements & Guidelines Split */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 className="font-heading font-extrabold text-base flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Campaign Deliverables
+          <div className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm space-y-4">
+            <h3 className="font-heading font-extrabold text-base flex items-center gap-2 text-zinc-900">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Campaign Deliverables
             </h3>
-            <ul className="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <ul className="space-y-2 text-xs font-semibold text-zinc-700">
               {deliverablesList.map((del, idx) => (
-                <li key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                <li key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{del}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 className="font-heading font-extrabold text-base flex items-center gap-2">
-              <Hash className="w-4 h-4 text-blue-500" /> Hashtags & Mentions
+          <div className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm space-y-4">
+            <h3 className="font-heading font-extrabold text-base flex items-center gap-2 text-zinc-900">
+              <Hash className="w-4 h-4 text-zinc-700" /> Hashtags & Mentions
             </h3>
-            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-mono text-blue-600 dark:text-blue-400">
+            <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-xl text-xs font-mono text-zinc-800">
               {campaign.hashtags || '#CreatorHub #BrandCollab'}
             </div>
-            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-mono text-purple-600 dark:text-purple-400">
+            <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-xl text-xs font-mono text-zinc-700">
               {campaign.mentions || '@creatorhub'}
             </div>
           </div>
         </div>
 
         {/* Action Button */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="font-extrabold text-sm">Interested in this collaboration?</div>
-            <div className="text-xs text-slate-500 mt-0.5">
+            <div className="font-extrabold text-sm text-zinc-900">Interested in this collaboration?</div>
+            <div className="text-xs text-zinc-500 mt-0.5">
               {isTierLocked
                 ? `This brief offers ₹${rewardPayout.toLocaleString()} and requires a ${reqTier.toUpperCase()} subscription tier.`
                 : isQuotaExceeded
@@ -250,26 +250,26 @@ export const CampaignDetailPage: React.FC = () => {
           {hasApplied ? (
             matchedApp?.status === 'ACCEPTED' ? (
               <div className="flex flex-wrap items-center gap-3">
-                <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Offer Accepted & Collaboration Active
+                <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Offer Accepted & Collaboration Active
                 </div>
                 <button
                   onClick={() => navigate(`/creator/dashboard?tab=applications&submit_id=${matchedApp.collaboration_id || matchedApp.id}`)}
-                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-2xl bg-zinc-950 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" /> Submit Content Proof
                 </button>
               </div>
             ) : (
-              <div className="px-5 py-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-500/20" /> Application Submitted & Under Review
+              <div className="px-5 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Application Submitted & Under Review
               </div>
             )
           ) : isCreator ? (
             isTierLocked || isQuotaExceeded ? (
               <button
                 onClick={() => setIsSubscriptionModalOpen(true)}
-                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-all"
+                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-zinc-950 font-black text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Crown className="w-4 h-4" />
                 {isTierLocked ? `Upgrade to ${reqTier.toUpperCase()} to Apply` : 'Upgrade Plan for More Applications'}
@@ -277,7 +277,7 @@ export const CampaignDetailPage: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsApplyModalOpen(true)}
-                className="px-6 py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs shadow-lg shadow-purple-500/20 flex items-center gap-2 transition-all"
+                className="px-6 py-3.5 rounded-2xl bg-zinc-950 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Send className="w-4 h-4" /> Apply for Campaign
               </button>
@@ -285,7 +285,7 @@ export const CampaignDetailPage: React.FC = () => {
           ) : (
             <button
               onClick={() => navigate('/creator/login')}
-              className="px-6 py-3.5 rounded-2xl bg-blue-600 text-white font-extrabold text-xs"
+              className="px-6 py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs cursor-pointer"
             >
               Log in as Creator to Apply
             </button>
@@ -294,57 +294,57 @@ export const CampaignDetailPage: React.FC = () => {
 
         {/* Application Form Modal */}
         {isApplyModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl">
+          <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white border border-zinc-200 rounded-3xl p-6 max-w-lg w-full shadow-2xl text-zinc-900">
               <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="font-heading font-extrabold text-xl">Apply for Campaign</h2>
-                  <p className="text-xs text-slate-500">{campaign.title}</p>
+                  <h2 className="font-heading font-extrabold text-xl text-zinc-900">Apply for Campaign</h2>
+                  <p className="text-xs text-zinc-500">{campaign.title}</p>
                 </div>
-                <button onClick={() => setIsApplyModalOpen(false)} className="p-1 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button onClick={() => setIsApplyModalOpen(false)} className="p-1 rounded-full text-zinc-400 hover:text-zinc-700 cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form onSubmit={handleApply} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold mb-1">Why should the brand select you?</label>
+                  <label className="block text-xs font-bold mb-1 text-zinc-700">Why should the brand select you?</label>
                   <textarea
                     rows={2}
                     required
                     placeholder="e.g. As an Indiranagar local with 128k followers, I specialize in food & lifestyle Reels..."
                     value={pitch}
                     onChange={e => setPitch(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-semibold focus:outline-none focus:border-zinc-400"
                   ></textarea>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold mb-1">Proposed Content Concept / Hook</label>
+                  <label className="block text-xs font-bold mb-1 text-zinc-700">Proposed Content Concept / Hook</label>
                   <textarea
                     rows={2}
                     required
                     placeholder="Describe your 3s opening hook, video pacing, and call to action..."
                     value={contentIdea}
                     onChange={e => setContentIdea(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-semibold focus:outline-none focus:border-zinc-400"
                   ></textarea>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold mb-1">Relevant Experience / Previous Work Links</label>
+                  <label className="block text-xs font-bold mb-1 text-zinc-700">Relevant Experience / Previous Work Links</label>
                   <input
                     type="text"
                     placeholder="https://instagram.com/p/sample_reel"
                     value={relevantExperience}
                     onChange={e => setRelevantExperience(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-semibold focus:outline-none focus:border-zinc-400"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 mt-2"
+                  className="w-full py-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-2 mt-2 cursor-pointer transition-all"
                 >
                   <Send className="w-4 h-4" /> Submit Application to Brand
                 </button>
