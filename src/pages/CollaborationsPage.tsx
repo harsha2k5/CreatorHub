@@ -72,7 +72,8 @@ export const CollaborationsPage: React.FC = () => {
     e.preventDefault();
     if (!selectedCollab) return;
     try {
-      await api.submitContentProof(selectedCollab.id, {
+      await api.submitDeliverableProof(selectedCollab.id, {
+        live_post_url: contentUrl,
         content_url: contentUrl,
         platform: selectedCollab.platform || 'Instagram',
         caption,

@@ -23,10 +23,18 @@ router.get('/conversations', authenticateToken, (req, res) => {
                        b.logo_url as other_avatar, b.logo_url as other_party_avatar,
                        b.category as other_subtitle,
                        COALESCE(cmp.title, 'Direct Collaboration Pitch') as campaign_title,
+                       COALESCE(cmp.reward_per_creator, 5000) as campaign_reward,
+                       col.id as collaboration_id,
+                       col.status as collaboration_status,
+                       col.current_step as collaboration_step,
                        (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = conv.id AND m.sender_id != ? AND m.read_status = 0) as unread_count
                 FROM conversations conv
                 JOIN brand_profiles b ON conv.brand_id = b.id
                 LEFT JOIN campaigns cmp ON conv.campaign_id = cmp.id
+                LEFT JOIN collaborations col ON (
+                    (conv.campaign_id IS NOT NULL AND col.campaign_id = conv.campaign_id AND col.creator_id = conv.creator_id)
+                    OR (col.brand_id = conv.brand_id AND col.creator_id = conv.creator_id)
+                )
                 WHERE conv.creator_id = ?
                 ORDER BY conv.updated_at DESC
             `;

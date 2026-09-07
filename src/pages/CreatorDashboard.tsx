@@ -155,16 +155,36 @@ export const CreatorDashboard: React.FC = () => {
     loadAllData();
   }, [user, navigate]);
 
-  // Sync route with active tab
+  // Sync route and query params with active tab
   useEffect(() => {
-    if (location.pathname === '/creator/instagram-analytics') {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['overview', 'applications', 'collaborations', 'earnings', 'messages', 'instagram-analytics', 'instagram', 'ai', 'profile', 'membership'].includes(tabParam)) {
+      setActiveTab(tabParam as any);
+    } else if (location.pathname === '/creator/instagram-analytics') {
       setActiveTab('instagram-analytics');
-    } else if (location.pathname === '/creator/collaborations') {
+    } else if (location.pathname === '/creator/collaborations' || location.pathname === '/creator/deliverables') {
       setActiveTab('collaborations');
+    } else if (location.pathname === '/creator/applications') {
+      setActiveTab('applications');
     } else if (location.pathname === '/creator/earnings') {
       setActiveTab('earnings');
     }
-  }, [location.pathname]);
+
+    const submitId = searchParams.get('submit_id') || searchParams.get('submit_collab_id');
+    if (submitId) {
+      const found = collaborations.find(c => c.id === submitId || c.application_id === submitId) ||
+                    applications.find(a => a.id === submitId || a.collaboration_id === submitId);
+      if (found) {
+        setSelectedCollab({
+          id: found.collaboration_id || found.id,
+          campaign_title: found.campaign_title || 'Direct Brand Collaboration',
+          brand_name: found.brand_name || 'Brand Partner',
+          reward_per_creator: found.reward_per_creator || found.proposed_budget || 5000
+        });
+      }
+    }
+  }, [location.pathname, location.search, collaborations, applications]);
 
   // Handle Meta OAuth redirect parameters (?code=...&state=... or ?ig_code=...)
   useEffect(() => {
@@ -640,12 +660,36 @@ export const CreatorDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <Link
-                  to="/creator/messages"
-                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-purple-600/30 transition-all shrink-0 hover:scale-[1.02]"
-                >
-                  <MessageSquare className="w-4 h-4" /> View & Reply in Messages →
-                </Link>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const matchedApp = applications.find(isDirectPitch);
+                      const matchedCollab = collaborations.find(c => c.status === 'ACTIVE' || c.status === 'SUBMITTED');
+                      if (matchedCollab) {
+                        setSelectedCollab(matchedCollab);
+                      } else if (matchedApp) {
+                        setSelectedCollab({
+                          id: matchedApp.collaboration_id || matchedApp.id,
+                          campaign_title: matchedApp.campaign_title || 'Direct Brand Collaboration',
+                          brand_name: matchedApp.brand_name || 'Brand Partner',
+                          reward_per_creator: matchedApp.proposed_budget || matchedApp.reward_per_creator || 5000
+                        });
+                      } else {
+                        setActiveTab('applications');
+                      }
+                    }}
+                    className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-purple-600/30 transition-all cursor-pointer hover:scale-[1.02]"
+                  >
+                    <Send className="w-4 h-4" /> Submit Content Proof
+                  </button>
+                  <Link
+                    to="/creator/messages"
+                    className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-all"
+                  >
+                    <MessageSquare className="w-4 h-4 text-purple-400" /> Chat in Messages
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -700,6 +744,115 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Active Deliverables & Proof Submissions on Overview */}
+            {(collaborations.filter(c => c.status !== 'COMPLETED').length > 0 || applications.filter(isDirectPitch).length > 0) && (
+              <div className="bg-slate-900/80 p-6 rounded-3xl border border-purple-500/30 shadow-xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-purple-400 uppercase tracking-wider block mb-0.5">
+                      Deliverable Action Required
+                    </span>
+                    <h3 className="text-lg font-black text-white flex items-center gap-2">
+                      <Layers className="w-5 h-5 text-purple-400" /> Active Deliverables & Content Proof Submissions
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('collaborations')}
+                    className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+                  >
+                    View in Deliverables tab →
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {/* From active collaborations */}
+                  {collaborations.filter(c => c.status !== 'COMPLETED').map(col => (
+                    <div
+                      key={col.id}
+                      className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-700 transition-all"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0 font-black text-lg">
+                          🎯
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-purple-400 font-bold">{col.brand_name || 'Brand Partner'}</span>
+                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              {col.status === 'SUBMITTED' ? 'Proof in Review' : 'Deliverable Active'}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-bold text-white mt-0.5">{col.campaign_title || 'Direct Brand Collaboration'}</h4>
+                          <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+                            <span>Escrow Payout: <strong className="text-emerald-400">₹{Number(col.reward_per_creator || 5000).toLocaleString()}</strong></span>
+                            <span>•</span>
+                            <span className="text-slate-500">Step {col.current_step || 1} of 4</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCollab(col)}
+                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          {col.status === 'SUBMITTED' ? 'Update Proof' : 'Submit Proof'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* From direct pitch applications that may not yet have a matching col in state */}
+                  {applications.filter(isDirectPitch).filter(a => !collaborations.some(c => c.application_id === a.id || c.campaign_id === a.campaign_id)).map(app => (
+                    <div
+                      key={app.id}
+                      className="p-4 bg-slate-950/70 rounded-2xl border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-purple-500/50 transition-all"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <img
+                          src={app.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
+                          alt={app.brand_name || 'Brand'}
+                          className="w-11 h-11 rounded-xl object-cover border border-slate-700"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-purple-400 font-bold">{app.brand_name || 'Brand Partner'}</span>
+                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              Direct Offer
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-bold text-white mt-0.5">{app.campaign_title || 'Direct Collaboration Offer'}</h4>
+                          <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+                            <span>Guaranteed Escrow: <strong className="text-emerald-400">₹{Number(app.proposed_budget || app.reward_per_creator || 5000).toLocaleString()}</strong></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCollab({
+                              id: app.collaboration_id || app.id,
+                              campaign_title: app.campaign_title || 'Direct Collaboration Offer',
+                              brand_name: app.brand_name || 'Brand Partner',
+                              reward_per_creator: app.proposed_budget || app.reward_per_creator || 5000
+                            });
+                          }}
+                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                        >
+                          <Send className="w-3.5 h-3.5" /> Submit Proof
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Instagram Performance Compact Card (Demo AI Analytics) */}
             <InstagramPerformanceCard

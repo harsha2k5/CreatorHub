@@ -36,6 +36,7 @@ export const CampaignDetailPage: React.FC = () => {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
   const [hasApplied, setHasApplied] = useState(false);
+  const [matchedApp, setMatchedApp] = useState<any>(null);
 
   // Application Form State
   const [pitch, setPitch] = useState('');
@@ -55,8 +56,9 @@ export const CampaignDetailPage: React.FC = () => {
           api.getSubscriptionStatus()
         ]);
         if (appRes.status === 'fulfilled' && appRes.value.success) {
-          const applied = (appRes.value.applications || []).some((a: any) => a.campaign_id === id);
-          setHasApplied(applied);
+          const app = (appRes.value.applications || []).find((a: any) => a.campaign_id === id);
+          setHasApplied(Boolean(app));
+          setMatchedApp(app || null);
         }
         if (subRes.status === 'fulfilled' && subRes.value.success) {
           setSubscriptionData(subRes.value);
@@ -246,9 +248,23 @@ export const CampaignDetailPage: React.FC = () => {
           </div>
 
           {hasApplied ? (
-            <div className="px-5 py-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-500/20" /> Application Submitted & Under Review
-            </div>
+            matchedApp?.status === 'ACCEPTED' ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Offer Accepted & Collaboration Active
+                </div>
+                <button
+                  onClick={() => navigate(`/creator/dashboard?tab=applications&submit_id=${matchedApp.collaboration_id || matchedApp.id}`)}
+                  className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" /> Submit Content Proof
+                </button>
+              </div>
+            ) : (
+              <div className="px-5 py-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-500/20" /> Application Submitted & Under Review
+              </div>
+            )
           ) : isCreator ? (
             isTierLocked || isQuotaExceeded ? (
               <button

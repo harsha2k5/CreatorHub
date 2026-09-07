@@ -124,7 +124,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.post('/:id/submit', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { live_post_url, platform = 'Instagram', caption, screenshot_url, notes } = req.body;
+        const { platform = 'Instagram', caption, screenshot_url, notes } = req.body;
+        const live_post_url = req.body.live_post_url || req.body.content_url;
 
         if (!live_post_url) {
             return res.status(400).json({ success: false, error: 'Live post URL is required.' });
@@ -133,10 +134,10 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
         const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
         if (!creator) return res.status(403).json({ success: false, error: 'Creator not found.' });
 
-        let collab = queryOne('SELECT * FROM collaborations WHERE (id = ? OR application_id = ?) AND creator_id = ?', [id, id, creator.id]);
+        let collab = queryOne('SELECT * FROM collaborations WHERE (id = ? OR application_id = ? OR campaign_id = ?) AND creator_id = ?', [id, id, id, creator.id]);
         
         if (!collab) {
-            const app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND creator_id = ?', [id, creator.id]);
+            const app = queryOne('SELECT * FROM campaign_applications WHERE (id = ? OR campaign_id = ?) AND creator_id = ?', [id, id, creator.id]);
             if (app) {
                 const collabId = generateId('collab');
                 const campaign = queryOne('SELECT reward_per_creator, title FROM campaigns WHERE id = ?', [app.campaign_id]);

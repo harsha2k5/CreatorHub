@@ -58,7 +58,9 @@ function MainLayout() {
           <Route path="/brand/collaborations" element={<BrandDashboard />} />
           <Route path="/brand/applications" element={<BrandDashboard />} />
           <Route path="/creator/dashboard" element={<CreatorDashboard />} />
+          <Route path="/creator/applications" element={<CreatorDashboard />} />
           <Route path="/creator/collaborations" element={<CreatorDashboard />} />
+          <Route path="/creator/deliverables" element={<CreatorDashboard />} />
           <Route path="/creator/earnings" element={<CreatorDashboard />} />
           <Route path="/creator/instagram-analytics" element={<CreatorDashboard />} />
           <Route path="/dashboard" element={<DashboardRedirect />} />

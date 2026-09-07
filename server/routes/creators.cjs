@@ -426,7 +426,7 @@ router.post('/:id/pitch', authenticateToken, requireBrand, async (req, res) => {
                 creator.user_id,
                 `🎯 Direct Collaboration Offer from ${brand.company_name}!`,
                 `Offer: ₹${proposedBudget.toLocaleString()} for "${customTitle}" (${deliverables}). Review in Applications!`,
-                `/creator/dashboard`
+                `/creator/dashboard?tab=applications`
             ]
         );
 
@@ -434,6 +434,7 @@ router.post('/:id/pitch', authenticateToken, requireBrand, async (req, res) => {
             success: true,
             message: `Direct pitch sent to ${creator.full_name}! Application invitation recorded.`,
             application_id: appId,
+            collaboration_id: collabId,
             conversation_id: convId
         });
     } catch (err) {

@@ -90,7 +90,11 @@ export const api = {
   getCollaborationById: (id: string) => request(`/collaborations/${id}`),
   submitDeliverableProof: (id: string, payload: any) =>
     request(`/collaborations/${id}/submit`, { method: 'POST', body: JSON.stringify(payload) }),
+  submitContentProof: (id: string, payload: any) =>
+    request(`/collaborations/${id}/submit`, { method: 'POST', body: JSON.stringify(payload) }),
   reviewDeliverableProof: (id: string, payload: { action: 'APPROVE' | 'REVISION'; feedback?: string }) =>
+    request(`/collaborations/${id}/review`, { method: 'POST', body: JSON.stringify(payload) }),
+  reviewContentProof: (id: string, payload: any) =>
     request(`/collaborations/${id}/review`, { method: 'POST', body: JSON.stringify(payload) }),
 
   // Creators & Brands
