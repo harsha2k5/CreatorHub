@@ -77,15 +77,15 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 transition-colors">
+    <header className="sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md border-b border-zinc-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center text-white shadow-sm group-hover:border-zinc-500 transition-colors">
+            <Sparkles className="w-4 h-4 text-zinc-200" />
           </div>
           <div>
-            <span className="font-heading font-black text-xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="font-heading font-black text-xl text-white tracking-tight">
               CreaterHub
             </span>
           </div>
@@ -387,13 +387,13 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-2">
               <Link
                 to="/creator/login"
-                className="px-4 py-2 text-xs font-bold text-slate-300 hover:text-white rounded-xl hover:bg-slate-900 transition-colors"
+                className="px-4 py-2 text-xs font-semibold text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-900 transition-colors"
               >
                 Login
               </Link>
               <Link
                 to="/choose-role"
-                className="px-4 py-2 text-xs font-bold text-white rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 shadow-md shadow-purple-600/25 transition-all"
+                className="px-4 py-2 text-xs font-semibold text-zinc-950 rounded-xl bg-white hover:bg-zinc-200 shadow-sm transition-all"
               >
                 Get Started
               </Link>
