@@ -147,12 +147,15 @@ router.get('/', authenticateToken, async (req, res) => {
             if (!creator) return res.status(404).json({ success: false, error: 'Creator not found.' });
 
             const apps = query(`
-                SELECT a.*, c.title as campaign_title, c.category as campaign_category,
-                       c.reward_per_creator, c.image_url as campaign_image,
+                SELECT a.*, COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
+                       c.category as campaign_category,
+                       COALESCE(a.proposed_budget, c.reward_per_creator, 5000) as reward_per_creator,
+                       c.image_url as campaign_image,
+                       c.deliverables_json as campaign_deliverables,
                        b.company_name as brand_name, b.logo_url as brand_logo
                 FROM campaign_applications a
-                JOIN campaigns c ON a.campaign_id = c.id
-                JOIN brand_profiles b ON a.brand_id = b.id
+                LEFT JOIN campaigns c ON a.campaign_id = c.id
+                LEFT JOIN brand_profiles b ON a.brand_id = b.id
                 WHERE a.creator_id = ?
                 ORDER BY a.applied_at DESC
             `, [creator.id]);
@@ -315,6 +318,179 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
     } catch (err) {
         console.error('Error updating application status:', err);
         return res.status(500).json({ success: false, error: 'Failed to update application status: ' + err.message });
+    }
+});
+
+// POST /api/applications/:id/accept - Creator or Brand accepts application/direct pitch
+router.post('/:id/accept', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const creator = queryOne('SELECT id, full_name, user_id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const brand = queryOne('SELECT id, company_name, user_id FROM brand_profiles WHERE user_id = ?', [req.user.id]);
+
+        let app = null;
+        let isCreator = false;
+        let isBrand = false;
+
+        if (creator) {
+            app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND creator_id = ?', [id, creator.id]);
+            isCreator = true;
+        } else if (brand) {
+            app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND brand_id = ?', [id, brand.id]);
+            isBrand = true;
+        }
+
+        if (!app) {
+            return res.status(404).json({ success: false, error: 'Application not found or unauthorized.' });
+        }
+
+        if (app.status === 'ACCEPTED') {
+            return res.json({ success: true, message: 'Application is already accepted.' });
+        }
+
+        transaction(() => {
+            run('UPDATE campaign_applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ['ACCEPTED', id]);
+
+            // Check if collaboration already exists
+            const existingCollab = queryOne('SELECT id FROM collaborations WHERE application_id = ?', [id]);
+            let collabId = existingCollab?.id;
+
+            if (!existingCollab) {
+                collabId = generateId('collab');
+                run(
+                    `INSERT INTO collaborations (id, campaign_id, application_id, brand_id, creator_id, status, current_step)
+                     VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1)`,
+                    [collabId, app.campaign_id, app.id, app.brand_id, app.creator_id]
+                );
+
+                // Increment hired count if campaign exists
+                run('UPDATE campaigns SET creators_hired = creators_hired + 1 WHERE id = ?', [app.campaign_id]);
+
+                // Initialize simulated escrow payment record
+                const campaign = queryOne('SELECT reward_per_creator, title FROM campaigns WHERE id = ?', [app.campaign_id]);
+                const amount = app.proposed_budget || campaign?.reward_per_creator || 5000;
+                run(
+                    `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, status, is_simulated, transaction_ref)
+                     VALUES (?, ?, ?, ?, ?, 'HELD_IN_ESCROW', 1, ?)`,
+                    [generateId('pay'), collabId, app.brand_id, app.creator_id, amount, 'TXN_ESCROW_' + Date.now()]
+                );
+
+                // Initialize conversation if not already present
+                const existingConv = queryOne('SELECT id FROM conversations WHERE brand_id = ? AND creator_id = ?', [app.brand_id, app.creator_id]);
+                const targetBrand = brand || queryOne('SELECT id, company_name, user_id FROM brand_profiles WHERE id = ?', [app.brand_id]);
+                const targetCreator = creator || queryOne('SELECT id, full_name, user_id FROM creator_profiles WHERE id = ?', [app.creator_id]);
+
+                const convMsg = isCreator
+                    ? `${targetCreator?.full_name || 'Creator'} accepted the direct pitch offer! Work has commenced.`
+                    : `Congratulations! Your application to "${campaign?.title || 'the campaign'}" has been accepted.`;
+
+                if (!existingConv) {
+                    const convId = generateId('conv');
+                    run(
+                        `INSERT INTO conversations (id, brand_id, creator_id, campaign_id, last_message)
+                         VALUES (?, ?, ?, ?, ?)`,
+                        [convId, app.brand_id, app.creator_id, app.campaign_id, convMsg]
+                    );
+
+                    run(
+                        `INSERT INTO messages (id, conversation_id, sender_id, text, read_status)
+                         VALUES (?, ?, ?, ?, 0)`,
+                        [generateId('msg'), convId, req.user.id, convMsg]
+                    );
+                } else {
+                    run('UPDATE conversations SET last_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [convMsg, existingConv.id]);
+                    run(
+                        `INSERT INTO messages (id, conversation_id, sender_id, text, read_status)
+                         VALUES (?, ?, ?, ?, 0)`,
+                        [generateId('msg'), existingConv.id, req.user.id, convMsg]
+                    );
+                }
+
+                // Send notifications
+                if (isCreator) {
+                    // Creator accepted -> notify brand
+                    if (targetBrand?.user_id) {
+                        run(
+                            `INSERT INTO notifications (id, user_id, title, message, link)
+                             VALUES (?, ?, ?, ?, ?)`,
+                            [
+                                generateId('notif'),
+                                targetBrand.user_id,
+                                'Offer Accepted! 🤝',
+                                `${targetCreator?.full_name || 'Creator'} accepted your direct offer for "${campaign?.title || 'Collaboration'}"! Escrow is active and collaboration is in progress.`,
+                                `/brand/collaborations`
+                            ]
+                        );
+                    }
+                } else {
+                    // Brand accepted -> notify creator
+                    if (targetCreator?.user_id) {
+                        run(
+                            `INSERT INTO notifications (id, user_id, title, message, link)
+                             VALUES (?, ?, ?, ?, ?)`,
+                            [
+                                generateId('notif'),
+                                targetCreator.user_id,
+                                'Application Accepted! 🎉',
+                                `Your application has been accepted! You can now begin work on your deliverables.`,
+                                `/creator/collaborations`
+                            ]
+                        );
+                    }
+                }
+            }
+        });
+
+        return res.json({ success: true, message: 'Application accepted and collaboration started successfully.' });
+    } catch (err) {
+        console.error('Error accepting application:', err);
+        return res.status(500).json({ success: false, error: 'Failed to accept application: ' + err.message });
+    }
+});
+
+// POST /api/applications/:id/decline - Decline application or offer
+router.post('/:id/decline', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const creator = queryOne('SELECT id, full_name FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const brand = queryOne('SELECT id FROM brand_profiles WHERE user_id = ?', [req.user.id]);
+
+        let app = null;
+        let isCreator = false;
+        if (creator) {
+            app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND creator_id = ?', [id, creator.id]);
+            isCreator = true;
+        } else if (brand) {
+            app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND brand_id = ?', [id, brand.id]);
+        }
+
+        if (!app) {
+            return res.status(404).json({ success: false, error: 'Application not found or unauthorized.' });
+        }
+
+        run('UPDATE campaign_applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ['REJECTED', id]);
+
+        if (isCreator) {
+            const brandUser = queryOne('SELECT user_id FROM brand_profiles WHERE id = ?', [app.brand_id]);
+            if (brandUser?.user_id) {
+                run(
+                    `INSERT INTO notifications (id, user_id, title, message, link)
+                     VALUES (?, ?, ?, ?, ?)`,
+                    [
+                        generateId('notif'),
+                        brandUser.user_id,
+                        'Offer Declined',
+                        `${creator.full_name || 'Creator'} has declined the collaboration offer.`,
+                        `/brand/applications`
+                    ]
+                );
+            }
+        }
+
+        return res.json({ success: true, message: 'Offer declined.' });
+    } catch (err) {
+        console.error('Error declining application:', err);
+        return res.status(500).json({ success: false, error: 'Failed to decline application: ' + err.message });
     }
 });
 

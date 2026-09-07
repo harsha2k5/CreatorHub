@@ -82,6 +82,8 @@ export const api = {
   },
   updateApplicationStatus: (id: string, status: 'ACCEPTED' | 'SHORTLISTED' | 'REJECTED') =>
     request(`/applications/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  acceptApplication: (id: string) => request(`/applications/${id}/accept`, { method: 'POST' }),
+  declineApplication: (id: string) => request(`/applications/${id}/decline`, { method: 'POST' }),
 
   // Collaborations & Deliverables
   getCollaborations: () => request('/collaborations'),

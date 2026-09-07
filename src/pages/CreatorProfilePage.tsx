@@ -161,12 +161,12 @@ export const CreatorProfilePage: React.FC = () => {
 
   const instagramUrl = getInstagramUrl(creator.social_link, creator.username);
 
-  const analysis = creator.profile_analysis || {
+  const analysis = (creator as any).profile_analysis || {
     health_score: 92,
     engagement_quality: 'High (6.8%)',
     estimated_rates: { min_rate: 4500, max_rate: 12500, unit: 'per Reel / Video' },
     niche_breakdown: [
-      { category: creator.categories[0] || 'Lifestyle', percentage: 50 },
+      { category: (creator.categories && creator.categories[0]) || 'Lifestyle', percentage: 50 },
       { category: 'Lifestyle & Vlogs', percentage: 30 },
       { category: 'Brand Sponsorships', percentage: 20 }
     ],
@@ -240,7 +240,7 @@ export const CreatorProfilePage: React.FC = () => {
                   >
                     <InstagramIcon className="w-3.5 h-3.5" /> @{creator.username}
                   </a>
-                  <span>• {creator.city}, {creator.state}</span>
+                  <span>• {creator.city || 'India'}{creator.state ? `, ${creator.state}` : ''}</span>
                 </div>
 
                 {/* Instagram Stat Bar: Posts, Followers, Following */}
@@ -268,17 +268,17 @@ export const CreatorProfilePage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center justify-center sm:justify-end gap-1 font-extrabold text-amber-500">
-                <Star className="w-4 h-4 fill-amber-500" /> {creator.rating} ({creator.review_count} Reviews)
+                <Star className="w-4 h-4 fill-amber-500" /> {creator.rating || 5.0} ({creator.review_count || 0} Reviews)
               </div>
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed max-w-2xl">
-              {creator.bio}
+              {creator.bio || 'Creator on CreatorHub'}
             </p>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                {creator.categories.map((cat, idx) => (
+                {(creator.categories || []).map((cat, idx) => (
                   <span key={idx} className="px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-extrabold text-[10px]">
                     {cat}
                   </span>
@@ -330,7 +330,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Users className="w-3.5 h-3.5 text-purple-500" /> Followers
               </div>
-              <div className="font-heading text-xl font-extrabold text-purple-600 dark:text-purple-400">{(creator.followers ?? 518).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-purple-600 dark:text-purple-400">{(creator.followers || 0).toLocaleString()}</div>
             </div>
 
             {/* Following */}
@@ -338,7 +338,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <UserCheck className="w-3.5 h-3.5 text-blue-500" /> Following
               </div>
-              <div className="font-heading text-xl font-extrabold text-blue-600 dark:text-blue-400">{(creator.following || 312).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-blue-600 dark:text-blue-400">{(creator.following || 0).toLocaleString()}</div>
             </div>
 
             {/* Total Posts */}
@@ -346,7 +346,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Grid className="w-3.5 h-3.5 text-indigo-500" /> Total Posts
               </div>
-              <div className="font-heading text-xl font-extrabold text-indigo-600 dark:text-indigo-400">{(creator.posts_count ?? 2).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-indigo-600 dark:text-indigo-400">{(creator.posts_count || 0).toLocaleString()}</div>
             </div>
 
             {/* Total Reels */}
@@ -354,7 +354,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Film className="w-3.5 h-3.5 text-rose-500" /> Total Reels
               </div>
-              <div className="font-heading text-xl font-extrabold text-rose-600 dark:text-rose-400">{(creator.reels_count ?? 2).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-rose-600 dark:text-rose-400">{(creator.reels_count || 0).toLocaleString()}</div>
             </div>
 
             {/* Avg Views */}
@@ -362,7 +362,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Eye className="w-3.5 h-3.5 text-amber-500" /> Avg Views / Reel
               </div>
-              <div className="font-heading text-xl font-extrabold text-amber-500">{(creator.avg_views ?? 1850).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-amber-500">{(creator.avg_views || 0).toLocaleString()}</div>
             </div>
 
             {/* Avg Likes */}
@@ -370,7 +370,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/20" /> Avg Likes
               </div>
-              <div className="font-heading text-xl font-extrabold text-rose-500">{(creator.avg_likes ?? 185).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-rose-500">{(creator.avg_likes || 0).toLocaleString()}</div>
             </div>
 
             {/* Avg Comments */}
@@ -378,7 +378,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <MessageCircle className="w-3.5 h-3.5 text-teal-500" /> Avg Comments
               </div>
-              <div className="font-heading text-xl font-extrabold text-teal-600 dark:text-teal-400">{(creator.avg_comments ?? 24).toLocaleString()}</div>
+              <div className="font-heading text-xl font-extrabold text-teal-600 dark:text-teal-400">{(creator.avg_comments || 0).toLocaleString()}</div>
             </div>
 
             {/* Engagement Rate */}
@@ -386,7 +386,7 @@ export const CreatorProfilePage: React.FC = () => {
               <div className="text-[11px] text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <Activity className="w-3.5 h-3.5 text-emerald-500" /> Engagement Rate
               </div>
-              <div className="font-heading text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{creator.engagement_rate}%</div>
+              <div className="font-heading text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{creator.engagement_rate || 0}%</div>
             </div>
           </div>
         </div>
@@ -463,7 +463,7 @@ export const CreatorProfilePage: React.FC = () => {
               </h3>
               <div className="space-y-2.5">
                 {(analysis.niche_breakdown || [
-                  { category: creator.categories[0] || 'Lifestyle', percentage: 50 },
+                  { category: (creator.categories && creator.categories[0]) || 'Lifestyle', percentage: 50 },
                   { category: 'Vlogs & Reviews', percentage: 30 },
                   { category: 'Brand Sponsorships', percentage: 20 }
                 ]).map((item: any, idx: number) => (
@@ -526,8 +526,8 @@ export const CreatorProfilePage: React.FC = () => {
                 creator_id: creator.id,
                 platform: 'Instagram' as const,
                 handle: `@${creator.username}`,
-                follower_count: creator.followers,
-                engagement_rate: creator.engagement_rate,
+                follower_count: creator.followers || 0,
+                engagement_rate: creator.engagement_rate || 0,
                 profile_url: instagramUrl,
                 verified: 1
               },
@@ -536,8 +536,8 @@ export const CreatorProfilePage: React.FC = () => {
                 creator_id: creator.id,
                 platform: 'YouTube' as const,
                 handle: `${creator.full_name} Vlogs`,
-                follower_count: Math.floor(creator.followers * 0.42),
-                engagement_rate: Number((creator.engagement_rate * 1.15).toFixed(1)),
+                follower_count: Math.floor((creator.followers || 0) * 0.42),
+                engagement_rate: Number(((creator.engagement_rate || 0) * 1.15).toFixed(1)),
                 profile_url: `https://youtube.com/@${creator.username}_vlogs`,
                 verified: 1
               }
@@ -559,14 +559,14 @@ export const CreatorProfilePage: React.FC = () => {
                       <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 fill-blue-500/20" />
                     </div>
                     <div className="text-[10px] text-slate-400 font-semibold">
-                      {sa.platform} • {sa.follower_count.toLocaleString()} Followers
+                      {sa.platform} • {(sa.follower_count || 0).toLocaleString()} Followers
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right">
                   <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
-                    {sa.engagement_rate || creator.engagement_rate}% ER
+                    {sa.engagement_rate || creator.engagement_rate || 0}% ER
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 flex items-center gap-0.5 justify-end">
                     Verified <ExternalLink className="w-2.5 h-2.5" />
@@ -704,7 +704,7 @@ export const CreatorProfilePage: React.FC = () => {
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
-                Followers ({creator.followers?.toLocaleString()})
+                Followers ({((creator.followers || 0)).toLocaleString()})
               </button>
               <button
                 onClick={() => setConnectionsModal('following')}
@@ -714,7 +714,7 @@ export const CreatorProfilePage: React.FC = () => {
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
-                Following ({(creator.following || 312).toLocaleString()})
+                Following ({((creator.following || 0)).toLocaleString()})
               </button>
             </div>
 

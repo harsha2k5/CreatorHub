@@ -36,7 +36,7 @@ import { CreatorSubscriptionModal } from '../components/CreatorSubscriptionModal
 import { CreatorSubscriptionStatus } from '../types';
 
 export const CreatorDashboard: React.FC = () => {
-  const { user, refreshSessionUser } = useAuth();
+  const { user, refreshSessionUser, showToast } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,6 +54,7 @@ export const CreatorDashboard: React.FC = () => {
   const [subscriptionData, setSubscriptionData] = useState<CreatorSubscriptionStatus | null>(null);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [oauthFeedback, setOauthFeedback] = useState<{ message: string; isError?: boolean } | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   // Deliverables submission state
   const [selectedCollab, setSelectedCollab] = useState<any>(null);
@@ -64,6 +65,37 @@ export const CreatorDashboard: React.FC = () => {
   const [proofSuccess, setProofSuccess] = useState(false);
 
   const profile = (user?.profile as any) || {};
+
+  const handleAcceptApplication = async (appId: string) => {
+    setActionLoadingId(appId);
+    try {
+      const res = await api.acceptApplication(appId);
+      if (res.success) {
+        showToast('🤝 Offer accepted! Collaboration and Escrow are now active.');
+        await loadAllData();
+        setActiveTab('collaborations');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Failed to accept offer.', 'error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeclineApplication = async (appId: string) => {
+    setActionLoadingId(appId);
+    try {
+      const res = await api.declineApplication(appId);
+      if (res.success) {
+        showToast('Offer declined.');
+        await loadAllData();
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Failed to decline offer.', 'error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
 
   const loadAllData = async () => {
     setLoading(true);
@@ -841,6 +873,213 @@ export const CreatorDashboard: React.FC = () => {
             isInstagramConnected={isIgConnected}
             onAnalysisUpdated={newAnalysis => setAiAnalysis(newAnalysis)}
           />
+        )}
+
+        {/* Tab: Applications & Direct Collaboration Offers */}
+        {activeTab === 'applications' && (
+          <div className="space-y-8 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-white mb-1">Applications & Collaboration Offers</h2>
+                <p className="text-xs text-slate-400">
+                  Review direct pitches sent exclusively to you by brands, track your campaign proposals, and accept offers to start escrow.
+                </p>
+              </div>
+              <button
+                onClick={loadAllData}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              </button>
+            </div>
+
+            {/* Section 1: Direct Pitches & Exclusive Brand Offers */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-400" /> Direct Brand Pitches & Collaboration Offers
+                  {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED').length > 0 && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-600 text-white animate-pulse">
+                      {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED').length} Pending
+                    </span>
+                  )}
+                </h3>
+              </div>
+
+              {applications.filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED' || (a.pitch && a.pitch.startsWith('Direct Brand Pitch:'))).length === 0 ? (
+                <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-2 text-xl">
+                    🎯
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-300">No Pending Direct Brand Pitches</h4>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    When brands discover your profile and send custom pitch offers with locked budget payouts, they will appear here for your immediate acceptance.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {applications
+                    .filter(a => a.status === 'SHORTLISTED' || a.status === 'OFFERED' || (a.pitch && a.pitch.startsWith('Direct Brand Pitch:')))
+                    .map(app => (
+                      <div
+                        key={app.id}
+                        className="bg-gradient-to-r from-slate-900 via-slate-900/90 to-purple-950/30 p-6 rounded-3xl border-2 border-purple-500/40 shadow-xl space-y-4 relative"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-3.5">
+                            <img
+                              src={app.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
+                              alt={app.brand_name || 'Brand'}
+                              className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                                  {app.brand_name || 'Brand Partner'}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                  Direct Offer
+                                </span>
+                              </div>
+                              <h4 className="text-base font-black text-white">{app.campaign_title || 'Direct Collaboration Offer'}</h4>
+                            </div>
+                          </div>
+
+                          <div className="text-left sm:text-right">
+                            <div className="text-[10px] text-slate-400 font-bold uppercase">Offered Reward</div>
+                            <div className="font-heading text-2xl font-black text-emerald-400">
+                              ₹{Number(app.proposed_budget || app.reward_per_creator || 5000).toLocaleString()}
+                            </div>
+                            <div className="text-[10px] text-slate-400 flex items-center sm:justify-end gap-1 mt-0.5">
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Escrow Protected
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Brand Pitch Message */}
+                        <div className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 text-xs space-y-1.5">
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Message from Brand:</div>
+                          <p className="text-slate-200 leading-relaxed italic">
+                            "{app.pitch}"
+                          </p>
+                          {app.proposed_deliverables && (
+                            <div className="text-[11px] text-purple-300 font-semibold pt-1 border-t border-slate-800/60 mt-2">
+                              Deliverables requested: {app.proposed_deliverables}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                          <div className="text-[11px] text-slate-500">
+                            Received {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : 'Recently'}
+                          </div>
+
+                          <div className="flex items-center gap-2.5">
+                            {app.status === 'ACCEPTED' ? (
+                              <button
+                                onClick={() => setActiveTab('collaborations')}
+                                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer"
+                              >
+                                <CheckCircle2 className="w-4 h-4" /> View in Active Deliverables
+                              </button>
+                            ) : app.status === 'REJECTED' ? (
+                              <span className="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold">
+                                Offer Declined
+                              </span>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={actionLoadingId === app.id}
+                                  onClick={() => handleDeclineApplication(app.id)}
+                                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+                                >
+                                  Decline
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={actionLoadingId === app.id}
+                                  onClick={() => handleAcceptApplication(app.id)}
+                                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 hover:opacity-95 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all cursor-pointer disabled:opacity-50"
+                                >
+                                  <CheckCircle2 className="w-4 h-4" />
+                                  {actionLoadingId === app.id ? 'Starting Collaboration...' : 'Accept Offer & Start Collaboration'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section 2: Submitted Campaign Applications */}
+            <div className="space-y-4 pt-4 border-t border-slate-800/80">
+              <h3 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
+                <FileCheck className="w-5 h-5 text-blue-400" /> Submitted Campaign Applications ({applications.filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:'))).length})
+              </h3>
+
+              {applications.filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:'))).length === 0 ? (
+                <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-3">
+                  <p className="text-xs text-slate-400">You haven't submitted any campaign applications yet.</p>
+                  <Link
+                    to="/creator/feed"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-600/25"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Explore Open Briefs
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {applications
+                    .filter(a => a.status !== 'SHORTLISTED' && a.status !== 'OFFERED' && (!a.pitch || !a.pitch.startsWith('Direct Brand Pitch:')))
+                    .map(app => (
+                      <div
+                        key={app.id}
+                        className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-700 transition-all"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <img
+                            src={app.brand_logo || app.campaign_image || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
+                            alt={app.brand_name || 'Brand'}
+                            className="w-11 h-11 rounded-xl object-cover border border-slate-700"
+                          />
+                          <div>
+                            <div className="text-[11px] font-semibold text-slate-400">{app.brand_name || 'Brand'}</div>
+                            <h4 className="text-sm font-bold text-white">{app.campaign_title || 'Campaign Application'}</h4>
+                            <div className="text-xs text-slate-400 mt-0.5">
+                              Reward: <span className="text-emerald-400 font-bold">₹{Number(app.proposed_budget || app.reward_per_creator || 0).toLocaleString()}</span> • Applied {app.applied_at ? new Date(app.applied_at).toLocaleDateString() : 'Recently'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 self-end sm:self-center">
+                          {app.status === 'ACCEPTED' ? (
+                            <button
+                              onClick={() => setActiveTab('collaborations')}
+                              className="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/25 transition-colors"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Accepted • Deliverables Active →
+                            </button>
+                          ) : app.status === 'REJECTED' ? (
+                            <span className="px-3 py-1 rounded-xl bg-slate-800 text-slate-400 text-xs font-semibold">
+                              Not Selected
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" /> Pending Review
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* Tab 4: Collaborations & Deliverable Submissions */}

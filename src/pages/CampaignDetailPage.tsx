@@ -122,6 +122,16 @@ export const CampaignDetailPage: React.FC = () => {
   const isTierLocked = isCreator && getTierOrder(currentTier) < getTierOrder(reqTier);
   const isQuotaExceeded = isCreator && subscriptionData && subscriptionData.applications_remaining === 0;
 
+  const deliverablesList: string[] = Array.isArray(campaign.deliverables)
+    ? campaign.deliverables
+    : (typeof campaign.deliverables === 'string'
+        ? (() => { try { const p = JSON.parse(campaign.deliverables); return Array.isArray(p) ? p : [campaign.deliverables]; } catch { return [campaign.deliverables]; } })()
+        : ['1 Instagram Reel / Post', '1 Story Mention']);
+
+  const brandName = campaign.brand_name || campaign.brand?.company_name || 'Brand Partner';
+  const brandLogo = campaign.brand_logo || campaign.brand?.logo_url || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=300&auto=format&fit=crop&q=80';
+  const rewardPayout = campaign.reward_per_creator || 0;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -134,17 +144,17 @@ export const CampaignDetailPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
               <img
-                src={campaign.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=300&auto=format&fit=crop&q=80'}
-                alt={campaign.brand_name}
+                src={brandLogo}
+                alt={brandName}
                 className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
               />
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="font-bold text-sm text-slate-900 dark:text-slate-100">{campaign.brand_name}</h2>
+                  <h2 className="font-bold text-sm text-slate-900 dark:text-slate-100">{brandName}</h2>
                   <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-500/20" />
                 </div>
                 <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" /> {campaign.location_name} • {campaign.outlet_name}
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" /> {campaign.location_name || campaign.city || 'India'} {campaign.outlet_name ? `• ${campaign.outlet_name}` : ''}
                 </div>
               </div>
             </div>
@@ -152,7 +162,7 @@ export const CampaignDetailPage: React.FC = () => {
             <div className="text-left sm:text-right">
               <div className="text-xs text-slate-400 font-bold uppercase">Creator Reward Payout</div>
               <div className="font-heading text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                ₹{campaign.reward_per_creator.toLocaleString()}
+                ₹{rewardPayout.toLocaleString()}
               </div>
               <div className="text-[11px] text-slate-400 flex items-center justify-end gap-1 mt-0.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Escrow Protected Payout
@@ -174,19 +184,21 @@ export const CampaignDetailPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-xs">
             <div>
               <div className="text-slate-400 font-semibold mb-0.5">Category</div>
-              <div className="font-bold text-slate-900 dark:text-slate-100">{campaign.category}</div>
+              <div className="font-bold text-slate-900 dark:text-slate-100">{campaign.category || 'General'}</div>
             </div>
             <div>
               <div className="text-slate-400 font-semibold mb-0.5">Platform</div>
-              <div className="font-bold text-slate-900 dark:text-slate-100">{campaign.platform}</div>
+              <div className="font-bold text-slate-900 dark:text-slate-100">{campaign.platform || 'Instagram'}</div>
             </div>
             <div>
               <div className="text-slate-400 font-semibold mb-0.5">Min Followers</div>
-              <div className="font-bold text-slate-900 dark:text-slate-100">{campaign.min_followers.toLocaleString()}+</div>
+              <div className="font-bold text-slate-900 dark:text-slate-100">{(campaign.min_followers || 0).toLocaleString()}+</div>
             </div>
             <div>
               <div className="text-slate-400 font-semibold mb-0.5">Slots Available</div>
-              <div className="font-bold text-blue-600 dark:text-blue-400">{campaign.creators_required - campaign.creators_hired} / {campaign.creators_required} Slots</div>
+              <div className="font-bold text-blue-600 dark:text-blue-400">
+                {Math.max(0, (campaign.creators_required || 1) - (campaign.creators_hired || 0))} / {campaign.creators_required || 1} Slots
+              </div>
             </div>
           </div>
         </div>
@@ -198,7 +210,7 @@ export const CampaignDetailPage: React.FC = () => {
               <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Campaign Deliverables
             </h3>
             <ul className="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              {campaign.deliverables.map((del, idx) => (
+              {deliverablesList.map((del, idx) => (
                 <li key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span>{del}</span>
@@ -212,10 +224,10 @@ export const CampaignDetailPage: React.FC = () => {
               <Hash className="w-4 h-4 text-blue-500" /> Hashtags & Mentions
             </h3>
             <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-mono text-blue-600 dark:text-blue-400">
-              {campaign.hashtags || '#CCDIndiranagar #CafeCoffeeDay #BengaluruEats'}
+              {campaign.hashtags || '#CreatorHub #BrandCollab'}
             </div>
             <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs font-mono text-purple-600 dark:text-purple-400">
-              {campaign.mentions || '@cafecoffeeday @ccd_indiranagar'}
+              {campaign.mentions || '@creatorhub'}
             </div>
           </div>
         </div>
@@ -226,7 +238,7 @@ export const CampaignDetailPage: React.FC = () => {
             <div className="font-extrabold text-sm">Interested in this collaboration?</div>
             <div className="text-xs text-slate-500 mt-0.5">
               {isTierLocked
-                ? `This brief offers ₹${campaign.reward_per_creator.toLocaleString()} and requires a ${reqTier.toUpperCase()} subscription tier.`
+                ? `This brief offers ₹${rewardPayout.toLocaleString()} and requires a ${reqTier.toUpperCase()} subscription tier.`
                 : isQuotaExceeded
                 ? `You have reached your monthly application limit for your current plan.`
                 : `Submit your pitch idea directly to the brand for review.`}

@@ -19,13 +19,15 @@ router.get('/', authenticateToken, async (req, res) => {
             if (!creator) return res.status(404).json({ success: false, error: 'Creator not found.' });
 
             sql = `
-                SELECT col.*, c.title as campaign_title, c.reward_per_creator, c.image_url as campaign_image,
+                SELECT col.*, COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
+                       COALESCE(c.reward_per_creator, p.amount, 5000) as reward_per_creator,
+                       c.image_url as campaign_image,
                        c.deliverables_json as campaign_deliverables,
                        b.company_name as brand_name, b.logo_url as brand_logo, b.city as brand_city,
                        p.status as payment_status, p.amount as payment_amount, p.is_simulated
                 FROM collaborations col
-                JOIN campaigns c ON col.campaign_id = c.id
-                JOIN brand_profiles b ON col.brand_id = b.id
+                LEFT JOIN campaigns c ON col.campaign_id = c.id
+                LEFT JOIN brand_profiles b ON col.brand_id = b.id
                 LEFT JOIN payments p ON col.id = p.collaboration_id
                 WHERE col.creator_id = ?
                 ORDER BY col.started_at DESC
@@ -36,13 +38,14 @@ router.get('/', authenticateToken, async (req, res) => {
             if (!brand) return res.status(404).json({ success: false, error: 'Brand not found.' });
 
             sql = `
-                SELECT col.*, c.title as campaign_title, c.reward_per_creator,
+                SELECT col.*, COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
+                       COALESCE(c.reward_per_creator, p.amount, 5000) as reward_per_creator,
                        cr.full_name as creator_name, cr.username as creator_username,
                        cr.avatar_url as creator_avatar,
                        p.status as payment_status, p.amount as payment_amount, p.is_simulated
                 FROM collaborations col
-                JOIN campaigns c ON col.campaign_id = c.id
-                JOIN creator_profiles cr ON col.creator_id = cr.id
+                LEFT JOIN campaigns c ON col.campaign_id = c.id
+                LEFT JOIN creator_profiles cr ON col.creator_id = cr.id
                 LEFT JOIN payments p ON col.id = p.collaboration_id
                 WHERE col.brand_id = ?
                 ORDER BY col.started_at DESC
@@ -80,15 +83,16 @@ router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const collab = queryOne(`
-            SELECT col.*, c.title as campaign_title, c.description as campaign_desc,
-                   c.deliverables_json, c.reward_per_creator,
+            SELECT col.*, COALESCE(c.title, 'Direct Collaboration Offer') as campaign_title,
+                   c.description as campaign_desc,
+                   c.deliverables_json, COALESCE(c.reward_per_creator, p.amount, 5000) as reward_per_creator,
                    b.company_name as brand_name, b.logo_url as brand_logo, b.business_email,
                    cr.full_name as creator_name, cr.username as creator_username, cr.avatar_url as creator_avatar,
                    p.status as payment_status, p.amount as payment_amount, p.is_simulated, p.transaction_ref
             FROM collaborations col
-            JOIN campaigns c ON col.campaign_id = c.id
-            JOIN brand_profiles b ON col.brand_id = b.id
-            JOIN creator_profiles cr ON col.creator_id = cr.id
+            LEFT JOIN campaigns c ON col.campaign_id = c.id
+            LEFT JOIN brand_profiles b ON col.brand_id = b.id
+            LEFT JOIN creator_profiles cr ON col.creator_id = cr.id
             LEFT JOIN payments p ON col.id = p.collaboration_id
             WHERE col.id = ?
         `, [id]);

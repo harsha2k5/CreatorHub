@@ -96,7 +96,7 @@ router.get('/', async (req, res) => {
         let sql = `
             SELECT c.*, b.company_name, b.logo_url, b.category as brand_category, b.verified as brand_verified
             FROM campaigns c
-            JOIN brand_profiles b ON c.brand_id = b.id
+            LEFT JOIN brand_profiles b ON c.brand_id = b.id
             WHERE 1=1
         `;
         const params = [];
@@ -185,7 +185,7 @@ router.get('/:id', async (req, res) => {
                    b.description as brand_desc, b.website as brand_website, b.address as brand_address,
                    b.business_email
             FROM campaigns c
-            JOIN brand_profiles b ON c.brand_id = b.id
+            LEFT JOIN brand_profiles b ON c.brand_id = b.id
             WHERE c.id = ?
         `, [id]);
 

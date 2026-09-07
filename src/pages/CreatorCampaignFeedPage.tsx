@@ -70,12 +70,25 @@ export const CreatorCampaignFeedPage: React.FC = () => {
 
   // Quick Apply Modal State
   const [selectedCampaign, setSelectedCampaign] = useState<any | null>(null);
+  const [briefCampaign, setBriefCampaign] = useState<any | null>(null);
   const [pitchText, setPitchText] = useState('');
   const [experienceText, setExperienceText] = useState('');
   const [availabilityText, setAvailabilityText] = useState('Immediate / This Weekend');
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
   const [applyError, setApplyError] = useState('');
+
+  const getDeliverablesList = (c: any): string[] => {
+    if (Array.isArray(c.deliverables)) return c.deliverables;
+    if (typeof c.deliverables === 'string') {
+      try { const parsed = JSON.parse(c.deliverables); if (Array.isArray(parsed)) return parsed; } catch {}
+      return [c.deliverables];
+    }
+    if (c.deliverables_json) {
+      try { const parsed = JSON.parse(c.deliverables_json); if (Array.isArray(parsed)) return parsed; } catch {}
+    }
+    return ['1 Instagram Reel / Video', '1 Story Mention with link'];
+  };
 
   // Subscription State
   const [subscriptionData, setSubscriptionData] = useState<CreatorSubscriptionStatus | null>(null);
@@ -493,12 +506,13 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                   </div>
 
                   <div className="p-6 pt-0 flex items-center gap-3">
-                    <Link
-                      to={`/campaigns/${camp.id}`}
-                      className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold text-center border border-slate-700 transition-all"
+                    <button
+                      type="button"
+                      onClick={() => setBriefCampaign(camp)}
+                      className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold text-center border border-slate-700 transition-all cursor-pointer"
                     >
                       View Brief
-                    </Link>
+                    </button>
                     <button
                       onClick={() => handleOpenApply(camp)}
                       className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-center shadow-lg transition-all flex items-center justify-center gap-1.5 ${
@@ -633,6 +647,111 @@ export const CreatorCampaignFeedPage: React.FC = () => {
                   </button>
                 </form>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* View Campaign Brief Modal */}
+        {briefCampaign && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+              <button
+                type="button"
+                onClick={() => setBriefCampaign(null)}
+                className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3.5 mb-5 pb-5 border-b border-slate-800">
+                <img
+                  src={briefCampaign.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
+                  alt={briefCampaign.brand_name || 'Brand'}
+                  className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
+                    <span>{briefCampaign.brand_name || 'Brand Partner'}</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 fill-blue-400/20" />
+                    <span>• {briefCampaign.category || 'General'}</span>
+                  </div>
+                  <h2 className="text-xl font-black text-white">{briefCampaign.title}</h2>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Campaign Brief & Objectives</h4>
+                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                    {briefCampaign.description || 'Collaborate with the brand to create authentic, engaging content for audiences.'}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Reward Payout</div>
+                    <div className="font-heading text-lg font-extrabold text-emerald-400">
+                      ₹{(briefCampaign.reward_per_creator || 0).toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Escrow Protected
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+                    <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Requirements</div>
+                    <div className="font-bold text-slate-200">
+                      {(briefCampaign.min_followers || 0).toLocaleString()}+ Followers
+                    </div>
+                    <div className="text-[10px] text-blue-400 font-semibold mt-0.5">
+                      {briefCampaign.platform || 'Instagram'}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Required Deliverables</h4>
+                  <div className="space-y-2">
+                    {getDeliverablesList(briefCampaign).map((del, i) => (
+                      <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-200 font-semibold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>{del}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {(briefCampaign.hashtags || briefCampaign.mentions) && (
+                  <div className="p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1 text-xs">
+                    {briefCampaign.hashtags && (
+                      <div className="text-blue-400 font-mono text-[11px]">{briefCampaign.hashtags}</div>
+                    )}
+                    {briefCampaign.mentions && (
+                      <div className="text-purple-400 font-mono text-[11px]">{briefCampaign.mentions}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Link
+                  to={`/campaigns/${briefCampaign.id}`}
+                  className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold text-center border border-slate-700 transition-all"
+                >
+                  Open Full Page
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const c = briefCampaign;
+                    setBriefCampaign(null);
+                    handleOpenApply(c);
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold text-center shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" /> Apply Now
+                </button>
+              </div>
             </div>
           </div>
         )}
