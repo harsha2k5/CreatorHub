@@ -5,25 +5,37 @@ async function seed() {
     await initDB();
 
     console.log('🌱 Checking seed data...');
-    const userCount = queryOne('SELECT COUNT(*) as count FROM users');
-    if (userCount && userCount.count > 0) {
-        console.log('🌱 Database already contains data. Skipping seed.');
+    const adminUser = queryOne("SELECT id FROM users WHERE role = 'admin'");
+    if (!adminUser) {
+        console.log('🌱 Initializing Admin account...');
+        const salt = await bcrypt.genSalt(10);
+        const adminHash = await bcrypt.hash('Admin@123', salt);
+        run(
+            `INSERT INTO users (id, email, password_hash, role, is_verified, is_active)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            ['usr_admin_1', 'admin@creatorhub.com', adminHash, 'admin', 1, 1]
+        );
+        console.log('✅ Admin user initialized (admin@creatorhub.com / Admin@123).');
+    } else {
+        console.log('🌱 Admin account already present.');
+    }
+
+    if (process.env.SEED_DEMO_DATA !== 'true') {
+        console.log('🌱 Demo data seeding disabled (clean mode).');
         return;
     }
 
-    console.log('🌱 Seeding fresh relational database...');
+    const nonAdminCount = queryOne("SELECT COUNT(*) as count FROM users WHERE role != 'admin'");
+    if (nonAdminCount && nonAdminCount.count > 0) {
+        console.log('🌱 Database already contains users. Skipping demo seed.');
+        return;
+    }
+
+    console.log('🌱 Seeding demo profiles...');
 
     const salt = await bcrypt.genSalt(10);
-    const adminHash = await bcrypt.hash('Admin@123', salt);
     const brandHash = await bcrypt.hash('Brand@123', salt);
     const creatorHash = await bcrypt.hash('Creator@123', salt);
-
-    // 1. Admin User
-    run(
-        `INSERT INTO users (id, email, password_hash, role, is_verified, is_active)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        ['usr_admin_1', 'admin@creatorhub.com', adminHash, 'admin', 1, 1]
-    );
 
     // 2. Brand Users & Profiles
     const brandsData = [
