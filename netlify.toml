@@ -3,6 +3,10 @@
   publish = "dist"
   command = "npm run build"
 
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
 # Option A: If you deploy your Express backend on Render, Railway, or Fly.io,
 # you can either:
 #   1. Add an environment variable in Netlify Dashboard: VITE_API_URL = https://your-backend.onrender.com
