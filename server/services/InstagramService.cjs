@@ -329,8 +329,8 @@ class InstagramService {
     static async syncAccount(creatorId) {
         const startTime = Date.now();
         const account = queryOne(
-            `SELECT id, user_id, instagram_user_id, encrypted_access_token,
-                    access_token, token_expires_at, account_type
+            `SELECT id, user_id, instagram_user_id, instagram_username, username, full_name,
+                    profile_picture_url, encrypted_access_token, access_token, token_expires_at, account_type
              FROM instagram_accounts
              WHERE creator_id = ? AND is_connected = 1`,
             [creatorId]

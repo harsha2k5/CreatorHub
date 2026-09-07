@@ -46,14 +46,14 @@ async function fetchPublicInstagramProfile(username) {
     const cleanUsername = username.replace(/^@/, '').trim();
     if (!cleanUsername) return null;
 
-    // 1. Direct Instagram Crawling with various authentic user agents
+    // 1. Direct Instagram Crawling with social preview agents that Instagram serves og:description to
     const userAgents = [
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
         'WhatsApp/2.21.4.13 A',
+        'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'Twitterbot/1.0',
-        'TelegramBot (like TwitterBot)'
+        'TelegramBot (like TwitterBot)',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     ];
 
     for (const ua of userAgents) {

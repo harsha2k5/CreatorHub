@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   Link2,
   SlidersHorizontal,
-  ArrowRight
+  ArrowRight,
+  Edit3
 } from 'lucide-react';
 import { Instagram } from '../icons/InstagramIcon';
 import {
@@ -443,24 +444,60 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
 
                 {/* Verified Metrics Counter */}
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center">
-                  <div className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Followers</span>
+                  <div
+                    onClick={() => setShowCustomFields(true)}
+                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    title="Click to edit follower count"
+                  >
+                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
+                      Followers <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    </span>
                     <span className="text-sm font-black text-emerald-400">
-                      {verifiedProfile.followers_count !== null ? verifiedProfile.followers_count.toLocaleString() : 'N/A'}
+                      {(customFollowers.trim() && !isNaN(Number(customFollowers)))
+                        ? Number(customFollowers).toLocaleString()
+                        : (verifiedProfile.followers_count !== null ? verifiedProfile.followers_count.toLocaleString() : 'N/A')}
                     </span>
                   </div>
-                  <div className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Following</span>
+                  <div
+                    onClick={() => setShowCustomFields(true)}
+                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    title="Click to edit following count"
+                  >
+                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
+                      Following <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    </span>
                     <span className="text-sm font-black text-slate-200">
-                      {verifiedProfile.following_count !== null ? verifiedProfile.following_count.toLocaleString() : 'N/A'}
+                      {(customFollowing.trim() && !isNaN(Number(customFollowing)))
+                        ? Number(customFollowing).toLocaleString()
+                        : (verifiedProfile.following_count !== null ? verifiedProfile.following_count.toLocaleString() : 'N/A')}
                     </span>
                   </div>
-                  <div className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80">
-                    <span className="block text-[10px] font-bold uppercase text-slate-400">Posts</span>
+                  <div
+                    onClick={() => setShowCustomFields(true)}
+                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    title="Click to edit post count"
+                  >
+                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
+                      Posts <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    </span>
                     <span className="text-sm font-black text-purple-400">
-                      {verifiedProfile.media_count !== null ? verifiedProfile.media_count.toLocaleString() : 'N/A'}
+                      {(customPosts.trim() && !isNaN(Number(customPosts)))
+                        ? Number(customPosts).toLocaleString()
+                        : (verifiedProfile.media_count !== null ? verifiedProfile.media_count.toLocaleString() : 'N/A')}
                     </span>
                   </div>
+                </div>
+
+                {/* Follower Count Mismatch Alert & Edit Toggle */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomFields(!showCustomFields)}
+                    className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400" />
+                    <span>{showCustomFields ? 'Hide Metric Adjuster' : 'Follower count mismatch? Click here to correct your numbers'}</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -473,14 +510,17 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
 
             {/* Stats Confirmation & Override */}
             {((verifiedProfile && verifiedProfile.followers_count === null) || showCustomFields) && (
-              <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3 animate-in fade-in duration-200">
+              <div className="p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 space-y-3 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-purple-300 font-bold flex items-center gap-1.5">
                     <SlidersHorizontal className="w-3.5 h-3.5" />
-                    Confirm Your Instagram Metrics:
+                    Adjust Your Verified Instagram Metrics:
                   </span>
-                  <span className="text-[10px] text-slate-400">Values display on your public cards</span>
+                  <span className="text-[10px] text-emerald-400 font-medium">Updates live on your profile</span>
                 </div>
+                <p className="text-[11px] text-slate-400 leading-normal">
+                  If Instagram returned an older cached number (e.g. 408 instead of 793), enter your exact current follower count below to connect with accurate numbers.
+                </p>
                 <div className="grid grid-cols-3 gap-2.5">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 mb-1">
@@ -488,7 +528,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     </label>
                     <input
                       type="number"
-                      placeholder="e.g. 794"
+                      placeholder="e.g. 793"
                       value={customFollowers}
                       onChange={(e) => setCustomFollowers(e.target.value)}
                       className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
@@ -498,7 +538,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     <label className="block text-[10px] font-bold text-slate-400 mb-1">Following</label>
                     <input
                       type="number"
-                      placeholder="e.g. 769"
+                      placeholder="e.g. 768"
                       value={customFollowing}
                       onChange={(e) => setCustomFollowing(e.target.value)}
                       className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
@@ -525,19 +565,6 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-purple-400"
                   />
                 </div>
-              </div>
-            )}
-
-            {!showCustomFields && (!verifiedProfile || verifiedProfile.followers_count !== null) && (
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowCustomFields(true)}
-                  className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1.5 font-semibold transition-colors cursor-pointer"
-                >
-                  <SlidersHorizontal className="w-3 h-3" />
-                  Want to customize or confirm follower count directly? (Optional)
-                </button>
               </div>
             )}
 
@@ -673,27 +700,25 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               setCustomPosts(postsVal !== null && postsVal > 0 ? String(postsVal) : '');
               setCustomBio(account.biography || account.bio || '');
               setShowEditLinkModal(true);
-              // Auto-verify if values are zero or empty
-              if (!followersVal || followersVal === 0) {
-                handleVerifyLink(url);
-              }
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-all cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer"
           >
-            Update Link
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Edit Metrics & Link
           </button>
           <button
             onClick={handleManualSync}
             disabled={syncing}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-bold border border-purple-500/30 transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
+            title="Re-crawl live stats from Instagram"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Refreshing...' : 'Refresh'}
+            {syncing ? 'Re-crawling...' : 'Re-crawl Live'}
           </button>
           <button
             onClick={() => setShowDisconnectModal(true)}
             disabled={disconnecting}
-            className="px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 transition-all disabled:opacity-50"
+            className="px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/20 transition-all disabled:opacity-50 cursor-pointer"
           >
             Disconnect
           </button>
