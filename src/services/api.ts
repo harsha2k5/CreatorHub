@@ -33,6 +33,9 @@ async function request(endpoint: string, options: RequestInit = {}) {
       try {
         data = JSON.parse(text);
       } catch {
+        if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+          throw new Error('Netlify returned HTML instead of API data because no backend is connected. Please set VITE_API_URL in Netlify Environment Variables to your Render backend URL, or open your app directly on Render.');
+        }
         throw new Error(`Server returned non-JSON response (${response.status}) from "${url}".`);
       }
     } else {
