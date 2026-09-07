@@ -4,7 +4,7 @@
   command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   NPM_FLAGS = "--legacy-peer-deps"
 
 # Option A: If you deploy your Express backend on Render, Railway, or Fly.io,

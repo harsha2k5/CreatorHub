@@ -41,7 +41,8 @@ function getDB() {
         console.log(`🗄️ Connected to Relational SQLite database at ${DB_FILE}`);
         return dbInstance;
     } catch (sqliteErr) {
-        console.error('❌ Failed to initialize SQLite database:', sqliteErr);
+        console.error(`❌ Failed to initialize SQLite database: ${sqliteErr.message}`);
+        console.error(`💡 Current Node version is ${process.version}. Node.js 22.5.0+ is required for built-in SQLite (node:sqlite).`);
         throw sqliteErr;
     }
 }
