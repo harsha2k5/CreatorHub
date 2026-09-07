@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { query, queryOne, run } = require('../db/database.cjs');
 const { authenticateToken, requireCreator } = require('../middleware/auth.cjs');
+const { getOrCreateCreatorProfile } = require('../services/profileHelper.cjs');
 
 const SUBSCRIPTION_PLANS = {
     free: {
@@ -90,7 +91,7 @@ router.get('/plans', (req, res) => {
 // GET /api/subscriptions/current - Creator's current subscription & quota status
 router.get('/current', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) return res.status(404).json({ success: false, error: 'Creator profile not found.' });
 
         let tier = (creator.subscription_tier || 'free').toLowerCase();
@@ -155,7 +156,7 @@ router.post('/upgrade', authenticateToken, requireCreator, async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid subscription tier selected.' });
         }
 
-        const creator = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) return res.status(404).json({ success: false, error: 'Creator profile not found.' });
 
         const plan = SUBSCRIPTION_PLANS[targetTier];

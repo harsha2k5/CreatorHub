@@ -4,6 +4,7 @@ const { query, queryOne, run, transaction } = require('../db/database.cjs');
 const { authenticateToken, requireCreator, requireBrand } = require('../middleware/auth.cjs');
 const { calculateMatchScore } = require('../services/MatchingService.cjs');
 const { SUBSCRIPTION_PLANS } = require('./subscriptions.cjs');
+const { getOrCreateCreatorProfile } = require('../services/profileHelper.cjs');
 
 function generateId(prefix = 'app') {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -12,7 +13,7 @@ function generateId(prefix = 'app') {
 // POST /api/applications/apply - Creator applies to campaign
 router.post('/apply', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) return res.status(403).json({ success: false, error: 'Creator profile not found.' });
 
         // Check if creator has connected an active Instagram account

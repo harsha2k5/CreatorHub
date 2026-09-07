@@ -18,6 +18,7 @@ const InstagramValidationService = require('../services/InstagramValidationServi
 const InstagramInsightsService = require('../services/InstagramInsightsService.cjs');
 const InstagramMediaSyncService = require('../services/InstagramMediaSyncService.cjs');
 const { fetchPublicInstagramProfile } = require('../services/instagramPublicFetcher.cjs');
+const { getOrCreateCreatorProfile } = require('../services/profileHelper.cjs');
 
 /**
  * Helper to map Meta API errors to friendly production messages
@@ -72,7 +73,7 @@ function mapInstagramError(err) {
  */
 const handleConnectUrl = (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -103,7 +104,7 @@ router.get('/connect-url', authenticateToken, requireCreator, handleConnectUrl);
  */
 router.post('/callback', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -157,7 +158,7 @@ router.get('/callback', async (req, res) => {
  */
 router.post('/disconnect', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -177,7 +178,7 @@ router.post('/disconnect', authenticateToken, requireCreator, (req, res) => {
  */
 router.get('/status', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -207,7 +208,7 @@ router.get('/status', authenticateToken, requireCreator, async (req, res) => {
  */
 router.get('/profile', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -237,7 +238,7 @@ router.get('/profile', authenticateToken, requireCreator, (req, res) => {
  */
 router.post('/sync', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -262,7 +263,7 @@ router.post('/sync', authenticateToken, requireCreator, async (req, res) => {
  */
 router.get('/metrics', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -293,7 +294,7 @@ router.get('/metrics', authenticateToken, requireCreator, (req, res) => {
  */
 router.get('/media', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -319,7 +320,7 @@ router.get('/media', authenticateToken, requireCreator, (req, res) => {
  */
 router.get('/insights', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -435,7 +436,7 @@ router.post('/verify-link', authenticateToken, requireCreator, async (req, res) 
  */
 router.post('/connect-by-link', authenticateToken, requireCreator, async (req, res) => {
     try {
-        const creator = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
@@ -490,7 +491,7 @@ router.post('/connect-by-link', authenticateToken, requireCreator, async (req, r
  */
 router.post('/sandbox-connect', authenticateToken, requireCreator, (req, res) => {
     try {
-        const creator = queryOne('SELECT id FROM creator_profiles WHERE user_id = ?', [req.user.id]);
+        const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }

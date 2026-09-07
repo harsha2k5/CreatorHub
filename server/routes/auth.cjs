@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { queryOne, run, transaction } = require('../db/database.cjs');
 const { authenticateToken, JWT_SECRET } = require('../middleware/auth.cjs');
+const { getOrCreateCreatorProfile } = require('../services/profileHelper.cjs');
 
 // Generate unique ID
 function generateId(prefix = 'usr') {
@@ -209,7 +210,7 @@ router.post('/login', async (req, res) => {
         let instagramAccount = null;
 
         if (user.role === 'creator') {
-            profile = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [user.id]);
+            profile = getOrCreateCreatorProfile(user.id, user);
             if (profile) {
                 profile.categories = JSON.parse(profile.categories_json || '[]');
                 profile.languages = JSON.parse(profile.languages_json || '[]');
@@ -260,7 +261,7 @@ router.get('/me', authenticateToken, async (req, res) => {
         let instagramAccount = null;
 
         if (user.role === 'creator') {
-            profile = queryOne('SELECT * FROM creator_profiles WHERE user_id = ?', [user.id]);
+            profile = getOrCreateCreatorProfile(user.id, user);
             if (profile) {
                 profile.categories = JSON.parse(profile.categories_json || '[]');
                 profile.languages = JSON.parse(profile.languages_json || '[]');
