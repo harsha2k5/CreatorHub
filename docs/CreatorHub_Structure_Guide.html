@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CreatorHub — Complete Project Structure & Architecture Guide</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.45;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+    .header-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+      color: #ffffff;
+      padding: 24px 28px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+    .header-banner h1 {
+      margin: 0 0 6px 0;
+      font-size: 22pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-banner .tagline {
+      font-size: 11pt;
+      color: #c7d2fe;
+      margin: 0 0 14px 0;
+      font-weight: 500;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .badge {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 8.5pt;
+      font-weight: 600;
+    }
+    h2 {
+      color: #0f172a;
+      font-size: 14pt;
+      font-weight: 800;
+      margin: 22px 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      break-after: avoid;
+    }
+    h3 {
+      color: #334155;
+      font-size: 11.5pt;
+      font-weight: 700;
+      margin: 16px 0 8px 0;
+      break-after: avoid;
+    }
+    p {
+      margin: 0 0 10px 0;
+      color: #334155;
+    }
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      break-inside: avoid;
+    }
+    .tree-box {
+      background: #090d16;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+      font-size: 8.5pt;
+      line-height: 1.4;
+      white-space: pre;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+      break-inside: avoid;
+      margin-bottom: 18px;
+    }
+    .tree-comment {
+      color: #94a3b8;
+    }
+    .tree-folder {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .tree-file {
+      color: #f1f5f9;
+    }
+    .tree-highlight {
+      color: #a78bfa;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px 0;
+      font-size: 9pt;
+      break-inside: avoid;
+    }
+    th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 7px 10px;
+      border: 1px solid #0f172a;
+    }
+    td {
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .mini-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #6366f1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      break-inside: avoid;
+    }
+    .mini-card strong {
+      display: block;
+      color: #0f172a;
+      font-size: 9.5pt;
+      margin-bottom: 2px;
+    }
+    .mini-card span {
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px solid #cbd5e1;
+      font-size: 8pt;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header-banner">
+    <h1>🚀 CreaterHub</h1>
+    <div class="tagline">Production-Grade Brand × Local Creator Collaboration Marketplace</div>
+    <p style="color: #e0e7ff; font-size: 9.5pt; margin-bottom: 10px;">
+      Architecture & Detailed Project Structure Specification • Real Data First Guarantee
+    </p>
+    <div class="badge-bar">
+      <span class="badge">Node.js 22 (node:sqlite WAL)</span>
+      <span class="badge">Express 5.2</span>
+      <span class="badge">React 19.2</span>
+      <span class="badge">TypeScript 5.7</span>
+      <span class="badge">Vite 8.2</span>
+      <span class="badge">Tailwind CSS v4.3</span>
+      <span class="badge">Meta Graph API v19.0</span>
+      <span class="badge">Google Gemini GenAI</span>
+    </div>
+  </div>
+
+  <!-- SECTION 1: ARCHITECTURAL OVERVIEW -->
+  <h2>1. Architectural Overview & Pillars</h2>
+  <div class="card">
+    <p>
+      <strong>CreaterHub</strong> connects local businesses with authentic, verified Instagram creators within precise geographic radii (1 km – 50 km).
+      Built under a strict <em>"REAL DATA FIRST. ZERO FAKE DATA"</em> architectural guarantee, all follower counts, engagement metrics, and media items originate exclusively from official Meta Graph API v19.0 connections or multi-tier search crawlers, with zero synthetic guesswork.
+    </p>
+    <div class="grid-2" style="margin-top: 12px; margin-bottom: 0;">
+      <div class="mini-card">
+        <strong>🛡️ 1. Real Data First Guarantee</strong>
+        <span>Official OAuth exchange, long-lived token vault (AES-256), fallback web crawlers, transparent data provenance.</span>
+      </div>
+      <div class="mini-card">
+        <strong>📍 2. Haversine Geospatial Discovery</strong>
+        <span>1km, 5km, 10km, 25km radius filtering with Leaflet interactive OpenStreetMap discovery.</span>
+      </div>
+      <div class="mini-card">
+        <strong>🎯 3. Multi-Factor Compatibility Matching</strong>
+        <span>Objective 0–100% score based on distance, engagement compliance, audience tier, and niche overlap.</span>
+      </div>
+      <div class="mini-card">
+        <strong>🔒 4. 6-Stage Escrow Lifecycle</strong>
+        <span>APPLIED ➔ ACCEPTED ➔ ESCROW_LOCKED ➔ PROOF_SUBMITTED ➔ APPROVED ➔ ESCROW_RELEASED.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: DIRECTORY TREE -->
+  <h2>2. Master Directory Tree</h2>
+  <div class="tree-box">
+<span class="tree-folder">CreaterHub/</span>
+├── <span class="tree-folder">docs/</span>                             <span class="tree-comment"># System documentation, design docs & specifications</span>
+│   └── <span class="tree-file">ARCHITECTURE.md</span>                  <span class="tree-comment"># System architecture, workflows & scoring formulas</span>
+│
+├── <span class="tree-folder">public/</span>                           <span class="tree-comment"># Static web assets & favicons</span>
+│
+├── <span class="tree-folder">server/</span>                           <span class="tree-comment"># 🟢 Node.js 22 + Express 5 Backend REST API</span>
+│   ├── <span class="tree-highlight">index.cjs</span>                         <span class="tree-comment"># Express bootstrap, CORS, JSON parsers & route mounting</span>
+│   ├── <span class="tree-folder">db/</span>                           <span class="tree-comment"># Relational Database Engine</span>
+│   │   ├── <span class="tree-highlight">database.cjs</span>                  <span class="tree-comment"># node:sqlite WAL connection & PostgreSQL fallback pool</span>
+│   │   ├── <span class="tree-file">schema.sql</span>                    <span class="tree-comment"># 20 normalized relational tables with foreign keys</span>
+│   │   ├── <span class="tree-file">seed.cjs</span>                      <span class="tree-comment"># Database seed: Admin, Brands (Third Wave), Creators</span>
+│   │   └── <span class="tree-file">migrate_subscriptions.cjs</span>     <span class="tree-comment"># Creator Pro subscription tiers schema migration</span>
+│   ├── <span class="tree-folder">data/</span>                         <span class="tree-comment"># Persistent SQLite storage directory (creatorhub.db)</span>
+│   ├── <span class="tree-folder">middleware/</span>                   <span class="tree-comment"># Request Interceptors & Security</span>
+│   │   └── <span class="tree-file">auth.cjs</span>                      <span class="tree-comment"># JWT token authentication & role guards (Admin/Brand/Creator)</span>
+│   ├── <span class="tree-folder">models/</span>                       <span class="tree-comment"># ORM data-access methods (User, Creator, Brand, Campaign)</span>
+│   ├── <span class="tree-folder">routes/</span>                       <span class="tree-comment"># 15 Express REST API Route Modules</span>
+│   │   ├── <span class="tree-file">admin.cjs</span>                     <span class="tree-comment"># Platform moderation, user suspension, Meta API health</span>
+│   │   ├── <span class="tree-file">ai.cjs</span>                        <span class="tree-comment"># Google Gemini AI creator analysis & brief generation</span>
+│   │   ├── <span class="tree-file">applications.cjs</span>              <span class="tree-comment"># Campaign applications, pitches, status updates</span>
+│   │   ├── <span class="tree-file">auth.cjs</span>                      <span class="tree-comment"># Sign up, sign in, token generation, role selection</span>
+│   │   ├── <span class="tree-file">brands.cjs</span>                    <span class="tree-comment"># Brand profile management & analytics overview</span>
+│   │   ├── <span class="tree-file">campaigns.cjs</span>                 <span class="tree-comment"># Campaign creation, status filtering, geospatial discovery</span>
+│   │   ├── <span class="tree-file">collaborations.cjs</span>            <span class="tree-comment"># Deliverables submission, proof review & escrow actions</span>
+│   │   ├── <span class="tree-file">creators.cjs</span>                  <span class="tree-comment"># Creator directory, profiles, direct pitches</span>
+│   │   ├── <span class="tree-file">instagram.cjs</span>                 <span class="tree-comment"># Meta OAuth connect, token refresh & live profile sync</span>
+│   │   ├── <span class="tree-file">messages.cjs</span>                  <span class="tree-comment"># Conversations & direct messaging between brand/creator</span>
+│   │   ├── <span class="tree-file">notifications.cjs</span>             <span class="tree-comment"># Real-time alert notifications system</span>
+│   │   ├── <span class="tree-file">payments.cjs</span>                  <span class="tree-comment"># Escrow ledger, payout release transactions</span>
+│   │   ├── <span class="tree-file">reports.cjs</span>                   <span class="tree-comment"># Platform safety, content flagging & report logging</span>
+│   │   ├── <span class="tree-file">reviews.cjs</span>                   <span class="tree-comment"># Bidirectional 1–5 star reviews & ratings</span>
+│   │   └── <span class="tree-file">subscriptions.cjs</span>             <span class="tree-comment"># Creator Pro monetization plans (Free, Silver, Gold, Diamond)</span>
+│   └── <span class="tree-folder">services/</span>                     <span class="tree-comment"># 13 Specialized Business Logic Services</span>
+│       ├── <span class="tree-file">AIAnalysisService.cjs</span>         <span class="tree-comment"># Google Gemini GenAI prompt creation & structured JSON parser</span>
+│       ├── <span class="tree-file">InstagramService.cjs</span>          <span class="tree-comment"># Meta Graph API v19.0 client & token lifecycle</span>
+│       ├── <span class="tree-file">instagramPublicFetcher.cjs</span>    <span class="tree-comment"># Multi-tier web crawler (Google, Yahoo, Bing, Jina)</span>
+│       ├── <span class="tree-file">MatchingService.cjs</span>           <span class="tree-comment"># Haversine distance formula & multi-factor match engine</span>
+│       ├── <span class="tree-file">PaymentService.cjs</span>            <span class="tree-comment"># Simulated escrow engine & transaction ledger</span>
+│       ├── <span class="tree-file">creatorAnalyticsEngine.cjs</span>    <span class="tree-comment"># Engagement rates, reach metrics & quality index</span>
+│       └── <span class="tree-file">TokenEncryptionService.cjs</span>    <span class="tree-comment"># AES-256 encryption for long-lived OAuth access tokens</span>
+│
+├── <span class="tree-folder">src/</span>                              <span class="tree-comment"># 🔵 React 19 + TypeScript + Vite 8 Frontend</span>
+│   ├── <span class="tree-highlight">App.tsx</span>                           <span class="tree-comment"># Master React router, role-based redirects & navigation guards</span>
+│   ├── <span class="tree-file">main.tsx</span>                          <span class="tree-comment"># React root entry point</span>
+│   ├── <span class="tree-file">index.css</span>                         <span class="tree-comment"># Tailwind CSS v4 design system tokens & custom fonts</span>
+│   ├── <span class="tree-folder">context/</span>                          <span class="tree-comment"># React State Management</span>
+│   │   └── <span class="tree-highlight">AuthContext.tsx</span>               <span class="tree-comment"># Authentication state, login/logout, role session & toasts</span>
+│   ├── <span class="tree-folder">services/</span>                         <span class="tree-comment"># API Client Layer</span>
+│   │   └── <span class="tree-highlight">api.ts</span>                        <span class="tree-comment"># Typed REST API client communicating with backend</span>
+│   ├── <span class="tree-folder">types/</span>                            <span class="tree-comment"># TypeScript Type Definitions</span>
+│   │   └── <span class="tree-file">index.ts</span>                      <span class="tree-comment"># Interfaces for User, Campaign, Creator, Collab, Metrics</span>
+│   ├── <span class="tree-folder">components/</span>                       <span class="tree-comment"># Modular UI Components</span>
+│   │   ├── <span class="tree-folder">layout/</span>                       <span class="tree-comment"># Header Navbar & Footer</span>
+│   │   ├── <span class="tree-folder">instagram/</span>                    <span class="tree-comment"># Instagram connect, live sync status & handle crawler modal</span>
+│   │   ├── <span class="tree-folder">analytics/</span>                    <span class="tree-comment"># AI Creator analysis scorecards & radar metrics</span>
+│   │   ├── <span class="tree-file">AICampaignModal.tsx</span>           <span class="tree-comment"># Gemini AI brief generator popup modal</span>
+│   │   ├── <span class="tree-file">CreatorSubscriptionModal.tsx</span>  <span class="tree-comment"># Silver/Gold/Diamond tier upgrade modal</span>
+│   │   ├── <span class="tree-file">DirectPitchModal.tsx</span>          <span class="tree-comment"># Direct Brand Pitch & custom budget outreach modal</span>
+│   │   └── <span class="tree-file">ReviewModal.tsx</span>               <span class="tree-comment"># Deliverable rating & feedback modal</span>
+│   └── <span class="tree-folder">pages/</span>                            <span class="tree-comment"># 15 Route Views (Dashboards, Feeds, Auth)</span>
+│       ├── <span class="tree-file">LandingPage.tsx</span>               <span class="tree-comment"># Hero section, feature showcases & live platform stats</span>
+│       ├── <span class="tree-file">BrandDashboard.tsx</span>            <span class="tree-comment"># Brand control center: campaigns, applicants, escrow</span>
+│       ├── <span class="tree-file">CreatorDashboard.tsx</span>          <span class="tree-comment"># Creator workspace: briefs, deliverables, payouts, sync</span>
+│       ├── <span class="tree-file">CreatorCampaignFeedPage.tsx</span>   <span class="tree-comment"># Leaflet map & Haversine proximity-based campaign feed</span>
+│       ├── <span class="tree-file">CampaignDetailPage.tsx</span>        <span class="tree-comment"># Detailed brief description, rewards & application form</span>
+│       ├── <span class="tree-file">CreatorProfilePage.tsx</span>        <span class="tree-comment"># Public creator media kit, verified metrics & AI audit</span>
+│       ├── <span class="tree-file">DirectPitchPage.tsx</span>           <span class="tree-comment"># AI Match Studio for discovering top compatible creators</span>
+│       ├── <span class="tree-file">CollaborationsPage.tsx</span>        <span class="tree-comment"># Active partnerships milestone tracker</span>
+│       ├── <span class="tree-file">MessagesPage.tsx</span>              <span class="tree-comment"># Real-time brand × creator chat and pitch negotiation</span>
+│       └── <span class="tree-file">AdminDashboardPage.tsx</span>        <span class="tree-comment"># Platform moderation, user management, Meta health console</span>
+│
+├── <span class="tree-file">package.json</span>                          <span class="tree-comment"># Project metadata, npm build/dev scripts & dependencies</span>
+├── <span class="tree-file">vite.config.ts</span>                        <span class="tree-comment"># Vite bundler, proxy & React compiler settings</span>
+├── <span class="tree-file">netlify.toml</span>                          <span class="tree-comment"># Netlify frontend deployment configuration</span>
+└── <span class="tree-file">render.yaml</span>                           <span class="tree-comment"># Render backend server hosting blueprint</span>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3: FRONTEND BREAKDOWN -->
+  <h2>3. Frontend Architecture (`src/`)</h2>
+  <p>The client application is built with React 19, TypeScript, Vite 8, and Tailwind CSS v4, delivering a responsive, dark-mode-first aesthetic with rich interactivity.</p>
+
+  <h3>3.1 Application Views (`src/pages/`)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Page Component</th>
+        <th style="width: 20%;">Route Path</th>
+        <th style="width: 55%;">Responsibility & Key Features</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>LandingPage.tsx</strong></td>
+        <td><code>/</code></td>
+        <td>High-converting landing page with hero banner, feature breakdown, live creator showcase, and testimonials.</td>
+      </tr>
+      <tr>
+        <td><strong>AuthRoleSelectPage.tsx</strong></td>
+        <td><code>/choose-role</code></td>
+        <td>Entry gateway directing users to authenticate as a Brand Partner or an Independent Creator.</td>
+      </tr>
+      <tr>
+        <td><strong>BrandAuthPage.tsx</strong></td>
+        <td><code>/brand/login</code>, <code>/register</code></td>
+        <td>Brand registration wizard (company name, category, headquarters, website, business email) and login.</td>
+      </tr>
+      <tr>
+        <td><strong>CreatorAuthPage.tsx</strong></td>
+        <td><code>/creator/login</code>, <code>/register</code></td>
+        <td>Creator onboarding flow (niche selection, Instagram handle, location coordinates, minimum rate).</td>
+      </tr>
+      <tr>
+        <td><strong>AdminAuthPage.tsx</strong></td>
+        <td><code>/admin/login</code></td>
+        <td>Secure administrator login portal with quick-fill credentials for pre-seeded dev accounts.</td>
+      </tr>
+      <tr>
+        <td><strong>BrandDashboard.tsx</strong></td>
+        <td><code>/brand/dashboard</code></td>
+        <td>Management hub for publishing briefs, reviewing creator applicants, locking escrow, and releasing payouts.</td>
+      </tr>
+      <tr>
+        <td><strong>CreatorDashboard.tsx</strong></td>
+        <td><code>/creator/dashboard</code></td>
+        <td>Comprehensive creator hub: available briefs, submitted applications, deliverables proof submission, earnings ledger.</td>
+      </tr>
+      <tr>
+        <td><strong>CreatorCampaignFeedPage.tsx</strong></td>
+        <td><code>/creator/feed</code></td>
+        <td>Interactive geospatial feed with Leaflet map pins and Haversine radius sliders (1 km to 50 km).</td>
+      </tr>
+      <tr>
+        <td><strong>CampaignDetailPage.tsx</strong></td>
+        <td><code>/campaigns/:id</code></td>
+        <td>Single brief deep-dive: brand details, deliverables list, budget, geographic radius, and application pitch form.</td>
+      </tr>
+      <tr>
+        <td><strong>CreatorProfilePage.tsx</strong></td>
+        <td><code>/creators/:id</code></td>
+        <td>Public media kit with verified Instagram follower metrics, engagement rate, synced media grid, and Gemini AI score.</td>
+      </tr>
+      <tr>
+        <td><strong>DirectPitchPage.tsx</strong></td>
+        <td><code>/pitch-creators</code></td>
+        <td>AI Matchmaking Studio where brands query and rank nearby creators by compatibility scores (0–100%).</td>
+      </tr>
+      <tr>
+        <td><strong>CollaborationsPage.tsx</strong></td>
+        <td><code>/collaborations</code></td>
+        <td>Milestone workflow tracker (Accepted ➔ Content Creation ➔ Proof Submitted ➔ Approved & Paid).</td>
+      </tr>
+      <tr>
+        <td><strong>MessagesPage.tsx</strong></td>
+        <td><code>/creator/messages</code>, <code>/messages</code></td>
+        <td>Real-time chat portal between brands and creators for reviewing direct collaboration pitches and deliverables.</td>
+      </tr>
+      <tr>
+        <td><strong>AdminDashboardPage.tsx</strong></td>
+        <td><code>/admin/dashboard</code></td>
+        <td>Platform moderation panel: user account suspension, dispute mediation, and Meta Graph API sync health console.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 Core UI Modals & Subcomponents (`src/components/`)</h3>
+  <div class="grid-2">
+    <div class="mini-card">
+      <strong>InstagramIntegrationView.tsx</strong>
+      <span>Official Meta OAuth connect flow, manual handle verification, multi-engine public crawler fallback, and live media sync status.</span>
+    </div>
+    <div class="mini-card">
+      <strong>AICreatorAnalysisCard.tsx</strong>
+      <span>Visualizes Gemini AI pillar evaluation (Quality, Consistency, Engagement Health, Commercial Viability, and Strengths).</span>
+    </div>
+    <div class="mini-card">
+      <strong>DirectPitchModal.tsx</strong>
+      <span>Allows brands to send customized proposals (custom budget, required deliverables, pitch note) directly to any creator.</span>
+    </div>
+    <div class="mini-card">
+      <strong>CreatorSubscriptionModal.tsx</strong>
+      <span>Interactive pricing modal for creators to upgrade between Free, Silver, Gold, and Diamond tiers to unlock higher-reward briefs.</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4: BACKEND BREAKDOWN -->
+  <h2>4. Backend Architecture (`server/`)</h2>
+  <p>The backend is built with Node.js 22 and Express 5, utilizing the built-in <code>node:sqlite</code> engine in WAL (Write-Ahead Logging) mode for zero-dependency local execution, with plug-and-play PostgreSQL support.</p>
+
+  <h3>4.1 REST API Routes (`server/routes/`)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Route Module</th>
+        <th style="width: 20%;">Endpoint Prefix</th>
+        <th style="width: 55%;">Operations & Security Rules</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>auth.cjs</strong></td>
+        <td><code>/api/auth</code></td>
+        <td>User registration (bcrypt 10 rounds), login, JWT signing, profile resolution, and active role switching.</td>
+      </tr>
+      <tr>
+        <td><strong>creators.cjs</strong></td>
+        <td><code>/api/creators</code></td>
+        <td>Creator listing with geospatial filters, media kits, direct pitch dispatch, and profile editing.</td>
+      </tr>
+      <tr>
+        <td><strong>brands.cjs</strong></td>
+        <td><code>/api/brands</code></td>
+        <td>Brand profile management, active campaign summaries, and brand metrics.</td>
+      </tr>
+      <tr>
+        <td><strong>campaigns.cjs</strong></td>
+        <td><code>/api/campaigns</code></td>
+        <td>Campaign publishing, status transitions, Haversine geospatial proximity search, and match calculations.</td>
+      </tr>
+      <tr>
+        <td><strong>applications.cjs</strong></td>
+        <td><code>/api/applications</code></td>
+        <td>Campaign pitch submissions, subscription quota checks, reward ceiling enforcement, and brand status updates.</td>
+      </tr>
+      <tr>
+        <td><strong>collaborations.cjs</strong></td>
+        <td><code>/api/collaborations</code></td>
+        <td>Active collaboration state machine, deliverable proof URL submissions, revision requests, and escrow payouts.</td>
+      </tr>
+      <tr>
+        <td><strong>instagram.cjs</strong></td>
+        <td><code>/api/instagram</code></td>
+        <td>Meta Graph OAuth token exchange, long-lived 60-day token vault, handle validation, and multi-tier crawler sync.</td>
+      </tr>
+      <tr>
+        <td><strong>ai.cjs</strong></td>
+        <td><code>/api/ai</code></td>
+        <td>Gemini AI-powered creator profile scoring and automated campaign brief generation.</td>
+      </tr>
+      <tr>
+        <td><strong>messages.cjs</strong></td>
+        <td><code>/api/messages</code></td>
+        <td>Thread conversations, unread message counts, and direct communication between collaborating parties.</td>
+      </tr>
+      <tr>
+        <td><strong>payments.cjs</strong></td>
+        <td><code>/api/payments</code></td>
+        <td>Escrow transaction ledger, simulated escrow locking, and verified payout records.</td>
+      </tr>
+      <tr>
+        <td><strong>subscriptions.cjs</strong></td>
+        <td><code>/api/subscriptions</code></td>
+        <td>Tier definitions (Silver, Gold, Diamond), monthly application quota verification, and simulated tier upgrades.</td>
+      </tr>
+      <tr>
+        <td><strong>admin.cjs</strong></td>
+        <td><code>/api/admin</code></td>
+        <td>System-wide KPIs, user ban/unban moderation, dispute resolution, and Meta API sync audit logs.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 Core Micro-Services (`server/services/`)</h3>
+  <div class="grid-2">
+    <div class="mini-card">
+      <strong>InstagramService.cjs</strong>
+      <span>Official Meta Graph API v19.0 client. Exchanges short-lived to 60-day tokens, queries <code>/me/media</code>, and calculates genuine engagement rates.</span>
+    </div>
+    <div class="mini-card">
+      <strong>instagramPublicFetcher.cjs</strong>
+      <span>Robust multi-tier web crawler (Google, Yahoo, Bing, Jina.ai) for live follower and media extraction when Meta OAuth is in development mode.</span>
+    </div>
+    <div class="mini-card">
+      <strong>AIAnalysisService.cjs</strong>
+      <span>Google Gemini GenAI prompt construction. Generates structured JSON scoring (0–100), key strengths, and monetization advice.</span>
+    </div>
+    <div class="mini-card">
+      <strong>MatchingService.cjs</strong>
+      <span>Calculates spherical geodesic distance using the Haversine formula and computes 6-factor compatibility scores between brands and creators.</span>
+    </div>
+    <div class="mini-card">
+      <strong>PaymentService.cjs</strong>
+      <span>Abstracted escrow engine. Implements <em>Development Escrow Simulator</em> with immutable transaction references and audit logs.</span>
+    </div>
+    <div class="mini-card">
+      <strong>TokenEncryptionService.cjs</strong>
+      <span>AES-256-GCM symmetric encryption for securely storing sensitive Meta Graph API OAuth user tokens in the database.</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5: RELATIONAL DATABASE SCHEMA -->
+  <h2>5. Relational Database Architecture (`server/db/`)</h2>
+  <p>The persistence layer consists of <strong>20 normalized relational tables</strong> enforcing strict foreign keys, cascade rules, and timestamp tracking:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Table Name</th>
+        <th style="width: 35%;">Primary & Foreign Keys</th>
+        <th style="width: 40%;">Domain & Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>users</strong></td>
+        <td><code>id (PK)</code>, <code>email (UNIQUE)</code></td>
+        <td>Authentication credentials, password hashes, role designation (<code>creator</code>, <code>brand</code>, <code>admin</code>).</td>
+      </tr>
+      <tr>
+        <td><strong>creator_profiles</strong></td>
+        <td><code>id (PK)</code>, <code>user_id (FK -> users)</code></td>
+        <td>Bio, content pillars, coordinates (lat/lng), subscription tier, average rating, rate card.</td>
+      </tr>
+      <tr>
+        <td><strong>brand_profiles</strong></td>
+        <td><code>id (PK)</code>, <code>user_id (FK -> users)</code></td>
+        <td>Company name, category, headquarters, store locations, website URL, verified status.</td>
+      </tr>
+      <tr>
+        <td><strong>instagram_accounts</strong></td>
+        <td><code>id (PK)</code>, <code>creator_id (FK)</code></td>
+        <td>Meta OAuth tokens (AES-256 encrypted), token expiration timestamp, Instagram Business User ID.</td>
+      </tr>
+      <tr>
+        <td><strong>instagram_metrics</strong></td>
+        <td><code>id (PK)</code>, <code>instagram_account_id (FK)</code></td>
+        <td>Verified live follower counts, following, post counts, calculated engagement rates.</td>
+      </tr>
+      <tr>
+        <td><strong>instagram_media</strong></td>
+        <td><code>id (PK)</code>, <code>instagram_account_id (FK)</code></td>
+        <td>Synced recent media posts, captions, like/comment counts, media URLs, timestamps.</td>
+      </tr>
+      <tr>
+        <td><strong>ai_creator_analyses</strong></td>
+        <td><code>id (PK)</code>, <code>creator_id (FK)</code></td>
+        <td>Gemini AI structured assessment JSON, pillar scores, consistency analysis, monetization tips.</td>
+      </tr>
+      <tr>
+        <td><strong>campaigns</strong></td>
+        <td><code>id (PK)</code>, <code>brand_id (FK -> brand_profiles)</code></td>
+        <td>Title, reward per creator, geographic coordinates, target radius, deliverables JSON, status.</td>
+      </tr>
+      <tr>
+        <td><strong>campaign_applications</strong></td>
+        <td><code>id (PK)</code>, <code>campaign_id (FK)</code>, <code>creator_id (FK)</code></td>
+        <td>Creator pitch message, proposed rate, match score, status (<code>PENDING</code>, <code>SHORTLISTED</code>, <code>ACCEPTED</code>).</td>
+      </tr>
+      <tr>
+        <td><strong>collaborations</strong></td>
+        <td><code>id (PK)</code>, <code>application_id (FK)</code></td>
+        <td>Active partnership state machine, current step (1 to 4), delivery deadlines, completion flags.</td>
+      </tr>
+      <tr>
+        <td><strong>deliverables</strong></td>
+        <td><code>id (PK)</code>, <code>collaboration_id (FK)</code></td>
+        <td>Proof URLs (Instagram Reel/Story links), submission notes, brand approval/revision status.</td>
+      </tr>
+      <tr>
+        <td><strong>payments</strong></td>
+        <td><code>id (PK)</code>, <code>collaboration_id (FK)</code></td>
+        <td>Simulated escrow ledger, held/released status, amount, transaction reference codes.</td>
+      </tr>
+      <tr>
+        <td><strong>conversations</strong></td>
+        <td><code>id (PK)</code>, <code>brand_id (FK)</code>, <code>creator_id (FK)</code></td>
+        <td>Direct communication channels between brands and creators for pitches and negotiation.</td>
+      </tr>
+      <tr>
+        <td><strong>messages</strong></td>
+        <td><code>id (PK)</code>, <code>conversation_id (FK)</code></td>
+        <td>Direct chat messages with timestamp ordering and read status flags.</td>
+      </tr>
+      <tr>
+        <td><strong>reviews</strong></td>
+        <td><code>id (PK)</code>, <code>collaboration_id (FK)</code></td>
+        <td>Bidirectional 1–5 star ratings and written performance feedback.</td>
+      </tr>
+      <tr>
+        <td><strong>notifications</strong></td>
+        <td><code>id (PK)</code>, <code>user_id (FK -> users)</code></td>
+        <td>In-app notifications for direct pitches, escrow movements, proof reviews, and messages.</td>
+      </tr>
+      <tr>
+        <td><strong>admin_actions</strong></td>
+        <td><code>id (PK)</code>, <code>admin_id (FK -> users)</code></td>
+        <td>Audit log of platform moderation (account suspensions, dispute resolutions).</td>
+      </tr>
+      <tr>
+        <td><strong>refresh_logs</strong></td>
+        <td><code>id (PK)</code>, <code>account_id (FK)</code></td>
+        <td>Meta Graph API sync attempts, duration, error codes, and audit records.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 6: PRE-SEEDED TEST CREDENTIALS -->
+  <h2>6. Pre-Seeded Demonstration Accounts</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">Role</th>
+        <th style="width: 35%;">Email</th>
+        <th style="width: 20%;">Password</th>
+        <th style="width: 25%;">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Administrator</strong></td>
+        <td><code>admin@creatorhub.com</code></td>
+        <td><code>Admin@123</code></td>
+        <td>Full governance, user management, and Meta API health console.</td>
+      </tr>
+      <tr>
+        <td><strong>Brand Partner</strong></td>
+        <td><code>contact@thirdwave.in</code></td>
+        <td><code>Brand@123</code></td>
+        <td>Third Wave Coffee (Indiranagar, active campaigns & applicants).</td>
+      </tr>
+      <tr>
+        <td><strong>Brand Partner</strong></td>
+        <td><code>hello@bluetokai.com</code></td>
+        <td><code>Brand@123</code></td>
+        <td>Blue Tokai Coffee Roasters (Koramangala specialty coffee).</td>
+      </tr>
+      <tr>
+        <td><strong>Creator</strong></td>
+        <td><code>ananya@lifestyle.com</code></td>
+        <td><code>Creator@123</code></td>
+        <td>Bengaluru lifestyle & food micro-creator with connected stats.</td>
+      </tr>
+      <tr>
+        <td><strong>Creator</strong></td>
+        <td><code>rohit@fitness.com</code></td>
+        <td><code>Creator@123</code></td>
+        <td>High-engagement fitness creator in Bengaluru.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div><strong>CreaterHub Architecture Document</strong> • Generated on September 7, 2026</div>
+    <div>Repository: <code>https://github.com/harsha2k5/CreatorHub</code></div>
+  </div>
+
+</body>
+</html>
