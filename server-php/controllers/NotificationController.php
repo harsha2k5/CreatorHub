@@ -18,14 +18,22 @@ class NotificationController {
             [$user['id']]
         );
 
-        Response::json(['success' => true, 'notifications' => $notifications]);
+        $unreadCount = count(array_filter($notifications, fn($n) => (int)($n['read_status'] ?? 0) === 0));
+
+        Response::json([
+            'success' => true,
+            'count' => count($notifications),
+            'unread_count' => $unreadCount,
+            'unreadCount' => $unreadCount,
+            'notifications' => $notifications
+        ]);
     }
 
     public static function markAllRead(): void {
         $user = AuthMiddleware::authenticate();
 
         Database::execute(
-            "UPDATE notifications SET is_read = 1 WHERE user_id = ?",
+            "UPDATE notifications SET read_status = 1 WHERE user_id = ?",
             [$user['id']]
         );
 
@@ -36,7 +44,7 @@ class NotificationController {
         $user = AuthMiddleware::authenticate();
 
         Database::execute(
-            "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?",
+            "UPDATE notifications SET read_status = 1 WHERE id = ? AND user_id = ?",
             [$id, $user['id']]
         );
 

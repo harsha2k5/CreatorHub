@@ -101,10 +101,17 @@ class ApplicationController {
             Response::error('Status must be ACCEPTED, SHORTLISTED, or REJECTED.', 400);
         }
 
+        $brand = Database::queryOne("SELECT * FROM brand_profiles WHERE user_id = ?", [$user['id']]);
+        if (!$brand) {
+            Response::notFound('Brand profile not found.');
+        }
+
         $app = Database::queryOne(
-            "SELECT a.*, c.brand_id, c.title as campaign_title, c.reward_per_creator
+            "SELECT a.*, c.brand_id, c.title as campaign_title, c.reward_per_creator,
+                    cr.user_id as creator_user_id
              FROM campaign_applications a
              JOIN campaigns c ON a.campaign_id = c.id
+             JOIN creator_profiles cr ON a.creator_id = cr.id
              WHERE a.id = ?",
             [$appId]
         );
@@ -113,9 +120,13 @@ class ApplicationController {
             Response::notFound('Application not found.');
         }
 
+        if ($app['brand_id'] !== $brand['id']) {
+            Response::forbidden('Unauthorized. You do not own this campaign application.');
+        }
+
         $createdCollabId = null;
 
-        Database::transaction(function() use ($appId, $newStatus, $app, &$createdCollabId) {
+        Database::transaction(function() use ($appId, $newStatus, $app, $brand, $user, &$createdCollabId) {
             Database::execute(
                 "UPDATE campaign_applications SET status = ?, updated_at = datetime('now') WHERE id = ?",
                 [$newStatus, $appId]
@@ -138,6 +149,48 @@ class ApplicationController {
                     "INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, currency, payment_type, status, is_simulated, transaction_ref)
                      VALUES (?, ?, ?, ?, ?, 'INR', 'Escrow Lock', 'PENDING', 0, ?)",
                     [$payId, $createdCollabId, $app['brand_id'], $app['creator_id'], $reward, 'TXN_PENDING_' . time()]
+                );
+
+                // Auto-create or link conversation thread
+                $conv = Database::queryOne(
+                    "SELECT id FROM conversations WHERE brand_id = ? AND creator_id = ?",
+                    [$brand['id'], $app['creator_id']]
+                );
+                $convId = $conv ? $conv['id'] : ('conv_' . round(microtime(true) * 1000) . '_' . substr(bin2hex(random_bytes(3)), 0, 5));
+                $convMsg = "Congratulations! Your application to \"{$app['campaign_title']}\" has been accepted. Work has commenced.";
+
+                if (!$conv) {
+                    Database::execute(
+                        "INSERT INTO conversations (id, brand_id, creator_id, campaign_id, last_message, updated_at)
+                         VALUES (?, ?, ?, ?, ?, datetime('now'))",
+                        [$convId, $brand['id'], $app['creator_id'], $app['campaign_id'], $convMsg]
+                    );
+                } else {
+                    Database::execute(
+                        "UPDATE conversations SET last_message = ?, campaign_id = COALESCE(?, campaign_id), updated_at = datetime('now') WHERE id = ?",
+                        [$convMsg, $app['campaign_id'], $convId]
+                    );
+                }
+
+                $msgId = 'msg_' . round(microtime(true) * 1000) . '_' . substr(bin2hex(random_bytes(3)), 0, 5);
+                Database::execute(
+                    "INSERT INTO messages (id, conversation_id, sender_id, text, read_status)
+                     VALUES (?, ?, ?, ?, 0)",
+                    [$msgId, $convId, $user['id'], $convMsg]
+                );
+
+                // Send notification
+                $notifId = 'notif_' . round(microtime(true) * 1000) . '_' . substr(bin2hex(random_bytes(3)), 0, 5);
+                Database::execute(
+                    "INSERT INTO notifications (id, user_id, title, message, link)
+                     VALUES (?, ?, ?, ?, ?)",
+                    [
+                        $notifId,
+                        $app['creator_user_id'],
+                        "Application Accepted: {$app['campaign_title']}",
+                        "Your application was accepted by {$brand['company_name']}! Escrow lock will follow.",
+                        "/creator/collaborations"
+                    ]
                 );
             }
         });

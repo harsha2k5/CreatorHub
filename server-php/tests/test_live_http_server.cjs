@@ -348,8 +348,65 @@ async function runLiveServerTests() {
         assert(typeof aiRes.body.match_score === 'number' || typeof aiRes.body.score === 'number');
         console.log('  ✅ AI Compatibility Match Score generated successfully');
 
+        // --- TEST 18: In-App Chat & Messaging ---
+        console.log('\n--- 18. In-App Conversations & Chat Messaging ---');
+        // Creator views conversations (auto-created when application was accepted in test 10)
+        const convsRes = await request('GET', '/api/messages/conversations', {
+            Authorization: `Bearer ${creatorToken}`
+        });
+        assert.strictEqual(convsRes.status, 200);
+        assert(Array.isArray(convsRes.body.conversations));
+        assert(convsRes.body.conversations.length > 0, 'Must have at least 1 active conversation');
+        const activeConv = convsRes.body.conversations[0];
+        console.log(`  ✅ Retrieved ${convsRes.body.conversations.length} conversation(s) for creator (ID: ${activeConv.id})`);
+
+        // Creator reads message thread
+        const threadRes = await request('GET', `/api/messages/${activeConv.id}`, {
+            Authorization: `Bearer ${creatorToken}`
+        });
+        assert.strictEqual(threadRes.status, 200);
+        assert(Array.isArray(threadRes.body.messages));
+        console.log(`  ✅ Retrieved ${threadRes.body.messages.length} messages in thread`);
+
+        // Creator sends a reply
+        const replyRes = await request(
+            'POST',
+            `/api/messages/${activeConv.id}`,
+            { Authorization: `Bearer ${creatorToken}` },
+            {
+                text: 'Excited to start! I will have the draft ready by Friday.'
+            }
+        );
+        assert.strictEqual(replyRes.status, 201);
+        assert.strictEqual(replyRes.body.message.text, 'Excited to start! I will have the draft ready by Friday.');
+        console.log('  ✅ Creator sent chat reply successfully');
+
+        // Brand reads thread and verifies incoming message
+        const brandThreadRes = await request('GET', `/api/messages/${activeConv.id}`, {
+            Authorization: `Bearer ${brandToken}`
+        });
+        assert.strictEqual(brandThreadRes.status, 200);
+        const lastMsg = brandThreadRes.body.messages[brandThreadRes.body.messages.length - 1];
+        assert.strictEqual(lastMsg.text, 'Excited to start! I will have the draft ready by Friday.');
+        console.log('  ✅ Brand received creator reply and message marked read');
+
+        // --- TEST 19: Notifications Center ---
+        console.log('\n--- 19. Notifications Center ---');
+        const notifsRes = await request('GET', '/api/notifications', {
+            Authorization: `Bearer ${creatorToken}`
+        });
+        assert.strictEqual(notifsRes.status, 200);
+        assert(Array.isArray(notifsRes.body.notifications));
+        console.log(`  ✅ Retrieved ${notifsRes.body.notifications.length} notifications for creator`);
+
+        const markAllRes = await request('POST', '/api/notifications/read-all', {
+            Authorization: `Bearer ${creatorToken}`
+        });
+        assert.strictEqual(markAllRes.status, 200);
+        console.log('  ✅ Marked all notifications as read');
+
         console.log('\n====================================================');
-        console.log('🎉 ALL 17 LIVE HTTP ENDPOINT TESTS PASSED WITH 100% SUCCESS!');
+        console.log('🎉 ALL 19 LIVE HTTP ENDPOINT TESTS PASSED WITH 100% SUCCESS!');
         console.log('PHP 8.2+ Backend is production ready and fully compatible.');
         console.log('====================================================\n');
     } finally {

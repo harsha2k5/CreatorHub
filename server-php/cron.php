@@ -31,14 +31,14 @@ try {
         echo "Updated {$expiredSubs} expired subscription(s) to EXPIRED.\n";
     }
 
-    // 2. Refresh active creator profiles with connected Instagram accounts (older than 24h)
-    $staleCreators = Database::query(
-        "SELECT id, user_id, instagram_username, instagram_access_token 
-         FROM creator_profiles 
-         WHERE instagram_verified = 1 AND instagram_username IS NOT NULL 
+    // 2. Refresh active creator profiles with connected Instagram accounts
+    $staleAccounts = Database::query(
+        "SELECT id, creator_id, user_id, instagram_username, last_synced_at 
+         FROM instagram_accounts 
+         WHERE is_connected = 1 AND instagram_username IS NOT NULL 
          LIMIT 20"
     );
-    echo "Found " . count($staleCreators) . " verified Instagram creators for background health verification.\n";
+    echo "Found " . count($staleAccounts) . " connected Instagram account(s) for background health verification.\n";
 
     echo "[" . date('Y-m-d H:i:s') . "] CreatorHub Background Cron Worker Finished Successfully.\n";
 } catch (\Throwable $e) {
