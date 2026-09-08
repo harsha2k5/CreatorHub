@@ -1,0 +1,4 @@
+# Ignore all uploaded files except .gitignore and .htaccess
+*
+!.gitignore
+!.htaccess

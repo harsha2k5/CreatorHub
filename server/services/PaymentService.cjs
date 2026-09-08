@@ -92,8 +92,8 @@ class PaymentService {
             throw new Error('Unauthorized. Only the participating brand can fund escrow for this collaboration.');
         }
 
-        // 3. State verification: Must be in ACCEPTED or ACTIVE (pre-escrow)
-        const allowedStatuses = ['ACCEPTED', 'ACTIVE'];
+        // 3. State verification: Must be in valid funding states (pre-approval)
+        const allowedStatuses = ['ACCEPTED', 'ACTIVE', 'SUBMITTED', 'REVISION_REQUESTED', 'IN_PROGRESS'];
         if (!allowedStatuses.includes(collab.status) && collab.status !== 'ESCROW_LOCKED') {
             throw new Error(`Cannot fund escrow. Collaboration is currently in ${collab.status} status.`);
         }
@@ -275,7 +275,7 @@ class PaymentService {
 
         const isSimulatedOrder = razorpay_order_id.startsWith('order_sim_');
         const isMatch = (expectedSignature === razorpay_signature) ||
-            (isSimulatedOrder && (razorpay_signature === 'test_simulated_sig' || (razorpay_signature && razorpay_signature.length >= 8)));
+            (isSimulatedOrder && razorpay_signature === 'test_simulated_sig');
 
         if (!isMatch) {
             // Record failure reason in DB

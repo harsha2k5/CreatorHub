@@ -1,45 +1,48 @@
 <?php
 /**
- * CreatorHub PHP Backend - Admin Routes
+ * CreatorHub PHP Backend - Admin Moderation Routes
  */
 
 require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/middleware/auth.php';
+require_once dirname(__DIR__) . '/controllers/AdminController.php';
+
+use CreatorHub\Controllers\AdminController;
+use CreatorHub\Utils\Response;
 
 function handleAdminRoute(array $segments, string $method, array $body) {
-    $user = AuthMiddleware::authenticate();
-    AuthMiddleware::requireAdmin($user);
+    $first = $segments[0] ?? null;
+    $second = $segments[1] ?? null;
+    $third = $segments[2] ?? null;
 
-    $action = $segments[0] ?? null;
-
-    if ($action === 'stats' && $method === 'GET') {
-        $usersCount = Database::queryOne("SELECT COUNT(*) as cnt FROM users");
-        $creatorsCount = Database::queryOne("SELECT COUNT(*) as cnt FROM creator_profiles");
-        $brandsCount = Database::queryOne("SELECT COUNT(*) as cnt FROM brand_profiles");
-        $campaignsCount = Database::queryOne("SELECT COUNT(*) as cnt FROM campaigns");
-        $collabsCount = Database::queryOne("SELECT COUNT(*) as cnt FROM collaborations");
-        $escrowFunded = Database::queryOne("SELECT SUM(amount) as total FROM payments WHERE status IN ('VERIFIED', 'HELD_IN_ESCROW', 'RELEASED')");
-
-        echo json_encode([
-            'success' => true,
-            'stats' => [
-                'total_users' => (int) ($usersCount['cnt'] ?? 0),
-                'total_creators' => (int) ($creatorsCount['cnt'] ?? 0),
-                'total_brands' => (int) ($brandsCount['cnt'] ?? 0),
-                'total_campaigns' => (int) ($campaignsCount['cnt'] ?? 0),
-                'total_collaborations' => (int) ($collabsCount['cnt'] ?? 0),
-                'total_escrow_funded' => (float) ($escrowFunded['total'] ?? 0)
-            ]
-        ]);
+    if ($first === 'stats' && $method === 'GET') {
+        AdminController::stats();
         return;
     }
 
-    if ($action === 'users' && $method === 'GET') {
-        $users = Database::query("SELECT id, email, role, is_active, is_verified, created_at FROM users ORDER BY created_at DESC LIMIT 100");
-        echo json_encode(['success' => true, 'users' => $users]);
+    if ($first === 'users' && empty($second) && $method === 'GET') {
+        AdminController::users();
         return;
     }
 
-    http_response_code(404);
-    echo json_encode(['error' => 'Admin endpoint not found.']);
+    if ($first === 'users' && $second && $third === 'suspend' && ($method === 'PUT' || $method === 'POST')) {
+        AdminController::suspendUser($second);
+        return;
+    }
+
+    if ($first === 'creators' && $second && $third === 'verify' && ($method === 'PUT' || $method === 'POST')) {
+        AdminController::verifyCreator($second);
+        return;
+    }
+
+    if ($first === 'campaigns' && empty($second) && $method === 'GET') {
+        AdminController::campaigns();
+        return;
+    }
+
+    if ($first === 'campaigns' && $second && $third === 'moderate' && ($method === 'PATCH' || $method === 'POST')) {
+        AdminController::moderateCampaign($second, $body);
+        return;
+    }
+
+    Response::notFound('Admin endpoint not found: /api/admin/' . implode('/', $segments));
 }
