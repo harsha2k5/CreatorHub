@@ -120,6 +120,15 @@ async function runLiveServerTests() {
     }
 
     try {
+        // --- TEST 0: Health Check Verification ---
+        console.log('\n--- 0. Health Check Endpoint (/api/health) ---');
+        const healthCheck = await request('GET', '/api/health');
+        assert.strictEqual(healthCheck.status, 200, 'Health check should return 200');
+        assert.strictEqual(healthCheck.body.success, true, 'Health check should return success: true');
+        assert.strictEqual(healthCheck.body.backend, 'php', 'Health check should return backend: php');
+        assert.strictEqual(healthCheck.body.version, '1.0.0', 'Health check should return version: 1.0.0');
+        console.log('  ✅ /api/health returned { success: true, backend: "php", version: "1.0.0" }');
+
         // --- TEST 1: CORS Options Preflight ---
         console.log('\n--- 1. CORS Preflight & Security Headers ---');
         const corsRes = await request('OPTIONS', '/api/campaigns', {
