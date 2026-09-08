@@ -189,30 +189,17 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
     setConnectError('');
 
     try {
-      // Auto-verify if not verified yet
-      let currentVerified = verifiedProfile;
-      if (!currentVerified || !profileLink.includes(currentVerified.username)) {
-        try {
-          const vRes = await api.verifyInstagramLink({ profileUrl: profileLink.trim() });
-          if (vRes.success && vRes.profile) {
-            currentVerified = vRes.profile;
-            setVerifiedProfile(vRes.profile);
-            if (vRes.profile.followers_count && !customFollowers) setCustomFollowers(String(vRes.profile.followers_count));
-            if (vRes.profile.following_count && !customFollowing) setCustomFollowing(String(vRes.profile.following_count));
-            if (vRes.profile.media_count && !customPosts) setCustomPosts(String(vRes.profile.media_count));
-          }
-        } catch {
-          // Proceed with server crawl
-        }
-      }
+      const followersNum = customFollowers.trim() ? Number(customFollowers) : (verifiedProfile?.followers_count !== null && verifiedProfile?.followers_count !== undefined ? verifiedProfile.followers_count : undefined);
+      const followingNum = customFollowing.trim() ? Number(customFollowing) : (verifiedProfile?.following_count !== null && verifiedProfile?.following_count !== undefined ? verifiedProfile.following_count : undefined);
+      const postsNum = customPosts.trim() ? Number(customPosts) : (verifiedProfile?.media_count !== null && verifiedProfile?.media_count !== undefined ? verifiedProfile.media_count : undefined);
 
       const res = await api.connectInstagramByLink({
         profileUrl: profileLink.trim(),
-        followersCount: customFollowers.trim() ? Number(customFollowers) : (currentVerified?.followers_count !== null && currentVerified?.followers_count !== undefined ? currentVerified.followers_count : undefined),
-        followingCount: customFollowing.trim() ? Number(customFollowing) : (currentVerified?.following_count !== null && currentVerified?.following_count !== undefined ? currentVerified.following_count : undefined),
-        mediaCount: customPosts.trim() ? Number(customPosts) : (currentVerified?.media_count !== null && currentVerified?.media_count !== undefined ? currentVerified.media_count : undefined),
+        followersCount: followersNum,
+        followingCount: followingNum,
+        mediaCount: postsNum,
         engagementRate: customEngagement.trim() ? Number(customEngagement) : undefined,
-        bio: customBio.trim() || currentVerified?.bio || undefined
+        bio: customBio.trim() || verifiedProfile?.bio || undefined
       });
 
       if (res.success) {
@@ -249,9 +236,11 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
         refreshSessionUser?.();
       } else {
         setConnectError(res.error || 'Failed to connect Instagram account.');
+        setShowCustomFields(true);
       }
     } catch (err: any) {
       setConnectError(err.message || 'Failed to connect Instagram account.');
+      setShowCustomFields(true);
     } finally {
       setConnectingLink(false);
     }

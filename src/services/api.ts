@@ -1,5 +1,17 @@
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
+
+  // In browser environment, if hosted on a remote deployment (e.g. Google Cloud, Render, Netlify),
+  // but envUrl points to localhost/127.0.0.1 or is empty, automatically use '/api' on same origin!
+  if (typeof window !== 'undefined' && window.location) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+      if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+        return '/api';
+      }
+    }
+  }
+
   if (!envUrl) return '/api';
   return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
 };
@@ -16,8 +28,14 @@ function getAuthHeaders() {
 
 async function request(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  const config = {
+  
+  // Set up 20s network timeout so UI never hangs indefinitely
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+  const config: RequestInit = {
     ...options,
+    signal: options.signal || controller.signal,
     headers: {
       ...getAuthHeaders(),
       ...(options.headers || {})
@@ -26,6 +44,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
   try {
     const response = await fetch(url, config);
+    clearTimeout(timeoutId);
     const text = await response.text();
     let data: any = {};
 
@@ -34,7 +53,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
         data = JSON.parse(text);
       } catch {
         if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
-          throw new Error('Netlify returned HTML instead of API data because no backend is connected. Please set VITE_API_URL in Netlify Environment Variables to your Render backend URL, or open your app directly on Render.');
+          throw new Error('Server returned HTML instead of API data. Please ensure the backend server is running and accessible.');
         }
         throw new Error(`Server returned non-JSON response (${response.status}) from "${url}".`);
       }
@@ -50,6 +69,10 @@ async function request(endpoint: string, options: RequestInit = {}) {
 
     return data;
   } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out. The server or verification took too long to respond. Please enter metrics manually or try again.');
+    }
     if (err.name === 'TypeError' && (err.message === 'Failed to fetch' || err.message.includes('fetch'))) {
       throw new Error(`Unable to reach backend API at "${url}". Please ensure server is running.`);
     }

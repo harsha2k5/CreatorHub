@@ -20,14 +20,17 @@ async function seed() {
         console.log('🌱 Admin account already present.');
     }
 
-    if (process.env.SEED_DEMO_DATA !== 'true') {
-        console.log('🌱 Demo data seeding disabled (clean mode).');
+    // Ensure fresh deployments have initial campaigns and brands unless explicitly disabled
+    const campaignsCount = queryOne("SELECT COUNT(*) as count FROM campaigns");
+    const hasCampaigns = campaignsCount && campaignsCount.count > 0;
+
+    if (process.env.SEED_DEMO_DATA === 'false') {
+        console.log('🌱 Demo data seeding explicitly disabled (SEED_DEMO_DATA=false).');
         return;
     }
 
-    const nonAdminCount = queryOne("SELECT COUNT(*) as count FROM users WHERE role != 'admin'");
-    if (nonAdminCount && nonAdminCount.count > 0) {
-        console.log('🌱 Database already contains users. Skipping demo seed.');
+    if (hasCampaigns && process.env.SEED_DEMO_DATA !== 'true') {
+        console.log('🌱 Database already contains campaigns. Skipping seed.');
         return;
     }
 

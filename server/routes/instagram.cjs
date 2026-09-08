@@ -78,13 +78,24 @@ const handleConnectUrl = (req, res) => {
             return res.status(404).json({ success: false, error: 'Creator profile not found.' });
         }
 
-        const result = InstagramService.getAuthorizationUrl(creator.id);
+        // Dynamically compute redirectUri if running in cloud/production and META_REDIRECT_URI points to localhost
+        let redirectUri = process.env.META_REDIRECT_URI;
+        const host = req.get('host');
+        const origin = req.headers.origin || (host ? `${req.protocol}://${host}` : null);
+        if (!redirectUri || redirectUri.includes('localhost') || redirectUri.includes('127.0.0.1')) {
+            if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+                redirectUri = `${origin}/creator/dashboard`;
+            }
+        }
+
+        const result = InstagramService.getAuthorizationUrl(creator.id, redirectUri);
         return res.json({
             success: true,
             is_configured: result.configured,
             is_mock_available: result.is_mock_available || false,
             auth_url: result.url,
             state_token: result.stateToken || null,
+            redirect_uri: redirectUri,
             message: result.message
         });
     } catch (err) {
@@ -417,9 +428,10 @@ router.post('/verify-link', authenticateToken, requireCreator, async (req, res) 
                 full_name: username,
                 avatar_url: null,
                 bio: null,
-                profile_url: `https://instagram.com/${username}`
+                profile_url: `https://instagram.com/${username}`,
+                is_datacenter_restricted: Boolean(liveProfile && liveProfile.is_datacenter_restricted)
             },
-            message: `Account @${username} detected. Live metrics may be private or restricted.`
+            message: `Account @${username} detected. Instagram bot shield is active for cloud datacenters; please confirm your follower count below to connect.`
         });
     } catch (err) {
         console.error('Error verifying Instagram link:', err);

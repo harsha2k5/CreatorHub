@@ -43,7 +43,7 @@ class InstagramService {
     /**
      * Generate secure OAuth authorization URL with cryptographic CSRF state
      */
-    static getAuthorizationUrl(creatorId) {
+    static getAuthorizationUrl(creatorId, redirectUriOverride = null) {
         if (!creatorId) throw new Error('creatorId is required to initiate Instagram OAuth.');
 
         if (!this.isConfigured()) {
@@ -68,7 +68,8 @@ class InstagramService {
         );
 
         const scope = 'instagram_basic,instagram_manage_insights,pages_show_list,pages_read_engagement';
-        const url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${encodeURIComponent(META_APP_ID)}&redirect_uri=${encodeURIComponent(META_REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(stateToken)}&response_type=code`;
+        const redirectUri = redirectUriOverride || META_REDIRECT_URI;
+        const url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${encodeURIComponent(META_APP_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(stateToken)}&response_type=code`;
 
         return {
             configured: true,
@@ -690,7 +691,7 @@ class InstagramService {
 
         // Never silently default to 0 if Instagram crawler was blocked and no previous data exists
         if (followers === null) {
-            throw new Error(`Could not automatically verify follower count for @${cleanUsername}. Please enter your follower count to connect.`);
+            throw new Error(`Instagram has bot protection active for cloud servers. Please enter your current follower count below to connect @${cleanUsername}.`);
         }
 
         if (following === null) following = 0;
