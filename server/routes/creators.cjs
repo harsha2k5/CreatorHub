@@ -28,7 +28,7 @@ function formatCreator(c) {
         state: c.state || 'Karnataka',
         lat: c.lat || 12.9716,
         lng: c.lng || 77.5946,
-        bio: c.bio || 'Content creator crafting engaging lifestyle & branded reels.',
+        bio: c.bio || c.ig_biography || c.ig_bio || 'Content creator crafting engaging lifestyle & branded reels.',
         avatar_url: c.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
         categories: Array.isArray(categories) && categories.length > 0 ? categories : ['Lifestyle'],
         languages: Array.isArray(languages) ? languages : ['English', 'Hindi'],
@@ -156,6 +156,7 @@ router.get('/:id', async (req, res) => {
         const row = queryOne(`
             SELECT c.*,
                    ia.is_connected as ig_connected, ia.username as ig_username, ia.last_synced_at as ig_synced_at,
+                   ia.biography as ig_biography, ia.bio as ig_bio,
                    im.followers_count as ig_followers, im.follows_count as ig_following,
                    im.media_count as ig_media_count, im.engagement_rate as ig_engagement_rate,
                    ai.overall_score as ai_overall_score, ai.summary as ai_summary,

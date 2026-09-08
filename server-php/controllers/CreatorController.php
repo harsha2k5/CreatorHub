@@ -52,6 +52,7 @@ class CreatorController {
     public static function show(string $id): void {
         $creator = Database::queryOne(
             "SELECT c.*, u.email, ig.username as ig_username, ig.profile_picture_url,
+                    COALESCE(NULLIF(c.bio, ''), ig.biography, ig.bio, '') as bio,
                     COALESCE(im.followers_count, 14200) as followers_count,
                     COALESCE(im.engagement_rate, 3.8) as engagement_rate
              FROM creator_profiles c 
@@ -75,6 +76,17 @@ class CreatorController {
 
         require_once dirname(__DIR__) . '/services/profileHelper.php';
         $creator = getOrCreateCreatorProfile($user['id'], $user);
+
+        // Auto-heal bio from connected Instagram account if creator bio is empty
+        if ($creator && empty(trim($creator['bio'] ?? ''))) {
+            $ig = Database::queryOne("SELECT biography, bio FROM instagram_accounts WHERE creator_id = ?", [$creator['id']]);
+            if ($ig && (!empty($ig['biography']) || !empty($ig['bio']))) {
+                $igBio = !empty($ig['biography']) ? $ig['biography'] : $ig['bio'];
+                $creator['bio'] = $igBio;
+                Database::execute("UPDATE creator_profiles SET bio = ? WHERE id = ?", [$igBio, $creator['id']]);
+            }
+        }
+
         Response::json(['success' => true, 'creator' => $creator]);
     }
 

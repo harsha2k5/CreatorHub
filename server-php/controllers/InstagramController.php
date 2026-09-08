@@ -76,7 +76,15 @@ class InstagramController {
         }
 
         $account = Database::queryOne(
-            "SELECT * FROM instagram_accounts WHERE creator_id = ? ORDER BY created_at DESC LIMIT 1",
+            "SELECT ig.*, 
+                    COALESCE(im.followers_count, 15400) as followers_count,
+                    COALESCE(im.following_count, 420) as following_count,
+                    COALESCE(im.media_count, 94) as media_count,
+                    COALESCE(im.engagement_rate, 3.9) as engagement_rate
+             FROM instagram_accounts ig
+             LEFT JOIN instagram_metrics im ON ig.id = im.instagram_account_id
+             WHERE ig.creator_id = ? 
+             ORDER BY ig.created_at DESC LIMIT 1",
             [$creator['id']]
         );
 
@@ -89,18 +97,30 @@ class InstagramController {
             ]);
         }
 
+        $bio = $account['biography'] ?? $account['bio'] ?? $creator['bio'] ?? '';
+        // Auto-heal: If creator profile bio is empty, sync from Instagram account
+        if (empty(trim($creator['bio'] ?? '')) && !empty($bio)) {
+            Database::execute("UPDATE creator_profiles SET bio = ? WHERE id = ?", [$bio, $creator['id']]);
+            $creator['bio'] = $bio;
+        }
+
         Response::json([
             'success' => true,
             'connected' => true,
+            'is_connected' => true,
             'status' => 'CONNECTED',
+            'connection_status' => 'CONNECTED',
             'account' => [
                 'id' => $account['id'],
                 'username' => $account['username'] ?? $account['instagram_username'],
                 'full_name' => $account['full_name'] ?? $creator['full_name'],
                 'profile_picture_url' => $account['profile_picture_url'] ?? $creator['avatar_url'],
-                'followers_count' => $account['followers_count'] ?? 15400,
-                'engagement_rate' => 3.9,
-                'media_count' => $account['media_count'] ?? 94,
+                'bio' => $bio,
+                'biography' => $bio,
+                'followers_count' => (int) $account['followers_count'],
+                'following_count' => (int) $account['following_count'],
+                'engagement_rate' => (float) $account['engagement_rate'],
+                'media_count' => (int) $account['media_count'],
                 'is_verified' => true,
                 'last_synced_at' => $account['last_synced_at']
             ]
@@ -114,14 +134,39 @@ class InstagramController {
         require_once dirname(__DIR__) . '/services/profileHelper.php';
         $creator = getOrCreateCreatorProfile($user['id'], $user);
 
-        Database::execute(
-            "UPDATE instagram_accounts SET last_synced_at = datetime('now') WHERE creator_id = ?",
-            [$creator['id']]
-        );
+        $account = Database::queryOne("SELECT * FROM instagram_accounts WHERE creator_id = ?", [$creator['id']]);
+        if ($account && !empty($account['username'])) {
+            $scraped = InstagramService::fetchPublicProfile($account['username']);
+            $bio = $scraped['bio'] ?: ($account['biography'] ?? $account['bio']);
+            Database::execute(
+                "UPDATE instagram_accounts 
+                 SET full_name = COALESCE(NULLIF(?, ''), full_name),
+                     profile_picture_url = COALESCE(NULLIF(?, ''), profile_picture_url),
+                     biography = COALESCE(NULLIF(?, ''), biography),
+                     bio = COALESCE(NULLIF(?, ''), bio),
+                     last_synced_at = datetime('now')
+                 WHERE id = ?",
+                [$scraped['full_name'], $scraped['avatar_url'], $bio, $bio, $account['id']]
+            );
+            if (!empty($bio)) {
+                Database::execute("UPDATE creator_profiles SET bio = ? WHERE id = ?", [$bio, $creator['id']]);
+            }
+            Database::execute(
+                "UPDATE instagram_metrics 
+                 SET followers_count = ?, following_count = ?, media_count = ?, recorded_at = datetime('now')
+                 WHERE instagram_account_id = ?",
+                [$scraped['followers_count'], $scraped['following_count'], $scraped['media_count'], $account['id']]
+            );
+        } else {
+            Database::execute(
+                "UPDATE instagram_accounts SET last_synced_at = datetime('now') WHERE creator_id = ?",
+                [$creator['id']]
+            );
+        }
 
         Response::json([
             'success' => true,
-            'message' => 'Instagram metrics synchronized successfully.'
+            'message' => 'Instagram metrics and bio synchronized successfully.'
         ]);
     }
 
@@ -189,7 +234,7 @@ class InstagramController {
 
         Database::execute("DELETE FROM instagram_accounts WHERE creator_id = ?", [$creator['id']]);
         Database::execute(
-            "UPDATE creator_profiles SET instagram_username = NULL, instagram_verified = 0 WHERE id = ?",
+            "UPDATE creator_profiles SET social_link = NULL WHERE id = ?",
             [$creator['id']]
         );
 
@@ -200,7 +245,7 @@ class InstagramController {
     }
 
     public static function verifyLink(array $body): void {
-        $profileUrl = $body['profileUrl'] ?? $body['url'] ?? '';
+        $profileUrl = $body['profileUrl'] ?? $body['url'] ?? $body['username'] ?? '';
         if (empty($profileUrl)) {
             Response::error('profileUrl is required.', 400);
         }
@@ -208,6 +253,7 @@ class InstagramController {
         $data = InstagramService::fetchPublicProfile($profileUrl);
         Response::json([
             'success' => true,
+            'profile' => $data,
             'data' => $data
         ]);
     }
@@ -216,7 +262,7 @@ class InstagramController {
         $user = AuthMiddleware::authenticate();
         AuthMiddleware::requireCreator($user);
 
-        $profileUrl = $body['profileUrl'] ?? '';
+        $profileUrl = $body['profileUrl'] ?? $body['link'] ?? $body['username'] ?? '';
         if (empty($profileUrl)) {
             Response::error('profileUrl is required.', 400);
         }
@@ -231,42 +277,99 @@ class InstagramController {
         $mediaCount = (int) ($body['mediaCount'] ?? $scraped['media_count']);
         $engagementRate = (float) ($body['engagementRate'] ?? $scraped['engagement_rate']);
 
+        $fullName = trim($body['fullName'] ?? $body['full_name'] ?? $scraped['full_name'] ?? $creator['full_name'] ?? $username);
+        $avatar = trim($body['avatarUrl'] ?? $body['avatar_url'] ?? $scraped['avatar_url'] ?? $creator['avatar_url'] ?? '');
+        $bio = trim($body['bio'] ?? $scraped['bio'] ?? $creator['bio'] ?? '');
+        if (empty($bio)) {
+            $bio = "Creator & storyteller • @{$username}";
+        }
+
+        $fullProfileUrl = "https://instagram.com/{$username}";
+
         $existing = Database::queryOne("SELECT id FROM instagram_accounts WHERE creator_id = ?", [$creator['id']]);
         if ($existing) {
             Database::execute(
                 "UPDATE instagram_accounts 
-                 SET username = ?, instagram_username = ?,
+                 SET username = ?, instagram_username = ?, full_name = ?, profile_url = ?, profile_picture_url = ?,
+                     biography = ?, bio = ?,
                      connection_status = 'CONNECTED', is_connected = 1, last_synced_at = datetime('now')
                  WHERE creator_id = ?",
-                [$username, $username, $creator['id']]
+                [$username, $username, $fullName, $fullProfileUrl, $avatar, $bio, $bio, $creator['id']]
             );
+            $accId = $existing['id'];
         } else {
             $accId = 'iga_' . time() . '_' . substr(bin2hex(random_bytes(3)), 0, 5);
             Database::execute(
                 "INSERT INTO instagram_accounts (
                     id, creator_id, user_id, instagram_user_id, instagram_username,
-                    username, access_token, connection_status, is_connected, last_synced_at
-                ) VALUES (?, ?, ?, ?, ?, ?, 'VERIFIED_VIA_PUBLIC_LINK', 'CONNECTED', 1, datetime('now'))",
-                [$accId, $creator['id'], $user['id'], 'pub_' . time(), $username, $username]
+                    username, full_name, profile_url, profile_picture_url, biography, bio,
+                    account_type, access_token, encrypted_access_token, connection_status, is_connected, last_synced_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DIRECT_LINK', 'linked_profile', 'linked_profile', 'CONNECTED', 1, datetime('now'))",
+                [$accId, $creator['id'], $user['id'], 'ig_' . $username, $username, $username, $fullName, $fullProfileUrl, $avatar, $bio, $bio]
             );
         }
 
+        // Insert fresh metric point in instagram_metrics
+        $metricId = 'met_' . time() . '_link';
         Database::execute(
-            "UPDATE creator_profiles 
-             SET instagram_username = ?, instagram_verified = 1, updated_at = datetime('now') 
-             WHERE id = ?",
-            [$username, $creator['id']]
+            "INSERT INTO instagram_metrics (
+                id, instagram_account_id, creator_id, followers_count,
+                following_count, media_count, reach, impressions,
+                engagement_rate, data_source, source, recorded_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Instagram', 'DIRECT_LINK', datetime('now'))",
+            [
+                $metricId, $accId, $creator['id'], $followers,
+                $following, $mediaCount, (int) round($followers * 1.8), (int) round($followers * 2.6),
+                $engagementRate
+            ]
         );
+
+        // Update creator_profiles: bio, social_link, and avatar_url
+        if (!empty($avatar) && !str_contains($avatar, 'photo-1534528741775')) {
+            Database::execute(
+                "UPDATE creator_profiles 
+                 SET bio = ?, social_link = ?, avatar_url = ?, updated_at = datetime('now') 
+                 WHERE id = ?",
+                [$bio, $fullProfileUrl, $avatar, $creator['id']]
+            );
+        } else {
+            Database::execute(
+                "UPDATE creator_profiles 
+                 SET bio = ?, social_link = ?, updated_at = datetime('now') 
+                 WHERE id = ?",
+                [$bio, $fullProfileUrl, $creator['id']]
+            );
+        }
 
         Response::json([
             'success' => true,
-            'message' => 'Instagram connected and verified successfully via profile link.',
+            'is_connected' => true,
+            'connection_status' => 'CONNECTED',
+            'message' => "Instagram account @{$username} connected and verified successfully!",
             'profile' => [
                 'username' => $username,
+                'full_name' => $fullName,
+                'avatar_url' => $avatar,
+                'bio' => $bio,
+                'biography' => $bio,
                 'followers_count' => $followers,
                 'following_count' => $following,
                 'media_count' => $mediaCount,
                 'engagement_rate' => $engagementRate
+            ],
+            'account' => [
+                'id' => $accId,
+                'username' => $username,
+                'full_name' => $fullName,
+                'avatar_url' => $avatar,
+                'bio' => $bio,
+                'biography' => $bio,
+                'followers_count' => $followers,
+                'following_count' => $following,
+                'media_count' => $mediaCount,
+                'engagement_rate' => $engagementRate,
+                'is_verified' => true,
+                'last_synced_at' => date('Y-m-d H:i:s')
             ]
         ]);
     }
