@@ -89,8 +89,24 @@ async function testSubscriptionUpgradeSuite() {
             console.log(`  ✅ ${tier.toUpperCase()} order generated: Order ID = ${orderData.order_id}, Amount = ${orderData.amount} paise (₹${orderData.price_inr})`);
         }
 
-        // 5. Test POST /upgrade endpoint (Upgrading to Gold for ₹1)
-        console.log('\n--- 4. Test POST /api/subscriptions/upgrade to Gold VIP for ₹1 ---');
+        // 5. Verify rejection of upgrade without payment authorization
+        console.log('\n--- 4. Verify Upgrade Rejection Without Payment Authorization ---');
+        const unauthRes = await fetch(`${baseUrl}/upgrade`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                tier: 'gold',
+                billing_cycle: 'monthly'
+                // No payment order or transaction reference
+            })
+        });
+        const unauthData = await unauthRes.json();
+        assert.strictEqual(unauthRes.status, 400, 'Must reject upgrade without payment authorization');
+        assert.strictEqual(unauthData.success, false);
+        console.log('  ✅ Upgrade rejected without payment authorization: ' + unauthData.error);
+
+        // 6. Test POST /upgrade endpoint with authorized payment (Upgrading to Gold for ₹1)
+        console.log('\n--- 5. Test POST /api/subscriptions/upgrade to Gold VIP for ₹1 ---');
         const upgradeRes = await fetch(`${baseUrl}/upgrade`, {
             method: 'POST',
             headers,

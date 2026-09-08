@@ -35,7 +35,7 @@ import { InstagramPerformanceCard } from '../components/analytics/InstagramPerfo
 import { InstagramAnalyticsPage } from '../components/analytics/InstagramAnalyticsPage';
 import { CreatorSubscriptionModal } from '../components/CreatorSubscriptionModal';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { CreatorSubscriptionStatus } from '../types';
+import { CreatorSubscriptionStatus, SubscriptionTier } from '../types';
 
 export const CreatorDashboard: React.FC = () => {
   const { user, refreshSessionUser, showToast } = useAuth();
@@ -55,6 +55,7 @@ export const CreatorDashboard: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [subscriptionData, setSubscriptionData] = useState<CreatorSubscriptionStatus | null>(null);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [targetUpgradeTier, setTargetUpgradeTier] = useState<SubscriptionTier | undefined>(undefined);
   const [oauthFeedback, setOauthFeedback] = useState<{ message: string; isError?: boolean } | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -1652,7 +1653,10 @@ export const CreatorDashboard: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => setIsSubscriptionModalOpen(true)}
+                    onClick={() => {
+                      setTargetUpgradeTier('silver');
+                      setIsSubscriptionModalOpen(true);
+                    }}
                     className="w-full mt-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all"
                   >
                     {currentTier === 'silver' ? 'Manage Plan' : 'Select Silver (₹1)'}
@@ -1707,7 +1711,10 @@ export const CreatorDashboard: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => setIsSubscriptionModalOpen(true)}
+                    onClick={() => {
+                      setTargetUpgradeTier('gold');
+                      setIsSubscriptionModalOpen(true);
+                    }}
                     className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs hover:opacity-95 shadow-md shadow-amber-500/20 transition-all"
                   >
                     {currentTier === 'gold' ? 'Manage Plan' : 'Select Gold VIP (₹1)'}
@@ -1762,10 +1769,13 @@ export const CreatorDashboard: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => setIsSubscriptionModalOpen(true)}
+                    onClick={() => {
+                      setTargetUpgradeTier('diamond');
+                      setIsSubscriptionModalOpen(true);
+                    }}
                     className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs hover:opacity-95 shadow-md shadow-cyan-500/20 transition-all"
                   >
-                    {currentTier === 'diamond' ? 'Manage Plan' : 'Select Diamond Elite'}
+                    {currentTier === 'diamond' ? 'Manage Plan' : 'Select Diamond Elite (₹1)'}
                   </button>
                 </div>
               </div>
@@ -1960,6 +1970,7 @@ export const CreatorDashboard: React.FC = () => {
           isOpen={isSubscriptionModalOpen}
           onClose={() => setIsSubscriptionModalOpen(false)}
           currentTier={currentTier}
+          initialSelectedTier={targetUpgradeTier}
           onUpgradeSuccess={() => {
             loadAllData();
             refreshSessionUser();

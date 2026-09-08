@@ -236,6 +236,10 @@ router.post('/upgrade', authenticateToken, requireCreator, async (req, res) => {
         const creator = getOrCreateCreatorProfile(req.user.id, req.user);
         if (!creator) return res.status(404).json({ success: false, error: 'Creator profile not found.' });
 
+        if (!razorpay_order_id && !razorpay_payment_id) {
+            return res.status(400).json({ success: false, error: 'Payment authorization required. Missing order or payment reference.' });
+        }
+
         const plan = SUBSCRIPTION_PLANS[targetTier];
         const price = billing_cycle === 'yearly' ? plan.price_yearly : plan.price_monthly; // exactly 1 INR
 
@@ -296,6 +300,9 @@ router.post('/upgrade', authenticateToken, requireCreator, async (req, res) => {
             message: `Congratulations! You are now upgraded to ${plan.name} for ₹${price}.`,
             tier: targetTier,
             expires_at: expiresIso,
+            transaction_ref: txRef,
+            price_paid: price,
+            payment_method,
             plan
         });
     } catch (err) {
