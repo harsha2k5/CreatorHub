@@ -1,0 +1,16 @@
+# CreatorHub Root Apache Configuration
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny direct access to source code, databases, and logs
+    RewriteRule ^(config|controllers|middleware|models|routes|services|storage|tests|vendor|\.env.*) - [F,L]
+    RewriteRule \.(db|sqlite|sql|log|json|lock)$ - [F,L]
+
+    # Pass Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect /api and all application requests to public/index.php
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
+</IfModule>

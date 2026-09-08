@@ -4,32 +4,29 @@
  */
 
 require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/middleware/auth.php';
+require_once dirname(__DIR__) . '/controllers/NotificationController.php';
+
+use CreatorHub\Controllers\NotificationController;
+use CreatorHub\Utils\Response;
 
 function handleNotificationsRoute(array $segments, string $method, array $body) {
-    $user = AuthMiddleware::authenticate();
-
     if (empty($segments) && $method === 'GET') {
-        $notifications = Database::query(
-            "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
-            [$user['id']]
-        );
-
-        echo json_encode(['success' => true, 'notifications' => $notifications]);
+        NotificationController::index();
         return;
     }
 
-    $id = $segments[0] ?? null;
-    if ($id && ($method === 'PATCH' || $method === 'POST')) {
-        Database::execute(
-            "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?",
-            [$id, $user['id']]
-        );
+    $first = $segments[0] ?? null;
+    $second = $segments[1] ?? null;
 
-        echo json_encode(['success' => true, 'message' => 'Notification marked as read.']);
+    if ($first === 'read-all' && ($method === 'PUT' || $method === 'POST')) {
+        NotificationController::markAllRead();
         return;
     }
 
-    http_response_code(404);
-    echo json_encode(['error' => 'Notification endpoint not found.']);
+    if ($first && $second === 'read' && ($method === 'PATCH' || $method === 'POST')) {
+        NotificationController::markRead($first);
+        return;
+    }
+
+    Response::notFound('Notification endpoint not found: /api/notifications/' . implode('/', $segments));
 }

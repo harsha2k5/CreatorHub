@@ -1,44 +1,62 @@
 <?php
 /**
- * CreatorHub PHP Backend - Master CLI Server Router & Front Controller
- * Runs on: php -S 0.0.0.0:5000 server-php/router.php
+ * CreatorHub PHP Backend - Public Entry Point (Webroot Front Controller)
+ * Compatible with Apache mod_php / FastCGI, Nginx + PHP-FPM, and PHP CLI Server.
  */
 
 declare(strict_types=1);
 
-// Handle PHP built-in server static files
-if (php_sapi_name() === 'cli-server') {
-    $filePath = __DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    if (is_file($filePath)) {
-        return false;
-    }
+// Report all errors in dev, suppress in prod
+$env = getenv('APP_ENV') ?: (getenv('NODE_ENV') ?: 'development');
+if ($env === 'development') {
+    ini_set('display_errors', '0'); // Return JSON errors instead of raw HTML output
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', '0');
+    error_reporting(0);
 }
 
-// Autoloader if vendor exists
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
+// 1. Bootstrap Autoloader / Dependencies
+$baseDir = dirname(__DIR__);
+if (file_exists($baseDir . '/vendor/autoload.php')) {
+    require_once $baseDir . '/vendor/autoload.php';
 }
 
-require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/utils/Response.php';
-require_once __DIR__ . '/middleware/CorsMiddleware.php';
-require_once __DIR__ . '/middleware/auth.php';
+// 2. Load Core Configuration & Database
+require_once $baseDir . '/config/config.php';
+require_once $baseDir . '/config/database.php';
+require_once $baseDir . '/utils/Response.php';
+require_once $baseDir . '/middleware/CorsMiddleware.php';
+require_once $baseDir . '/middleware/auth.php';
 
 use CreatorHub\Middleware\CorsMiddleware;
 use CreatorHub\Utils\Response;
 
-// Global CORS Headers
+// 3. Apply Strict Credentials-Aware CORS
 CorsMiddleware::handle();
 
-// Parse Request
+// 4. Global Exception & Error Handler
+set_exception_handler(function (\Throwable $e) {
+    Response::serverError('Internal Server Error: ' . $e->getMessage(), $e);
+});
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    if (!(error_reporting() & $severity)) {
+        return false;
+    }
+    throw new \ErrorException($message, 0, $severity, $file, $line);
+});
+
+// 5. Parse Request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $rawInput = file_get_contents('php://input') ?: '';
 $body = json_decode($rawInput, true) ?? [];
+
+// Store raw body globally for cryptographic signature checks (e.g. Razorpay webhooks)
 $GLOBALS['RAW_REQUEST_BODY'] = $rawInput;
 
-// Normalize API Path
+// 6. Normalize Path
 $path = trim($uri, '/');
 if (str_starts_with($path, 'api/')) {
     $path = substr($path, 4);
@@ -47,7 +65,7 @@ $parts = explode('/', $path);
 $module = array_shift($parts) ?? '';
 $action = $parts[0] ?? '';
 
-// Health check endpoint: /api/health or /health
+// 7. Health Check: /health or /api/health
 if ($module === 'health' || $module === '') {
     Response::json([
         'status' => 'UP',
@@ -58,81 +76,81 @@ if ($module === 'health' || $module === '') {
     ]);
 }
 
-// Route Dispatcher
+// 8. Modular Route Dispatcher
 try {
     switch ($module) {
         case 'auth':
-            require_once __DIR__ . '/routes/auth.php';
+            require_once $baseDir . '/routes/auth.php';
             handleAuthRoute($action, $method, $body);
             break;
 
         case 'subscriptions':
-            require_once __DIR__ . '/routes/subscriptions.php';
+            require_once $baseDir . '/routes/subscriptions.php';
             handleSubscriptionsRoute($action, $method, $body);
             break;
 
         case 'payments':
-            require_once __DIR__ . '/routes/payments.php';
+            require_once $baseDir . '/routes/payments.php';
             handlePaymentsRoute($action, $method, $body);
             break;
 
         case 'collaborations':
-            require_once __DIR__ . '/routes/collaborations.php';
+            require_once $baseDir . '/routes/collaborations.php';
             handleCollaborationsRoute($parts, $method, $body);
             break;
 
         case 'applications':
-            require_once __DIR__ . '/routes/applications.php';
+            require_once $baseDir . '/routes/applications.php';
             handleApplicationsRoute($parts, $method, $body);
             break;
 
         case 'campaigns':
-            require_once __DIR__ . '/routes/campaigns.php';
+            require_once $baseDir . '/routes/campaigns.php';
             handleCampaignsRoute($parts, $method, $body);
             break;
 
         case 'creators':
-            require_once __DIR__ . '/routes/creators.php';
+            require_once $baseDir . '/routes/creators.php';
             handleCreatorsRoute($parts, $method, $body);
             break;
 
         case 'brands':
-            require_once __DIR__ . '/routes/brands.php';
+            require_once $baseDir . '/routes/brands.php';
             handleBrandsRoute($action, $method, $body);
             break;
 
         case 'instagram':
-            require_once __DIR__ . '/routes/instagram.php';
+            require_once $baseDir . '/routes/instagram.php';
             handleInstagramRoute($action, $method, $body);
             break;
 
         case 'messages':
-            require_once __DIR__ . '/routes/messages.php';
+            require_once $baseDir . '/routes/messages.php';
             handleMessagesRoute($parts, $method, $body);
             break;
 
         case 'reviews':
-            require_once __DIR__ . '/routes/reviews.php';
+            require_once $baseDir . '/routes/reviews.php';
             handleReviewsRoute($parts, $method, $body);
             break;
 
         case 'notifications':
-            require_once __DIR__ . '/routes/notifications.php';
+            require_once $baseDir . '/routes/notifications.php';
             handleNotificationsRoute($parts, $method, $body);
             break;
 
         case 'ai':
-            require_once __DIR__ . '/routes/ai.php';
+            require_once $baseDir . '/routes/ai.php';
             handleAiRoute($parts, $method, $body);
             break;
 
         case 'admin':
-            require_once __DIR__ . '/routes/admin.php';
+            require_once $baseDir . '/routes/admin.php';
             handleAdminRoute($parts, $method, $body);
             break;
 
         case 'reports':
-            require_once __DIR__ . '/routes/reports.php';
+            require_once $baseDir . '/routes/reports.php';
             handleReportsRoute($parts, $method, $body);
             break;
 

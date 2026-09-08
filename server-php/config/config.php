@@ -42,6 +42,31 @@ if (!function_exists('loadEnv')) {
 $rootEnvPath = dirname(__DIR__, 2) . '/.env';
 loadEnv($rootEnvPath);
 
+// Register Seamless PSR-4 and Root Class Autoloader
+spl_autoload_register(function (string $class) {
+    $baseDir = dirname(__DIR__) . '/';
+    $prefix = 'CreatorHub\\';
+
+    if (str_starts_with($class, $prefix)) {
+        $relativeClass = substr($class, strlen($prefix));
+        $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+
+    // Root & Global class fallback (services, models, utils, middleware, controllers)
+    $subdirs = ['services', 'models', 'utils', 'middleware', 'controllers', 'config'];
+    foreach ($subdirs as $dir) {
+        $file = $baseDir . $dir . '/' . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
+
 if (!function_exists('env')) {
     function env($key, $default = null) {
         if (isset($_ENV[$key])) {

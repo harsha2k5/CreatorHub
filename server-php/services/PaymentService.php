@@ -112,7 +112,7 @@ class PaymentService {
             throw new Exception("Unauthorized: You do not own this collaboration brief.");
         }
 
-        $allowedStatuses = ['ACCEPTED', 'ESCROW_PENDING'];
+        $allowedStatuses = ['ACCEPTED', 'ACTIVE', 'SUBMITTED', 'REVISION_REQUESTED', 'ESCROW_PENDING', 'IN_PROGRESS'];
         if (!in_array($collab['status'], $allowedStatuses)) {
             if ($collab['status'] === 'ESCROW_LOCKED' || $collab['status'] === 'COMPLETED' || $collab['status'] === 'RELEASED') {
                 throw new Exception("Escrow is already funded and locked for this collaboration.");

@@ -1,32 +1,42 @@
 <?php
 /**
- * CreatorHub PHP Backend - AI Creator Analysis Routes
+ * CreatorHub PHP Backend - AI Routes
  */
 
 require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/middleware/auth.php';
+require_once dirname(__DIR__) . '/controllers/AIController.php';
+
+use CreatorHub\Controllers\AIController;
+use CreatorHub\Utils\Response;
 
 function handleAiRoute(array $segments, string $method, array $body) {
-    // Expected: /api/ai/creator-analysis/:creatorId
-    $sub = $segments[0] ?? null;
-    $creatorId = $segments[1] ?? null;
+    $first = $segments[0] ?? null;
+    $second = $segments[1] ?? null;
 
-    if ($sub === 'creator-analysis' && !empty($creatorId) && $method === 'GET') {
-        $analysis = Database::queryOne(
-            "SELECT * FROM ai_creator_analyses WHERE creator_id = ? ORDER BY created_at DESC LIMIT 1",
-            [$creatorId]
-        );
-
-        if (!$analysis) {
-            http_response_code(404);
-            echo json_encode(['error' => 'AI analysis not found. Connect your official Instagram account to generate analysis.']);
-            return;
-        }
-
-        echo json_encode(['success' => true, 'analysis' => $analysis]);
+    if ($first === 'match-score' && $method === 'POST') {
+        AIController::matchScore($body);
         return;
     }
 
-    http_response_code(404);
-    echo json_encode(['error' => 'AI endpoint not found.']);
+    if ($first === 'creator-analysis' && $second && $method === 'GET') {
+        AIController::creatorAnalysis($second);
+        return;
+    }
+
+    if ($first === 'analyze-creator' && $method === 'POST') {
+        AIController::analyzeCreator();
+        return;
+    }
+
+    if ($first === 'generate-campaign-brief' && $method === 'POST') {
+        AIController::generateCampaignBrief($body);
+        return;
+    }
+
+    if ($first === 'pitch-helper' && $method === 'POST') {
+        AIController::pitchHelper($body);
+        return;
+    }
+
+    Response::notFound('AI endpoint not found: /api/ai/' . implode('/', $segments));
 }

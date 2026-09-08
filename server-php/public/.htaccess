@@ -1,0 +1,23 @@
+# CreatorHub Apache Webroot Configuration
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Pass Authorization Header to PHP FastCGI/FPM
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Prevent direct access to sensitive hidden files
+    RewriteRule ^\.(.*)$ - [F,L]
+
+    # Route all requests through index.php if not an existing file
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

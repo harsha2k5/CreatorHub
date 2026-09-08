@@ -1,0 +1,35 @@
+{
+  "name": "creatorhub/backend-php",
+  "description": "CreatorHub Core REST API Backend - PHP 8.2+ Architecture",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.2.0",
+    "ext-pdo": "*",
+    "ext-pdo_sqlite": "*",
+    "ext-curl": "*",
+    "ext-openssl": "*",
+    "ext-json": "*",
+    "firebase/php-jwt": "^6.10",
+    "razorpay/razorpay": "^2.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "CreatorHub\\": "src/",
+      "CreatorHub\\Controllers\\": "controllers/",
+      "CreatorHub\\Services\\": "services/",
+      "CreatorHub\\Middleware\\": "middleware/",
+      "CreatorHub\\Models\\": "models/",
+      "CreatorHub\\Utils\\": "utils/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "scripts": {
+    "start": "php -S 0.0.0.0:5000 router.php",
+    "test": "php tests/test_escrow_payment_enforcement.php"
+  }
+}

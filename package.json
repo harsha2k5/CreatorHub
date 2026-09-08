@@ -12,10 +12,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server/index.cjs",
-    "server:php": "php -S localhost:5000 -t server-php server-php/router.php",
+    "server:php": "node server-php/run.cjs -S localhost:5000 -t server-php server-php/router.php",
     "start": "node server/index.cjs",
     "test": "node server/tests/test_auth_and_roles.cjs && node server/tests/test_campaign_matching.cjs && node server/tests/test_instagram_integrity.cjs && node server/tests/test_collaboration_flow.cjs && node server/tests/test_real_instagram_integration.cjs && node server/tests/test_razorpay_payment.cjs && node server/tests/test_subscription_upgrade.cjs",
-    "test:php": "php server-php/tests/test_php_api.php"
+    "test:php": "node server-php/run.cjs server-php/tests/test_php_api.php && node server-php/run.cjs server-php/tests/test_escrow_payment_enforcement.php && node server-php/tests/test_live_http_server.cjs"
   },
   "keywords": [],
   "author": "",
