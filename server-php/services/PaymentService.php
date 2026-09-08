@@ -120,7 +120,7 @@ class PaymentService {
             throw new Exception("Cannot fund escrow. Collaboration is currently in {$collab['status']} status.");
         }
 
-        $amount = (float) ($collab['payment_amount'] ?: $collab['agreed_reward'] ?: $collab['reward_per_creator'] ?: $collab['default_reward'] ?: 5000);
+        $amount = (float) (($collab['default_reward'] ?? null) ?: ($collab['reward_per_creator'] ?? null) ?: 5000);
         $amountInPaise = (int) round($amount * 100);
         $receipt = "rcpt_" . substr($collab['id'], 0, 20) . "_" . round(microtime(true) * 1000);
 
@@ -233,8 +233,7 @@ class PaymentService {
             Database::execute(
                 "UPDATE collaborations
                  SET status = 'ESCROW_LOCKED',
-                     current_step = 2,
-                     updated_at = CURRENT_TIMESTAMP
+                     current_step = 2
                  WHERE id = ?",
                 [$collaborationId]
             );
@@ -273,15 +272,7 @@ class PaymentService {
             if ($releasedPayment) {
                 return ['success' => true, 'already_released' => true, 'message' => 'Escrow funds have already been released.'];
             }
-            // Auto-create release payment record if needed
-            $paymentId = 'pay_' . round(microtime(true) * 1000) . '_' . substr(bin2hex(random_bytes(3)), 0, 4);
-            $amount = $collab['payment_amount'] ?: $collab['reward_per_creator'] ?: 5000;
-            Database::execute(
-                "INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, currency, payment_type, status, is_simulated, transaction_ref, released_at)
-                 VALUES (?, ?, ?, ?, ?, 'INR', 'Escrow Release', 'RELEASED', 1, ?, CURRENT_TIMESTAMP)",
-                [$paymentId, $collaborationId, $collab['brand_id'], $collab['creator_id'], $amount, "TXN_ESCROW_" . time()]
-            );
-            $payment = Database::queryOne("SELECT * FROM payments WHERE id = ?", [$paymentId]);
+            throw new Exception("Payment required. Escrow has not been funded via Razorpay. Cannot release escrow.");
         } else {
             Database::execute(
                 "UPDATE payments SET status = 'RELEASED', released_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?",

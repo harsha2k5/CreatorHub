@@ -94,12 +94,44 @@ export const CollaborationsPage: React.FC = () => {
   };
 
   const handleReviewAction = async (collabId: string, action: 'approve' | 'revision') => {
+    const target = collaborations.find(c => c.id === collabId);
+    const isEscrowPaid =
+      target && (
+        target.status === 'escrow_locked' ||
+        target.status === 'ESCROW_LOCKED' ||
+        target.payment_status === 'VERIFIED' ||
+        target.payment_status === 'HELD_IN_ESCROW'
+      );
+
+    if (action === 'approve' && !isEscrowPaid) {
+      showToast('🔒 Payment required! You must fund escrow via Razorpay before approving.', 'error');
+      if (target) {
+        setEscrowCollab(target);
+        setIsEscrowModalOpen(true);
+      }
+      return;
+    }
+
     try {
-      await api.reviewContentProof(collabId, { action, feedback: action === 'approve' ? 'Deliverable approved!' : 'Please tweak pacing.' });
+      const res = await api.reviewContentProof(collabId, { action, feedback: action === 'approve' ? 'Deliverable approved!' : 'Please tweak pacing.' });
+      if ((res as any)?.code === 'PAYMENT_REQUIRED' || (!res.success && (res as any)?.error?.includes('Payment required'))) {
+        showToast('🔒 Razorpay escrow deposit required before approving.', 'error');
+        if (target) {
+          setEscrowCollab(target);
+          setIsEscrowModalOpen(true);
+        }
+        return;
+      }
       showToast(action === 'approve' ? '✅ Deliverable Approved!' : '✏️ Revision Requested.');
       loadCollaborations();
     } catch (err: any) {
       showToast(err.message || 'Review failed', 'error');
+      if (err.message?.includes('Payment') || err.message?.includes('PAYMENT_REQUIRED')) {
+        if (target) {
+          setEscrowCollab(target);
+          setIsEscrowModalOpen(true);
+        }
+      }
     }
   };
 

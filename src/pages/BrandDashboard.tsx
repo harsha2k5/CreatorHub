@@ -160,7 +160,21 @@ export const BrandDashboard: React.FC = () => {
 
   const handleUpdateAppStatus = async (appId: string, status: 'ACCEPTED' | 'SHORTLISTED' | 'REJECTED') => {
     try {
-      await api.updateApplicationStatus(appId, status);
+      const res = await api.updateApplicationStatus(appId, status);
+      if (status === 'ACCEPTED') {
+        const app = applications.find(a => a.id === appId);
+        const collabId = (res as any)?.collaboration_id || (res as any)?.id;
+        const stubCollab = {
+          id: collabId,
+          campaign_title: app?.campaign_title || 'Campaign Collaboration',
+          brand_name: brandProfile.company_name || 'Brand Partner',
+          creator_name: app?.creator_name || 'Creator Partner',
+          reward_per_creator: app?.proposed_budget || app?.reward_per_creator || 5000,
+          payment_amount: app?.proposed_budget || app?.reward_per_creator || 5000
+        };
+        setEscrowModalCollab(stubCollab);
+        setIsEscrowModalOpen(true);
+      }
       loadData();
     } catch (err) {
       console.error('Error updating application status:', err);
@@ -171,17 +185,40 @@ export const BrandDashboard: React.FC = () => {
     e.preventDefault();
     if (!reviewingCollab) return;
 
+    // Check if escrow payment has been funded via Razorpay
+    const isEscrowPaid =
+      reviewingCollab.status === 'ESCROW_LOCKED' ||
+      reviewingCollab.status === 'escrow_locked' ||
+      reviewingCollab.payment_status === 'VERIFIED' ||
+      reviewingCollab.payment_status === 'HELD_IN_ESCROW';
+
+    if (reviewAction === 'APPROVE' && !isEscrowPaid) {
+      // Must complete payment via Razorpay before approving!
+      setEscrowModalCollab(reviewingCollab);
+      setIsEscrowModalOpen(true);
+      return;
+    }
+
     setProcessingReview(true);
     try {
-      await api.reviewDeliverableProof(reviewingCollab.id, {
+      const res = await api.reviewDeliverableProof(reviewingCollab.id, {
         action: reviewAction,
         feedback: reviewFeedback
       });
+      if ((res as any)?.code === 'PAYMENT_REQUIRED' || (!res.success && (res as any)?.error?.includes('Payment required'))) {
+        setEscrowModalCollab(reviewingCollab);
+        setIsEscrowModalOpen(true);
+        return;
+      }
       setReviewingCollab(null);
       setReviewFeedback('');
       loadData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error reviewing deliverable:', err);
+      if (err.message?.includes('Payment') || err.message?.includes('PAYMENT_REQUIRED')) {
+        setEscrowModalCollab(reviewingCollab);
+        setIsEscrowModalOpen(true);
+      }
     } finally {
       setProcessingReview(false);
     }
@@ -824,6 +861,22 @@ export const BrandDashboard: React.FC = () => {
                       </button>
                     </div>
 
+                    {reviewAction === 'APPROVE' && reviewingCollab && !(
+                      reviewingCollab.status === 'ESCROW_LOCKED' ||
+                      reviewingCollab.status === 'escrow_locked' ||
+                      reviewingCollab.payment_status === 'VERIFIED' ||
+                      reviewingCollab.payment_status === 'HELD_IN_ESCROW'
+                    ) && (
+                      <div className="p-3.5 rounded-2xl bg-purple-950/60 border border-purple-800/80 text-xs text-purple-200 space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-purple-300">
+                          <Lock className="w-3.5 h-3.5 text-purple-400" /> Razorpay Escrow Deposit Required
+                        </div>
+                        <p className="text-[11px] text-slate-300">
+                          Escrow payment (₹{(reviewingCollab.reward_per_creator || 5000).toLocaleString()}) has not been funded yet. You must complete Razorpay payment before deliverables can be approved and escrow released.
+                        </p>
+                      </div>
+                    )}
+
                     {reviewAction === 'REVISION' && (
                       <div>
                         <label className="block text-xs font-bold text-slate-300 mb-1">Revision Instructions</label>
@@ -849,9 +902,23 @@ export const BrandDashboard: React.FC = () => {
                       <button
                         type="submit"
                         disabled={processingReview}
-                        className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold disabled:opacity-50"
+                        className="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-1.5"
                       >
-                        {processingReview ? 'Processing...' : 'Confirm Action'}
+                        {processingReview ? (
+                          'Processing...'
+                        ) : reviewAction === 'APPROVE' && !(
+                          reviewingCollab.status === 'ESCROW_LOCKED' ||
+                          reviewingCollab.status === 'escrow_locked' ||
+                          reviewingCollab.payment_status === 'VERIFIED' ||
+                          reviewingCollab.payment_status === 'HELD_IN_ESCROW'
+                        ) ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Pay &amp; Approve via Razorpay</span>
+                          </>
+                        ) : (
+                          'Confirm Action'
+                        )}
                       </button>
                     </div>
                   </form>
@@ -1081,6 +1148,17 @@ export const BrandDashboard: React.FC = () => {
           isOpen={isEscrowModalOpen}
           onClose={() => setIsEscrowModalOpen(false)}
           collaboration={escrowModalCollab}
+          autoPromptApprove={Boolean(reviewingCollab && reviewingCollab.id === escrowModalCollab.id)}
+          onApproveAfterPayment={async () => {
+            if (reviewingCollab) {
+              await api.reviewDeliverableProof(reviewingCollab.id, {
+                action: 'APPROVE',
+                feedback: reviewFeedback
+              });
+              setReviewingCollab(null);
+              loadData();
+            }
+          }}
           onPaymentSuccess={() => {
             loadData();
           }}

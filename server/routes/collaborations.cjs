@@ -237,6 +237,20 @@ router.post('/:id/review', authenticateToken, async (req, res) => {
         if (!collab) return res.status(404).json({ success: false, error: 'Collaboration not found or unauthorized.' });
 
         if (action === 'APPROVE') {
+            // Check if escrow payment was funded via Razorpay
+            const verifiedPayment = queryOne(
+                "SELECT * FROM payments WHERE collaboration_id = ? AND status IN ('VERIFIED', 'HELD_IN_ESCROW', 'RELEASED')",
+                [id]
+            );
+
+            if (!verifiedPayment && collab.status !== 'ESCROW_LOCKED') {
+                return res.status(400).json({
+                    success: false,
+                    code: 'PAYMENT_REQUIRED',
+                    error: 'Razorpay payment required before approving deliverables. Escrow has not been funded yet for this collaboration.'
+                });
+            }
+
             transaction(() => {
                 run("UPDATE deliverables SET status = 'APPROVED', reviewed_at = CURRENT_TIMESTAMP WHERE collaboration_id = ?", [id]);
                 run("UPDATE collaborations SET status = 'COMPLETED', current_step = 4, completed_at = CURRENT_TIMESTAMP WHERE id = ?", [id]);
@@ -247,7 +261,7 @@ router.post('/:id/review', authenticateToken, async (req, res) => {
 
             return res.json({
                 success: true,
-                message: 'Deliverables approved! Collaboration marked as completed and simulated escrow payout released.'
+                message: 'Deliverables approved! Escrow payment released to creator.'
             });
         } else {
             transaction(() => {

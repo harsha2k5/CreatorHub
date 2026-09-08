@@ -269,6 +269,8 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
         const app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND brand_id = ?', [id, brand.id]);
         if (!app) return res.status(404).json({ success: false, error: 'Application not found or unauthorized.' });
 
+        let createdCollabId = null;
+
         transaction(() => {
             run('UPDATE campaign_applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, id]);
 
@@ -315,6 +317,8 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
                     }
                 }
 
+                createdCollabId = collabId;
+
                 // Notify creator
                 const creatorUser = queryOne('SELECT user_id FROM creator_profiles WHERE id = ?', [app.creator_id]);
                 if (creatorUser) {
@@ -325,7 +329,7 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
                             generateId('notif'),
                             creatorUser.user_id,
                             'Application Accepted! 🎉',
-                            `Your application has been accepted! You can now begin work on your deliverables.`,
+                            `Your application has been accepted! Escrow funding is now being secured.`,
                             `/creator/collaborations`
                         ]
                     );
@@ -333,7 +337,11 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
             }
         });
 
-        return res.json({ success: true, message: `Application status updated to ${status}.` });
+        return res.json({
+            success: true,
+            message: `Application status updated to ${status}.`,
+            collaboration_id: createdCollabId
+        });
     } catch (err) {
         console.error('Error updating application status:', err);
         return res.status(500).json({ success: false, error: 'Failed to update application status: ' + err.message });

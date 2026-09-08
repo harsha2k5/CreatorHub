@@ -135,14 +135,28 @@ function handleApplicationsRoute(array $segments, string $method, array $body) {
                 Database::execute(
                     "INSERT INTO collaborations (
                         id, campaign_id, brand_id, creator_id, application_id,
-                        status, current_step, payment_amount, agreed_reward
-                    ) VALUES (?, ?, ?, ?, ?, 'ACCEPTED', 1, ?, ?)",
-                    [$collabId, $app['campaign_id'], $app['brand_id'], $app['creator_id'], $appId, $reward, $reward]
+                        status, current_step
+                    ) VALUES (?, ?, ?, ?, ?, 'ACCEPTED', 1)",
+                    [$collabId, $app['campaign_id'], $app['brand_id'], $app['creator_id'], $appId]
                 );
+
+                // Insert pending payment
+                $payId = 'pay_' . round(microtime(true) * 1000) . '_' . substr(bin2hex(random_bytes(3)), 0, 5);
+                Database::execute(
+                    "INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, currency, payment_type, status, is_simulated, transaction_ref)
+                     VALUES (?, ?, ?, ?, ?, 'INR', 'Escrow Lock', 'PENDING', 0, ?)",
+                    [$payId, $collabId, $app['brand_id'], $app['creator_id'], $reward, 'TXN_PENDING_' . time()]
+                );
+
+                $GLOBALS['created_collab_id'] = $collabId;
             }
         });
 
-        echo json_encode(['success' => true, 'message' => "Application {$newStatus} successfully."]);
+        echo json_encode([
+            'success' => true,
+            'message' => "Application {$newStatus} successfully.",
+            'collaboration_id' => $GLOBALS['created_collab_id'] ?? null
+        ]);
         return;
     }
 
