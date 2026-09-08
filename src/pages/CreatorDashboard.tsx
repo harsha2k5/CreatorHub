@@ -1628,7 +1628,7 @@ export const CreatorDashboard: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-2xl font-black text-white mt-2">₹499 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
+                    <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Great for rising creators seeking regular local brand collaborations.</p>
 
                     <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
@@ -1655,7 +1655,7 @@ export const CreatorDashboard: React.FC = () => {
                     onClick={() => setIsSubscriptionModalOpen(true)}
                     className="w-full mt-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all"
                   >
-                    {currentTier === 'silver' ? 'Manage Plan' : 'Select Silver'}
+                    {currentTier === 'silver' ? 'Manage Plan' : 'Select Silver (₹1)'}
                   </button>
                 </div>
 
@@ -1679,7 +1679,7 @@ export const CreatorDashboard: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-2xl font-black text-white mt-2">₹999 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
+                    <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">For full-time influencers and high-engagement content creators.</p>
 
                     <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
@@ -1710,7 +1710,7 @@ export const CreatorDashboard: React.FC = () => {
                     onClick={() => setIsSubscriptionModalOpen(true)}
                     className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs hover:opacity-95 shadow-md shadow-amber-500/20 transition-all"
                   >
-                    {currentTier === 'gold' ? 'Manage Plan' : 'Select Gold VIP'}
+                    {currentTier === 'gold' ? 'Manage Plan' : 'Select Gold VIP (₹1)'}
                   </button>
                 </div>
 
@@ -1734,7 +1734,7 @@ export const CreatorDashboard: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-2xl font-black text-white mt-2">₹1,999 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
+                    <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Elite creators, agencies, and top-tier influencers desiring VIP privileges.</p>
 
                     <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">

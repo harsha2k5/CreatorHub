@@ -312,10 +312,13 @@ export interface Collaboration {
   application_id: string;
   brand_id: string;
   creator_id: string;
-  status: 'active' | 'content_submitted' | 'revision_requested' | 'approved' | 'paid' | 'completed';
+  status: 'accepted' | 'active' | 'escrow_locked' | 'content_submitted' | 'revision_requested' | 'approved' | 'paid' | 'completed' | 'cancelled' | string;
   current_step: number;
   created_at: string;
+  started_at?: string;
+  completed_at?: string;
   campaign_title?: string;
+  campaign_desc?: string;
   reward_per_creator?: number;
   platform?: string;
   location_name?: string;
@@ -324,8 +327,24 @@ export interface Collaboration {
   creator_avatar?: string;
   brand_name?: string;
   brand_logo?: string;
-  payment_status?: string;
+  payment_id?: string;
+  payment_status?: 'PENDING' | 'VERIFIED' | 'HELD_IN_ESCROW' | 'RELEASED' | 'REFUNDED' | 'FAILED' | string;
+  payment_amount?: number;
+  payment_currency?: string;
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
+  razorpay_signature_verified?: number;
+  paid_at?: string;
+  verified_at?: string;
   amount_paid?: number;
+  content_url?: string;
+  submitted_caption?: string;
+  screenshot_url?: string;
+  brand_feedback?: string;
+  campaign_deliverables?: string[];
+  deliverables_requirements?: string[];
+  submissions?: any[];
+  reviews?: any[];
 }
 
 export interface ContentSubmission {
@@ -347,9 +366,18 @@ export interface Payment {
   brand_id: string;
   creator_id: string;
   amount: number;
+  currency?: string;
   payment_type: string;
-  status: 'pending' | 'processing' | 'paid';
-  transaction_id: string;
+  status: 'PENDING' | 'VERIFIED' | 'HELD_IN_ESCROW' | 'RELEASED' | 'REFUNDED' | 'FAILED' | string;
+  is_simulated?: number | boolean;
+  transaction_ref?: string;
+  transaction_id?: string;
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
+  razorpay_signature_verified?: number;
+  paid_at?: string;
+  verified_at?: string;
+  released_at?: string;
   created_at: string;
 }
 

@@ -24,6 +24,28 @@ interface CreatorSubscriptionModalProps {
   onSuccess?: () => void;
 }
 
+// Dynamically load Razorpay standard checkout script
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+
+    const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(true));
+      existingScript.addEventListener('error', () => resolve(false));
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> = ({
   isOpen,
   onClose,
@@ -50,25 +72,98 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
 
     setLoading(true);
     try {
-      const res = await api.upgradeSubscription({
+      // 1. Create order for ₹1 on backend
+      const orderRes = await api.createSubscriptionOrder({
         tier,
-        billing_cycle: billingCycle,
-        payment_method: 'UPI Instant'
+        billing_cycle: billingCycle
       });
 
-      if (res.success) {
-        setSuccessTier(tier);
-        showToast(`🎉 Upgraded to ${tier.toUpperCase()} successfully!`);
-        if (refreshSessionUser) {
-          await refreshSessionUser();
+      if (!orderRes.success || !orderRes.order_id) {
+        throw new Error(orderRes.error || 'Failed to initialize subscription order.');
+      }
+
+      const finalizeUpgrade = async (paymentData?: {
+        razorpay_order_id?: string;
+        razorpay_payment_id?: string;
+        razorpay_signature?: string;
+        payment_method?: string;
+      }) => {
+        const res = await api.upgradeSubscription({
+          tier,
+          billing_cycle: billingCycle,
+          payment_method: paymentData?.payment_method || 'Razorpay UPI / Cards',
+          razorpay_order_id: paymentData?.razorpay_order_id,
+          razorpay_payment_id: paymentData?.razorpay_payment_id,
+          razorpay_signature: paymentData?.razorpay_signature
+        });
+
+        if (res.success) {
+          setSuccessTier(tier);
+          showToast(`🎉 Upgraded to ${tier.toUpperCase()} for ₹1 successfully!`);
+          if (refreshSessionUser) {
+            await refreshSessionUser();
+          }
+          setTimeout(() => {
+            setSuccessTier(null);
+            onClose();
+            if (onSuccess) onSuccess();
+          }, 1600);
+        } else {
+          showToast(res.error || 'Failed to upgrade subscription.', 'error');
         }
-        setTimeout(() => {
-          setSuccessTier(null);
-          onClose();
-          if (onSuccess) onSuccess();
-        }, 1600);
+      };
+
+      const scriptLoaded = await loadRazorpayScript();
+
+      if (scriptLoaded && (window as any).Razorpay && !orderRes.is_simulated) {
+        const options = {
+          key: orderRes.key_id,
+          amount: orderRes.amount, // 100 paise = ₹1
+          currency: orderRes.currency || 'INR',
+          name: `CreatorHub ${orderRes.plan_name || tier.toUpperCase()}`,
+          description: `Subscription Upgrade to ${orderRes.plan_name || tier} (₹1)`,
+          order_id: orderRes.order_id,
+          prefill: orderRes.prefill || {
+            name: 'Creator',
+            email: 'creator@creatorhub.com'
+          },
+          theme: {
+            color: '#9333ea'
+          },
+          handler: async (response: {
+            razorpay_payment_id: string;
+            razorpay_order_id: string;
+            razorpay_signature: string;
+          }) => {
+            await finalizeUpgrade({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              payment_method: 'Razorpay UPI / Cards'
+            });
+          },
+          modal: {
+            ondismiss: () => {
+              setLoading(false);
+              showToast('Payment window closed.', 'info');
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', (resp: any) => {
+          setLoading(false);
+          const reason = resp.error?.description || resp.error?.reason || 'Payment failed.';
+          showToast(`Payment failed: ${reason}`, 'error');
+        });
+        rzp.open();
       } else {
-        showToast(res.error || 'Failed to upgrade subscription.', 'error');
+        // Fallback or simulated test order
+        await finalizeUpgrade({
+          razorpay_order_id: orderRes.order_id,
+          razorpay_payment_id: `pay_sim_${Date.now()}`,
+          payment_method: 'Instant UPI (₹1 Promo)'
+        });
       }
     } catch (err: any) {
       showToast(err.message || 'Payment simulation failed.', 'error');
@@ -82,8 +177,8 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
       id: 'silver' as SubscriptionTier,
       name: 'Silver Growth',
       tagline: 'Ideal for emerging creators scaling their monthly collabs',
-      priceMonthly: 499,
-      priceYearly: 4990,
+      priceMonthly: 1,
+      priceYearly: 1,
       icon: Sparkles,
       color: 'slate',
       borderClass: 'border-slate-400/40 hover:border-slate-300',
@@ -104,8 +199,8 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
       id: 'gold' as SubscriptionTier,
       name: 'Gold Pro',
       tagline: 'Most chosen by active influencers earning ₹30k - ₹80k/mo',
-      priceMonthly: 999,
-      priceYearly: 9990,
+      priceMonthly: 1,
+      priceYearly: 1,
       icon: Crown,
       color: 'amber',
       popular: true,
@@ -128,8 +223,8 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
       id: 'diamond' as SubscriptionTier,
       name: 'Diamond VIP',
       tagline: 'For elite & agency creators seeking maximum high-ticket deals',
-      priceMonthly: 1999,
-      priceYearly: 19990,
+      priceMonthly: 1,
+      priceYearly: 1,
       icon: Gem,
       color: 'purple',
       borderClass: 'border-purple-500/50 hover:border-purple-400',
@@ -165,15 +260,15 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
 
           <div className="max-w-2xl space-y-2 relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black">
-              <Crown className="w-3.5 h-3.5" /> Creator Pro Membership
+              <Crown className="w-3.5 h-3.5" /> Creator Pro Membership • ₹1 Special Promo
             </div>
             <h2 className="font-heading text-2xl sm:text-3xl font-black text-white tracking-tight">
               Unlock More High-Paying Campaigns
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               {targetCampaignReward
-                ? `This campaign pays ₹${targetCampaignReward.toLocaleString()}. Upgrade your tier to submit your pitch and unlock exclusive brand briefs.`
-                : 'Free accounts are limited to 3 applications per month up to ₹5,000. Upgrade to Silver, Gold, or Diamond to get more paid briefs, early access, and top placement.'}
+                ? `This campaign pays ₹${targetCampaignReward.toLocaleString()}. Upgrade your tier for just ₹1 to submit your pitch and unlock exclusive brand briefs.`
+                : 'Upgrade to Silver, Gold, or Diamond for just ₹1 to get more paid briefs, early access, and top placement.'}
             </p>
 
             {/* Billing Switcher */}
@@ -187,7 +282,7 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Monthly Billing
+                Monthly (₹1)
               </button>
               <button
                 type="button"
@@ -198,9 +293,9 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                Yearly Billing
+                Yearly (₹1)
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
-                  Save 20%
+                  Best Value
                 </span>
               </button>
             </div>
@@ -211,7 +306,7 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
         {successTier && (
           <div className="p-4 bg-emerald-500/20 border-b border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400 animate-bounce" />
-            <span>Successfully activated your {successTier.toUpperCase()} Membership! Enjoy your benefits.</span>
+            <span>Successfully activated your {successTier.toUpperCase()} Membership for ₹1! Enjoy your benefits.</span>
           </div>
         )}
 
@@ -221,7 +316,6 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
             const Icon = plan.icon;
             const isCurrent = currentTier === plan.id;
             const isSelected = selectedTier === plan.id;
-            const displayPrice = billingCycle === 'yearly' ? Math.round(plan.priceYearly / 12) : plan.priceMonthly;
 
             return (
               <div
@@ -255,14 +349,12 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
                   {/* Price */}
                   <div className="my-5 pb-5 border-b border-slate-800">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-black text-white">₹{displayPrice.toLocaleString()}</span>
-                      <span className="text-xs text-slate-400 font-bold">/ month</span>
+                      <span className="text-3xl font-black text-white">₹1</span>
+                      <span className="text-xs text-slate-400 font-bold">/ {billingCycle === 'yearly' ? 'year' : 'month'}</span>
                     </div>
-                    {billingCycle === 'yearly' && (
-                      <div className="text-[11px] text-emerald-400 font-semibold mt-1">
-                        Billed annually: ₹{plan.priceYearly.toLocaleString()} (2 mos free)
-                      </div>
-                    )}
+                    <div className="text-[11px] text-emerald-400 font-semibold mt-1">
+                      Special Creator Promo: ₹1 only
+                    </div>
                   </div>
 
                   {/* Key Metrics */}
@@ -305,12 +397,12 @@ export const CreatorSubscriptionModal: React.FC<CreatorSubscriptionModalProps> =
                     }`}
                   >
                     {loading ? (
-                      'Processing Activation...'
+                      'Processing Payment...'
                     ) : isCurrent ? (
                       'Active Plan ✓'
                     ) : (
                       <>
-                        Upgrade to {plan.name} <ArrowRight className="w-3.5 h-3.5" />
+                        Pay ₹1 & Upgrade to {plan.name} <ArrowRight className="w-3.5 h-3.5" />
                       </>
                     )}
                   </button>

@@ -294,7 +294,7 @@ CREATE TABLE IF NOT EXISTS collaborations (
     application_id TEXT NOT NULL REFERENCES campaign_applications(id) ON DELETE CASCADE,
     brand_id TEXT NOT NULL REFERENCES brand_profiles(id) ON DELETE CASCADE,
     creator_id TEXT NOT NULL REFERENCES creator_profiles(id) ON DELETE CASCADE,
-    status TEXT DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE', 'SUBMITTED', 'REVISION_REQUESTED', 'APPROVED', 'COMPLETED', 'CANCELLED')),
+    status TEXT DEFAULT 'ACCEPTED' CHECK(status IN ('ACCEPTED', 'ACTIVE', 'ESCROW_LOCKED', 'SUBMITTED', 'REVISION_REQUESTED', 'APPROVED', 'COMPLETED', 'CANCELLED', 'ESCROW_RELEASED')),
     current_step INTEGER DEFAULT 1,
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP
@@ -357,13 +357,28 @@ CREATE TABLE IF NOT EXISTS payments (
     brand_id TEXT NOT NULL REFERENCES brand_profiles(id) ON DELETE CASCADE,
     creator_id TEXT NOT NULL REFERENCES creator_profiles(id) ON DELETE CASCADE,
     amount REAL NOT NULL,
-    payment_type TEXT DEFAULT 'Escrow Release',
-    status TEXT DEFAULT 'HELD_IN_ESCROW' CHECK(status IN ('HELD_IN_ESCROW', 'RELEASED', 'REFUNDED', 'PENDING')),
-    is_simulated INTEGER DEFAULT 1,
+    currency TEXT DEFAULT 'INR',
+    payment_type TEXT DEFAULT 'Escrow Lock',
+    status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'VERIFIED', 'HELD_IN_ESCROW', 'RELEASED', 'REFUNDED', 'FAILED')),
+    is_simulated INTEGER DEFAULT 0,
     transaction_ref TEXT NOT NULL,
+    razorpay_order_id TEXT,
+    razorpay_payment_id TEXT,
+    razorpay_signature TEXT,
+    razorpay_signature_verified INTEGER DEFAULT 0,
+    webhook_event_id TEXT,
+    failure_reason TEXT,
+    paid_at TIMESTAMP,
+    verified_at TIMESTAMP,
+    released_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_payments_collab ON payments(collaboration_id);
+CREATE INDEX IF NOT EXISTS idx_payments_rzp_order ON payments(razorpay_order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_rzp_payment ON payments(razorpay_payment_id);
+CREATE INDEX IF NOT EXISTS idx_payments_webhook_event ON payments(webhook_event_id);
 
 CREATE TABLE IF NOT EXISTS notifications (
     id TEXT PRIMARY KEY,

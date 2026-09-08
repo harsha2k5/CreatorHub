@@ -141,6 +141,103 @@ async function initDB() {
                     }
                 }
             }
+
+            // Migrate collaborations table check constraints if legacy
+            const collabTable = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name = 'collaborations'").get();
+            if (collabTable && !collabTable.sql.includes('ESCROW_LOCKED')) {
+                console.log('🔄 Auto-migrating collaborations table check constraint to support ESCROW_LOCKED...');
+                db.exec('PRAGMA foreign_keys = OFF;');
+                db.exec(`
+                    CREATE TABLE IF NOT EXISTS collaborations_migrated (
+                        id TEXT PRIMARY KEY,
+                        campaign_id TEXT NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+                        application_id TEXT NOT NULL REFERENCES campaign_applications(id) ON DELETE CASCADE,
+                        brand_id TEXT NOT NULL REFERENCES brand_profiles(id) ON DELETE CASCADE,
+                        creator_id TEXT NOT NULL REFERENCES creator_profiles(id) ON DELETE CASCADE,
+                        status TEXT DEFAULT 'ACCEPTED' CHECK(status IN ('ACCEPTED', 'ACTIVE', 'ESCROW_LOCKED', 'SUBMITTED', 'REVISION_REQUESTED', 'APPROVED', 'COMPLETED', 'CANCELLED', 'ESCROW_RELEASED')),
+                        current_step INTEGER DEFAULT 1,
+                        started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        completed_at TIMESTAMP
+                    );
+                    INSERT INTO collaborations_migrated (id, campaign_id, application_id, brand_id, creator_id, status, current_step, started_at, completed_at)
+                    SELECT id, campaign_id, application_id, brand_id, creator_id, status, current_step, started_at, completed_at FROM collaborations;
+                    DROP TABLE collaborations;
+                    ALTER TABLE collaborations_migrated RENAME TO collaborations;
+                    CREATE INDEX IF NOT EXISTS idx_collab_creator ON collaborations(creator_id);
+                    CREATE INDEX IF NOT EXISTS idx_collab_brand ON collaborations(brand_id);
+                `);
+                db.exec('PRAGMA foreign_keys = ON;');
+                console.log('✅ collaborations table successfully migrated.');
+            }
+
+            // Migrate payments table check constraints and columns if legacy
+            const paymentsTable = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name = 'payments'").get();
+            if (paymentsTable && !paymentsTable.sql.includes('VERIFIED')) {
+                console.log('🔄 Auto-migrating payments table to support Razorpay and VERIFIED/FAILED statuses...');
+                db.exec('PRAGMA foreign_keys = OFF;');
+                db.exec(`
+                    CREATE TABLE IF NOT EXISTS payments_migrated (
+                        id TEXT PRIMARY KEY,
+                        collaboration_id TEXT NOT NULL REFERENCES collaborations(id) ON DELETE CASCADE,
+                        brand_id TEXT NOT NULL REFERENCES brand_profiles(id) ON DELETE CASCADE,
+                        creator_id TEXT NOT NULL REFERENCES creator_profiles(id) ON DELETE CASCADE,
+                        amount REAL NOT NULL,
+                        currency TEXT DEFAULT 'INR',
+                        payment_type TEXT DEFAULT 'Escrow Lock',
+                        status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'VERIFIED', 'HELD_IN_ESCROW', 'RELEASED', 'REFUNDED', 'FAILED')),
+                        is_simulated INTEGER DEFAULT 0,
+                        transaction_ref TEXT NOT NULL,
+                        razorpay_order_id TEXT,
+                        razorpay_payment_id TEXT,
+                        razorpay_signature TEXT,
+                        razorpay_signature_verified INTEGER DEFAULT 0,
+                        webhook_event_id TEXT,
+                        failure_reason TEXT,
+                        paid_at TIMESTAMP,
+                        verified_at TIMESTAMP,
+                        released_at TIMESTAMP,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
+                    INSERT INTO payments_migrated (
+                        id, collaboration_id, brand_id, creator_id, amount,
+                        payment_type, status, is_simulated, transaction_ref, created_at, updated_at
+                    )
+                    SELECT id, collaboration_id, brand_id, creator_id, amount,
+                           payment_type, status, is_simulated, transaction_ref, created_at, updated_at
+                    FROM payments;
+                    DROP TABLE payments;
+                    ALTER TABLE payments_migrated RENAME TO payments;
+                    CREATE INDEX IF NOT EXISTS idx_payments_collab ON payments(collaboration_id);
+                    CREATE INDEX IF NOT EXISTS idx_payments_rzp_order ON payments(razorpay_order_id);
+                    CREATE INDEX IF NOT EXISTS idx_payments_rzp_payment ON payments(razorpay_payment_id);
+                    CREATE INDEX IF NOT EXISTS idx_payments_webhook_event ON payments(webhook_event_id);
+                `);
+                db.exec('PRAGMA foreign_keys = ON;');
+                console.log('✅ payments table successfully migrated for Razorpay.');
+            }
+
+            // Ensure all columns exist on payments even if table already had new constraint
+            const paymentCols = getColumns('payments');
+            if (paymentCols) {
+                const paymentAdditions = [
+                    ['currency', "TEXT DEFAULT 'INR'"],
+                    ['razorpay_order_id', 'TEXT'],
+                    ['razorpay_payment_id', 'TEXT'],
+                    ['razorpay_signature', 'TEXT'],
+                    ['razorpay_signature_verified', 'INTEGER DEFAULT 0'],
+                    ['webhook_event_id', 'TEXT'],
+                    ['failure_reason', 'TEXT'],
+                    ['paid_at', 'TIMESTAMP'],
+                    ['verified_at', 'TIMESTAMP'],
+                    ['released_at', 'TIMESTAMP']
+                ];
+                for (const [col, typeDef] of paymentAdditions) {
+                    if (!paymentCols.has(col)) {
+                        db.exec(`ALTER TABLE payments ADD COLUMN ${col} ${typeDef};`);
+                    }
+                }
+            }
         } catch (migErr) {
             console.warn('⚠️ Auto-migration check warning:', migErr.message);
         }

@@ -24,7 +24,10 @@ router.get('/', authenticateToken, async (req, res) => {
                        c.image_url as campaign_image,
                        c.deliverables_json as campaign_deliverables,
                        b.company_name as brand_name, b.logo_url as brand_logo, b.city as brand_city,
-                       p.status as payment_status, p.amount as payment_amount, p.is_simulated
+                       p.id as payment_id, p.status as payment_status, p.amount as payment_amount,
+                       p.currency as payment_currency, p.is_simulated,
+                       p.razorpay_order_id, p.razorpay_payment_id, p.razorpay_signature_verified,
+                       p.paid_at, p.verified_at, p.transaction_ref
                 FROM collaborations col
                 LEFT JOIN campaigns c ON col.campaign_id = c.id
                 LEFT JOIN brand_profiles b ON col.brand_id = b.id
@@ -42,7 +45,10 @@ router.get('/', authenticateToken, async (req, res) => {
                        COALESCE(c.reward_per_creator, p.amount, 5000) as reward_per_creator,
                        cr.full_name as creator_name, cr.username as creator_username,
                        cr.avatar_url as creator_avatar,
-                       p.status as payment_status, p.amount as payment_amount, p.is_simulated
+                       p.id as payment_id, p.status as payment_status, p.amount as payment_amount,
+                       p.currency as payment_currency, p.is_simulated,
+                       p.razorpay_order_id, p.razorpay_payment_id, p.razorpay_signature_verified,
+                       p.paid_at, p.verified_at, p.transaction_ref
                 FROM collaborations col
                 LEFT JOIN campaigns c ON col.campaign_id = c.id
                 LEFT JOIN creator_profiles cr ON col.creator_id = cr.id
@@ -88,7 +94,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
                    c.deliverables_json, COALESCE(c.reward_per_creator, p.amount, 5000) as reward_per_creator,
                    b.company_name as brand_name, b.logo_url as brand_logo, b.business_email,
                    cr.full_name as creator_name, cr.username as creator_username, cr.avatar_url as creator_avatar,
-                   p.status as payment_status, p.amount as payment_amount, p.is_simulated, p.transaction_ref
+                   p.id as payment_id, p.status as payment_status, p.amount as payment_amount,
+                   p.currency as payment_currency, p.is_simulated,
+                   p.razorpay_order_id, p.razorpay_payment_id, p.razorpay_signature_verified,
+                   p.paid_at, p.verified_at, p.transaction_ref
             FROM collaborations col
             LEFT JOIN campaigns c ON col.campaign_id = c.id
             LEFT JOIN brand_profiles b ON col.brand_id = b.id

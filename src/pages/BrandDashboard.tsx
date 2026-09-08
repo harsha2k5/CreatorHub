@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { DirectPitchModal } from '../components/DirectPitchModal';
+import { EscrowPaymentModal } from '../components/EscrowPaymentModal';
 import { ThemeToggle } from '../components/ThemeToggle';
 import {
   Building2,
@@ -24,7 +25,8 @@ import {
   ShieldCheck,
   DollarSign,
   Search,
-  Star
+  Star,
+  Lock
 } from 'lucide-react';
 
 export const BrandDashboard: React.FC = () => {
@@ -39,6 +41,10 @@ export const BrandDashboard: React.FC = () => {
   const [isDirectPitchModalOpen, setIsDirectPitchModalOpen] = useState(false);
   const [pitchTabSearch, setPitchTabSearch] = useState('');
   const [pitchTabCategory, setPitchTabCategory] = useState('All');
+
+  // Escrow Payment Modal State
+  const [escrowModalCollab, setEscrowModalCollab] = useState<any | null>(null);
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
 
   // Brand data states
   const [analytics, setAnalytics] = useState<any>(null);
@@ -741,7 +747,7 @@ export const BrandDashboard: React.FC = () => {
                       {col.submissions?.length > 0 && col.status !== 'COMPLETED' ? (
                         <button
                           onClick={() => setReviewingCollab(col)}
-                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer"
                         >
                           Review Proof & Release Escrow
                         </button>
@@ -749,8 +755,21 @@ export const BrandDashboard: React.FC = () => {
                         <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           Approved & Escrow Released ✓
                         </span>
+                      ) : col.status === 'ESCROW_LOCKED' || col.status === 'escrow_locked' || col.payment_status === 'VERIFIED' || col.payment_status === 'HELD_IN_ESCROW' ? (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          Payment secured in escrow
+                        </span>
                       ) : (
-                        <span className="text-xs text-slate-500">Awaiting Creator Post</span>
+                        <button
+                          onClick={() => {
+                            setEscrowModalCollab(col);
+                            setIsEscrowModalOpen(true);
+                          }}
+                          className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
+                        >
+                          <Lock className="w-3.5 h-3.5" /> Pay &amp; Lock Escrow
+                        </button>
                       )}
                     </div>
                   </div>
@@ -1051,6 +1070,18 @@ export const BrandDashboard: React.FC = () => {
             setPitchModalCreator(null);
           }}
           onSuccess={() => {
+            loadData();
+          }}
+        />
+      )}
+
+      {/* Razorpay Escrow Checkout Modal */}
+      {isEscrowModalOpen && escrowModalCollab && (
+        <EscrowPaymentModal
+          isOpen={isEscrowModalOpen}
+          onClose={() => setIsEscrowModalOpen(false)}
+          collaboration={escrowModalCollab}
+          onPaymentSuccess={() => {
             loadData();
           }}
         />
