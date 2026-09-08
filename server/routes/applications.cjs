@@ -269,6 +269,8 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
         const app = queryOne('SELECT * FROM campaign_applications WHERE id = ? AND brand_id = ?', [id, brand.id]);
         if (!app) return res.status(404).json({ success: false, error: 'Application not found or unauthorized.' });
 
+        let createdCollabId = null;
+
         transaction(() => {
             run('UPDATE campaign_applications SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, id]);
 
@@ -281,20 +283,20 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
                     collabId = generateId('collab');
                     run(
                         `INSERT INTO collaborations (id, campaign_id, application_id, brand_id, creator_id, status, current_step)
-                         VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1)`,
+                         VALUES (?, ?, ?, ?, ?, 'ACCEPTED', 1)`,
                         [collabId, app.campaign_id, app.id, brand.id, app.creator_id]
                     );
 
                     // Increment hired count
                     run('UPDATE campaigns SET creators_hired = creators_hired + 1 WHERE id = ?', [app.campaign_id]);
 
-                    // Initialize simulated escrow payment record
+                    // Initialize payment record awaiting Escrow funding
                     const campaign = queryOne('SELECT reward_per_creator, title FROM campaigns WHERE id = ?', [app.campaign_id]);
                     const amount = app.proposed_budget || campaign?.reward_per_creator || 5000;
                     run(
-                        `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, status, is_simulated, transaction_ref)
-                         VALUES (?, ?, ?, ?, ?, 'HELD_IN_ESCROW', 1, ?)`,
-                        [generateId('pay'), collabId, brand.id, app.creator_id, amount, 'TXN_ESCROW_' + Date.now()]
+                        `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, currency, payment_type, status, is_simulated, transaction_ref)
+                         VALUES (?, ?, ?, ?, ?, 'INR', 'Escrow Lock', 'PENDING', 0, ?)`,
+                        [generateId('pay'), collabId, brand.id, app.creator_id, amount, 'TXN_PENDING_' + Date.now()]
                     );
 
                     // Initialize conversation if not already present
@@ -315,6 +317,8 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
                     }
                 }
 
+                createdCollabId = collabId;
+
                 // Notify creator
                 const creatorUser = queryOne('SELECT user_id FROM creator_profiles WHERE id = ?', [app.creator_id]);
                 if (creatorUser) {
@@ -325,7 +329,7 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
                             generateId('notif'),
                             creatorUser.user_id,
                             'Application Accepted! 🎉',
-                            `Your application has been accepted! You can now begin work on your deliverables.`,
+                            `Your application has been accepted! Escrow funding is now being secured.`,
                             `/creator/collaborations`
                         ]
                     );
@@ -333,7 +337,11 @@ router.patch('/:id/status', authenticateToken, requireBrand, async (req, res) =>
             }
         });
 
-        return res.json({ success: true, message: `Application status updated to ${status}.` });
+        return res.json({
+            success: true,
+            message: `Application status updated to ${status}.`,
+            collaboration_id: createdCollabId
+        });
     } catch (err) {
         console.error('Error updating application status:', err);
         return res.status(500).json({ success: false, error: 'Failed to update application status: ' + err.message });
@@ -378,20 +386,20 @@ router.post('/:id/accept', authenticateToken, async (req, res) => {
                 collabId = generateId('collab');
                 run(
                     `INSERT INTO collaborations (id, campaign_id, application_id, brand_id, creator_id, status, current_step)
-                     VALUES (?, ?, ?, ?, ?, 'ACTIVE', 1)`,
+                     VALUES (?, ?, ?, ?, ?, 'ACCEPTED', 1)`,
                     [collabId, app.campaign_id, app.id, app.brand_id, app.creator_id]
                 );
 
                 // Increment hired count if campaign exists
                 run('UPDATE campaigns SET creators_hired = creators_hired + 1 WHERE id = ?', [app.campaign_id]);
 
-                // Initialize simulated escrow payment record
+                // Initialize payment record awaiting Escrow funding
                 const campaign = queryOne('SELECT reward_per_creator, title FROM campaigns WHERE id = ?', [app.campaign_id]);
                 const amount = app.proposed_budget || campaign?.reward_per_creator || 5000;
                 run(
-                    `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, status, is_simulated, transaction_ref)
-                     VALUES (?, ?, ?, ?, ?, 'HELD_IN_ESCROW', 1, ?)`,
-                    [generateId('pay'), collabId, app.brand_id, app.creator_id, amount, 'TXN_ESCROW_' + Date.now()]
+                    `INSERT INTO payments (id, collaboration_id, brand_id, creator_id, amount, currency, payment_type, status, is_simulated, transaction_ref)
+                     VALUES (?, ?, ?, ?, ?, 'INR', 'Escrow Lock', 'PENDING', 0, ?)`,
+                    [generateId('pay'), collabId, app.brand_id, app.creator_id, amount, 'TXN_PENDING_' + Date.now()]
                 );
 
                 // Initialize conversation if not already present

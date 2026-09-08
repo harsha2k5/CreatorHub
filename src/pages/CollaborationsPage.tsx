@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Collaboration } from '../types';
 import { ReviewModal } from '../components/ReviewModal';
+import { EscrowPaymentModal } from '../components/EscrowPaymentModal';
 import {
   FolderCheck,
   CheckCircle2,
@@ -49,6 +50,10 @@ export const CollaborationsPage: React.FC = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewCollab, setReviewCollab] = useState<Collaboration | null>(null);
 
+  // Razorpay Escrow Modal State
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
+  const [escrowCollab, setEscrowCollab] = useState<Collaboration | null>(null);
+
   const isBrand = user?.role === 'brand';
 
   const loadCollaborations = async () => {
@@ -89,12 +94,44 @@ export const CollaborationsPage: React.FC = () => {
   };
 
   const handleReviewAction = async (collabId: string, action: 'approve' | 'revision') => {
+    const target = collaborations.find(c => c.id === collabId);
+    const isEscrowPaid =
+      target && (
+        target.status === 'escrow_locked' ||
+        target.status === 'ESCROW_LOCKED' ||
+        target.payment_status === 'VERIFIED' ||
+        target.payment_status === 'HELD_IN_ESCROW'
+      );
+
+    if (action === 'approve' && !isEscrowPaid) {
+      showToast('🔒 Payment required! You must fund escrow via Razorpay before approving.', 'error');
+      if (target) {
+        setEscrowCollab(target);
+        setIsEscrowModalOpen(true);
+      }
+      return;
+    }
+
     try {
-      await api.reviewContentProof(collabId, { action, feedback: action === 'approve' ? 'Deliverable approved!' : 'Please tweak pacing.' });
+      const res = await api.reviewContentProof(collabId, { action, feedback: action === 'approve' ? 'Deliverable approved!' : 'Please tweak pacing.' });
+      if ((res as any)?.code === 'PAYMENT_REQUIRED' || (!res.success && (res as any)?.error?.includes('Payment required'))) {
+        showToast('🔒 Razorpay escrow deposit required before approving.', 'error');
+        if (target) {
+          setEscrowCollab(target);
+          setIsEscrowModalOpen(true);
+        }
+        return;
+      }
       showToast(action === 'approve' ? '✅ Deliverable Approved!' : '✏️ Revision Requested.');
       loadCollaborations();
     } catch (err: any) {
       showToast(err.message || 'Review failed', 'error');
+      if (err.message?.includes('Payment') || err.message?.includes('PAYMENT_REQUIRED')) {
+        if (target) {
+          setEscrowCollab(target);
+          setIsEscrowModalOpen(true);
+        }
+      }
     }
   };
 
@@ -147,8 +184,14 @@ export const CollaborationsPage: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {collaborations.map(collab => {
-              const isPaid = collab.status === 'completed' || collab.payment_status === 'paid';
-              const currentStep = collab.current_step || 1;
+              const isPaid = collab.status === 'completed' || collab.status === 'COMPLETED' || collab.payment_status === 'RELEASED';
+              const isEscrowLocked =
+                collab.status === 'escrow_locked' ||
+                collab.status === 'ESCROW_LOCKED' ||
+                collab.payment_status === 'VERIFIED' ||
+                collab.payment_status === 'HELD_IN_ESCROW';
+              const isAwaitingEscrow = !isEscrowLocked && !isPaid;
+              const currentStep = isPaid ? 6 : isEscrowLocked ? Math.max(collab.current_step || 1, 2) : 1;
 
               return (
                 <div
@@ -158,13 +201,24 @@ export const CollaborationsPage: React.FC = () => {
                   {/* Escrow Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-emerald-500/10 border border-blue-200 dark:border-blue-900/60 text-xs">
                     <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold">
-                      <Lock className="w-4 h-4 text-blue-500 shrink-0" />
-                      <span>Simulated Escrow Protection: Funds held securely until final content approval.</span>
+                      <Lock className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <span>
+                        {isPaid
+                          ? 'Escrow Payout Released: Funds deposited into creator balance.'
+                          : isEscrowLocked
+                          ? 'Payment secured in escrow: Funds held securely until final content approval.'
+                          : 'Awaiting Escrow Funding: Funds must be secured in escrow via Razorpay before content production.'}
+                      </span>
                     </div>
                     <div className="text-left sm:text-right shrink-0">
                       <span className="text-[10px] text-slate-400 font-bold uppercase block">Deal Value</span>
                       <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                        ₹{(collab.reward_per_creator || 3000).toLocaleString()} {isPaid ? '• Payout Completed ✓' : '• In Escrow Locked'}
+                        ₹{(collab.reward_per_creator || 3000).toLocaleString()}{' '}
+                        {isPaid
+                          ? '• Payout Completed ✓'
+                          : isEscrowLocked
+                          ? '• In Escrow Locked 🔒'
+                          : '• Escrow Deposit Pending'}
                       </span>
                     </div>
                   </div>
@@ -188,10 +242,12 @@ export const CollaborationsPage: React.FC = () => {
                       className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
                         isPaid
                           ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
-                          : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                          : isEscrowLocked
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                          : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
                       }`}
                     >
-                      {collab.status.replace('_', ' ')}
+                      {isAwaitingEscrow ? 'Awaiting Escrow' : collab.status.replace('_', ' ')}
                     </span>
                   </div>
 
@@ -272,8 +328,42 @@ export const CollaborationsPage: React.FC = () => {
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    {/* Creator Submit Action */}
-                    {!isBrand && !isPaid && (
+                    {/* Brand Pay & Lock Escrow Action */}
+                    {isBrand && isAwaitingEscrow && (
+                      <button
+                        onClick={() => {
+                          setEscrowCollab(collab);
+                          setIsEscrowModalOpen(true);
+                        }}
+                        className="flex-1 py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                      >
+                        <Lock className="w-4 h-4" /> Pay &amp; Lock Escrow (₹{(collab.reward_per_creator || 3000).toLocaleString()})
+                      </button>
+                    )}
+
+                    {/* Brand Secured in Escrow Badge */}
+                    {isBrand && isEscrowLocked && collab.status !== 'content_submitted' && collab.status !== 'approved' && !isPaid && (
+                      <div className="flex-1 p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-200 text-xs font-bold flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                          Payment secured in escrow • Awaiting creator content proof
+                        </span>
+                        <span className="text-[10px] uppercase font-black text-purple-600 dark:text-purple-400">
+                          Verified Escrow
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Creator Waiting for Escrow Notice */}
+                    {!isBrand && isAwaitingEscrow && (
+                      <div className="flex-1 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs font-bold flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Awaiting Brand Escrow Funding. Work commences once payment is secured in escrow.</span>
+                      </div>
+                    )}
+
+                    {/* Creator Submit Action (Enabled when escrow is locked) */}
+                    {!isBrand && !isPaid && !isAwaitingEscrow && (
                       <button
                         onClick={() => {
                           setSelectedCollab(collab);
@@ -427,6 +517,19 @@ export const CollaborationsPage: React.FC = () => {
               loadCollaborations();
             }}
             showToast={showToast}
+          />
+        )}
+
+        {/* Razorpay Escrow Checkout Modal */}
+        {isEscrowModalOpen && escrowCollab && (
+          <EscrowPaymentModal
+            isOpen={isEscrowModalOpen}
+            onClose={() => setIsEscrowModalOpen(false)}
+            collaboration={escrowCollab}
+            onPaymentSuccess={() => {
+              showToast('🔒 Payment secured in escrow! Deal is now locked.');
+              loadCollaborations();
+            }}
           />
         )}
       </div>

@@ -1,0 +1,72 @@
+<?php
+/**
+ * CreatorHub PHP Backend - Global Configuration & Environment Loader
+ */
+
+// Ensure timezone
+date_default_timezone_set('Asia/Kolkata');
+
+// Function to load .env file
+if (!function_exists('loadEnv')) {
+    function loadEnv($path) {
+        if (!file_exists($path)) {
+            return;
+        }
+
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) {
+                continue;
+            }
+
+            $parts = explode('=', $line, 2);
+            if (count($parts) === 2) {
+                $key = trim($parts[0]);
+                $val = trim($parts[1]);
+                // Strip wrapping quotes
+                if ((str_starts_with($val, '"') && str_ends_with($val, '"')) ||
+                    (str_starts_with($val, "'") && str_ends_with($val, "'"))) {
+                    $val = substr($val, 1, -1);
+                }
+                if (!array_key_exists($key, $_ENV)) {
+                    $_ENV[$key] = $val;
+                    putenv("{$key}={$val}");
+                }
+            }
+        }
+    }
+}
+
+// Load root .env
+$rootEnvPath = dirname(__DIR__, 2) . '/.env';
+loadEnv($rootEnvPath);
+
+if (!function_exists('env')) {
+    function env($key, $default = null) {
+        if (isset($_ENV[$key])) {
+            return $_ENV[$key];
+        }
+        $val = getenv($key);
+        return $val !== false ? $val : $default;
+    }
+}
+
+// Global Configuration Array
+return [
+    'port' => (int) env('PORT', 5000),
+    'env' => env('NODE_ENV', 'development'),
+    'jwt_secret' => env('JWT_SECRET', 'creatorhub_development_jwt_secret_key_12345'),
+    'database_path' => dirname(__DIR__, 2) . '/server/data/creatorhub.db',
+    'meta' => [
+        'app_id' => env('META_APP_ID', ''),
+        'app_secret' => env('META_APP_SECRET', ''),
+        'redirect_uri' => env('META_REDIRECT_URI', 'http://localhost:5173/creator/dashboard')
+    ],
+    'razorpay' => [
+        'key_id' => env('RAZORPAY_KEY_ID', ''),
+        'key_secret' => env('RAZORPAY_KEY_SECRET', ''),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET', '')
+    ],
+    'gemini_api_key' => env('GEMINI_API_KEY', '')
+];

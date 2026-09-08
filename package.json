@@ -12,8 +12,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server/index.cjs",
+    "server:php": "php -S localhost:5000 -t server-php server-php/router.php",
     "start": "node server/index.cjs",
-    "test": "node server/tests/test_auth_and_roles.cjs && node server/tests/test_campaign_matching.cjs && node server/tests/test_instagram_integrity.cjs && node server/tests/test_collaboration_flow.cjs && node server/tests/test_real_instagram_integration.cjs"
+    "test": "node server/tests/test_auth_and_roles.cjs && node server/tests/test_campaign_matching.cjs && node server/tests/test_instagram_integrity.cjs && node server/tests/test_collaboration_flow.cjs && node server/tests/test_real_instagram_integration.cjs && node server/tests/test_razorpay_payment.cjs && node server/tests/test_subscription_upgrade.cjs",
+    "test:php": "php server-php/tests/test_php_api.php"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +29,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^1.31.0",
     "mongoose": "^9.9.2",
+    "razorpay": "^2.9.8",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-is": "^19.2.8",

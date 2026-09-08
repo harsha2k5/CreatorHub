@@ -170,15 +170,33 @@ export const api = {
   generateCampaignBriefAI: (payload: { prompt: string; category?: string; location?: string; budget?: number }) =>
     request('/ai/generate-campaign-brief', { method: 'POST', body: JSON.stringify(payload) }),
 
-  // Payments & Escrow
+  // Payments & Escrow (Razorpay Production-Ready Integration)
+  getPaymentConfig: () => request('/payments/config'),
+  createPaymentOrder: (payload: { collaboration_id: string }) =>
+    request('/payments/create-order', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyPayment: (payload: {
+    collaboration_id: string;
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => request('/payments/verify', { method: 'POST', body: JSON.stringify(payload) }),
+  getPaymentById: (paymentId: string) => request(`/payments/${paymentId}`),
   getCreatorEarnings: () => request('/payments/earnings'),
   releaseEscrowPayment: (collabId: string) => request(`/payments/release/${collabId}`, { method: 'POST' }),
 
-  // Creator Subscriptions (Silver, Gold, Diamond)
+  // Creator Subscriptions (Silver, Gold, Diamond - ₹1 Upgrade)
   getSubscriptionStatus: () => request('/subscriptions/current'),
   getSubscriptionPlans: () => request('/subscriptions/plans'),
-  upgradeSubscription: (payload: { tier: string; billing_cycle?: 'monthly' | 'yearly'; payment_method?: string }) =>
-    request('/subscriptions/upgrade', { method: 'POST', body: JSON.stringify(payload) }),
+  createSubscriptionOrder: (payload: { tier: string; billing_cycle?: 'monthly' | 'yearly' }) =>
+    request('/subscriptions/create-order', { method: 'POST', body: JSON.stringify(payload) }),
+  upgradeSubscription: (payload: {
+    tier: string;
+    billing_cycle?: 'monthly' | 'yearly';
+    payment_method?: string;
+    razorpay_order_id?: string;
+    razorpay_payment_id?: string;
+    razorpay_signature?: string;
+  }) => request('/subscriptions/upgrade', { method: 'POST', body: JSON.stringify(payload) }),
 
   // Messaging & Conversations
   getConversations: () => request('/messages/conversations'),
