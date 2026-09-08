@@ -384,7 +384,7 @@ export const InstagramAnalyticsPage: React.FC = () => {
               <span>Followers</span>
               <Users className="w-4 h-4 text-purple-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {formatNumber(overview.followers)}
             </div>
             <div className="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">

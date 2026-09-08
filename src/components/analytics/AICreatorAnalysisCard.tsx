@@ -125,7 +125,7 @@ export const AICreatorAnalysisCard: React.FC<AICreatorAnalysisCardProps> = ({
                   <Clock className="w-3 h-3" /> {new Date(analysis.analyzed_at || Date.now()).toLocaleDateString()}
                 </span>
               </div>
-              <h2 className="text-2xl font-black text-white">Performance Evaluation</h2>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white">Performance Evaluation</h2>
               <p className="text-xs text-slate-400 mt-1 max-w-md leading-relaxed">
                 {analysis.summary}
               </p>
@@ -149,7 +149,7 @@ export const AICreatorAnalysisCard: React.FC<AICreatorAnalysisCardProps> = ({
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 truncate">
                 {sub.label}
               </div>
-              <div className="text-xl font-black text-white mb-2">{sub.score}</div>
+              <div className="text-xl font-black text-slate-900 dark:text-white mb-2">{sub.score}</div>
               <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-500"

@@ -117,6 +117,10 @@ html:not(.dark) .border-slate-700\/60 {
 }
 
 /* Neutral Typography */
+html:not(.dark) .text-white:not(button):not(button *):not(a[class*="bg-"]):not(a[class*="bg-"] *):not([class*="bg-gradient-"]):not([class*="bg-gradient-"] *):not([class*="bg-purple-"]):not([class*="bg-purple-"] *):not([class*="bg-pink-"]):not([class*="bg-pink-"] *):not([class*="bg-emerald-"]):not([class*="bg-emerald-"] *):not([class*="bg-blue-"]):not([class*="bg-blue-"] *):not([class*="bg-indigo-"]):not([class*="bg-indigo-"] *):not([class*="bg-rose-"]):not([class*="bg-rose-"] *):not([class*="bg-red-"]):not([class*="bg-red-"] *) {
+  color: #09090b !important;
+}
+
 html:not(.dark) .text-slate-100,
 html:not(.dark) .text-slate-200 {
   color: #09090b !important;

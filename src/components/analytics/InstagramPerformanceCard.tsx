@@ -133,7 +133,7 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
             <span>Followers</span>
             <Users className="w-3.5 h-3.5 text-purple-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-white">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
             {formatNumber(profile?.followersCount)}
           </div>
           <div className="text-[10px] text-slate-400 font-medium mt-1 flex items-center gap-1">
