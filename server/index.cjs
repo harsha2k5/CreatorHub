@@ -1,3 +1,13 @@
+/**
+ * @deprecated
+ * DEPRECATION NOTICE:
+ * The Node.js / Express backend in server/ is DEPRECATED.
+ * CreatorHub has been fully migrated to the PHP 8.2+ backend located in server-php/.
+ * This file is retained temporarily ONLY for emergency rollback safety.
+ *
+ * To run the active primary PHP backend:
+ *   npm run server   (or npm run server:php)
+ */
 const express = require('express');
 const cors = require('cors');
 const path = require('path');

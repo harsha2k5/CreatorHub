@@ -50,6 +50,9 @@ $action = $parts[0] ?? '';
 // Health check endpoint: /api/health or /health
 if ($module === 'health' || $module === '') {
     Response::json([
+        'success' => true,
+        'backend' => 'php',
+        'version' => '1.0.0',
         'status' => 'UP',
         'engine' => 'PHP ' . PHP_VERSION,
         'message' => 'CreatorHub Core API Server Running (PHP)',

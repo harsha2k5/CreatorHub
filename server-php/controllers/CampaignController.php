@@ -19,7 +19,7 @@ class CampaignController {
 
         $query = "SELECT c.*, b.company_name as brand_name, b.logo_url as brand_logo
                   FROM campaigns c
-                  JOIN brand_profiles b ON c.brand_id = b.id WHERE 1=1";
+                  LEFT JOIN brand_profiles b ON c.brand_id = b.id WHERE 1=1";
         $params = [];
 
         if (!empty($brandId) && $brandId !== 'undefined') {
@@ -46,14 +46,81 @@ class CampaignController {
         $query .= " ORDER BY c.created_at DESC";
         $campaigns = Database::query($query, $params);
 
-        Response::json(['success' => true, 'campaigns' => $campaigns]);
+        $formatted = array_map(function($c) {
+            return self::formatCampaign($c);
+        }, $campaigns);
+
+        Response::json(['success' => true, 'campaigns' => $formatted]);
+    }
+
+    public static function formatCampaign(array $c): array {
+        // Parse deliverables_json into a clean array of readable strings
+        $deliverables = [];
+        if (!empty($c['deliverables_json'])) {
+            $parsed = json_decode($c['deliverables_json'], true);
+            if (is_array($parsed)) {
+                foreach ($parsed as $item) {
+                    if (is_string($item)) {
+                        $deliverables[] = $item;
+                    } elseif (is_array($item)) {
+                        if (!empty($item['requirement'])) {
+                            $deliverables[] = $item['requirement'];
+                        } elseif (!empty($item['type'])) {
+                            $count = !empty($item['count']) ? $item['count'] . 'x ' : '1x ';
+                            $platform = !empty($item['platform']) ? ' (' . $item['platform'] . ')' : '';
+                            $deliverables[] = $count . $item['type'] . $platform;
+                        } else {
+                            $deliverables[] = '1x Sponsored Content';
+                        }
+                    }
+                }
+            }
+        }
+        if (empty($deliverables)) {
+            $deliverables = ['1x Instagram Reel', '1x Story Mention'];
+        }
+
+        $c['deliverables'] = $deliverables;
+
+        // Parse req_categories_json
+        if (!empty($c['req_categories_json'])) {
+            $parsedCats = json_decode($c['req_categories_json'], true);
+            $c['req_categories'] = is_array($parsedCats) ? $parsedCats : [];
+        } else {
+            $c['req_categories'] = [];
+        }
+
+        if (empty($c['brand_name'])) {
+            $c['brand_name'] = 'Brand Partner';
+        }
+        if (empty($c['brand_logo'])) {
+            $c['brand_logo'] = 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150';
+        }
+
+        // Beautiful curated fallback images for campaigns missing custom hero cover
+        if (empty($c['image_url'])) {
+            $cat = strtolower($c['category'] ?? '');
+            if (str_contains($cat, 'fashion') || str_contains($cat, 'apparel')) {
+                $c['image_url'] = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&fit=crop';
+            } elseif (str_contains($cat, 'food') || str_contains($cat, 'beverage') || str_contains($cat, 'coffee')) {
+                $c['image_url'] = 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&fit=crop';
+            } elseif (str_contains($cat, 'fitness') || str_contains($cat, 'sports')) {
+                $c['image_url'] = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&fit=crop';
+            } elseif (str_contains($cat, 'beauty') || str_contains($cat, 'skin')) {
+                $c['image_url'] = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&fit=crop';
+            } else {
+                $c['image_url'] = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&fit=crop';
+            }
+        }
+
+        return $c;
     }
 
     public static function show(string $id): void {
         $campaign = Database::queryOne(
             "SELECT c.*, b.company_name as brand_name, b.logo_url as brand_logo, b.business_email
              FROM campaigns c
-             JOIN brand_profiles b ON c.brand_id = b.id
+             LEFT JOIN brand_profiles b ON c.brand_id = b.id
              WHERE c.id = ?",
             [$id]
         );
@@ -62,7 +129,7 @@ class CampaignController {
             Response::notFound('Campaign not found.');
         }
 
-        Response::json(['success' => true, 'campaign' => $campaign]);
+        Response::json(['success' => true, 'campaign' => self::formatCampaign($campaign)]);
     }
 
     public static function store(array $body): void {

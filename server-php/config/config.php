@@ -38,9 +38,11 @@ if (!function_exists('loadEnv')) {
     }
 }
 
-// Load root .env
+// Load root .env and server-php/.env
 $rootEnvPath = dirname(__DIR__, 2) . '/.env';
 loadEnv($rootEnvPath);
+$localEnvPath = dirname(__DIR__) . '/.env';
+loadEnv($localEnvPath);
 
 // Register Seamless PSR-4 and Root Class Autoloader
 spl_autoload_register(function (string $class) {
@@ -69,20 +71,34 @@ spl_autoload_register(function (string $class) {
 
 if (!function_exists('env')) {
     function env($key, $default = null) {
-        if (isset($_ENV[$key])) {
+        if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
             return $_ENV[$key];
         }
         $val = getenv($key);
-        return $val !== false ? $val : $default;
+        return ($val !== false && $val !== '') ? $val : $default;
     }
+}
+
+// Resolve SQLite database path
+$rawDbPath = env('DB_DATABASE') ?: env('DATABASE_URL');
+if ($rawDbPath) {
+    if (!str_starts_with($rawDbPath, '/') && !preg_match('/^[A-Za-z]:[\\\\\/]/', $rawDbPath)) {
+        $dbResolvedPath = dirname(__DIR__, 2) . '/' . ltrim($rawDbPath, '/\\');
+    } else {
+        $dbResolvedPath = $rawDbPath;
+    }
+} else {
+    $dbResolvedPath = dirname(__DIR__, 2) . '/server/data/creatorhub.db';
 }
 
 // Global Configuration Array
 return [
     'port' => (int) env('PORT', 5000),
-    'env' => env('NODE_ENV', 'development'),
+    'env' => env('APP_ENV', env('NODE_ENV', 'development')),
+    'app_url' => env('APP_URL', 'http://localhost:5000'),
     'jwt_secret' => env('JWT_SECRET', 'creatorhub_development_jwt_secret_key_12345'),
-    'database_path' => dirname(__DIR__, 2) . '/server/data/creatorhub.db',
+    'db_driver' => env('DB_DRIVER', 'sqlite'),
+    'database_path' => $dbResolvedPath,
     'meta' => [
         'app_id' => env('META_APP_ID', ''),
         'app_secret' => env('META_APP_SECRET', ''),

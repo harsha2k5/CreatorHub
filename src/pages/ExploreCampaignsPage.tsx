@@ -210,9 +210,9 @@ export const ExploreCampaignsPage: React.FC = () => {
                     </p>
 
                     <div className="flex flex-wrap gap-1.5 mb-4">
-                      {camp.deliverables.map((del, idx) => (
+                      {(Array.isArray(camp.deliverables) ? camp.deliverables : []).map((del: any, idx: number) => (
                         <span key={idx} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                          {del}
+                          {typeof del === 'string' ? del : (del?.requirement || `${del?.count ? `${del.count}x ` : ''}${del?.type || 'Deliverable'}`)}
                         </span>
                       ))}
                     </div>

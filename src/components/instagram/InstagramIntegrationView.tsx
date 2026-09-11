@@ -706,6 +706,11 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               <span>•</span>
               <span>Last verified: <span className="text-slate-700 dark:text-slate-300 font-semibold">{formatTimeAgo(account.last_synced_at)}</span></span>
             </p>
+            {(account.biography || account.bio) && (
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 italic max-w-xl line-clamp-2">
+                "{account.biography || account.bio}"
+              </p>
+            )}
           </div>
         </div>
 
@@ -1105,6 +1110,16 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-purple-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
                     />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Instagram Bio</label>
+                  <input
+                    type="text"
+                    placeholder="My creator bio & highlights..."
+                    value={customBio}
+                    onChange={(e) => setCustomBio(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-purple-400"
+                  />
                 </div>
               </div>
 

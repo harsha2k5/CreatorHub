@@ -247,10 +247,10 @@ export const CampaignDetailPage: React.FC = () => {
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Campaign Deliverables
             </h3>
             <ul className="space-y-2 text-xs font-semibold text-zinc-700">
-              {deliverablesList.map((del, idx) => (
+              {deliverablesList.map((del: any, idx) => (
                 <li key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-100">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{del}</span>
+                  <span>{typeof del === 'string' ? del : (del?.requirement || `${del?.count ? `${del.count}x ` : ''}${del?.type || 'Deliverable'}${del?.platform ? ` (${del.platform})` : ''}`)}</span>
                 </li>
               ))}
             </ul>
