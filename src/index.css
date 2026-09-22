@@ -2,315 +2,100 @@
 
 @layer base {
   :root {
-    color-scheme: light;
-  }
-
-  html.dark {
     color-scheme: dark;
+    --background: #071012;
+    --foreground: #f4f4f5;
+    --card: #0c1416;
+    --card-surface: #10191a;
+    --pink: #ff3366;
+    --pink-hover: #ff4d79;
+    --muted: #9ca3af;
   }
 
   body {
-    background-color: #fafafa;
-    color: #09090b;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  html.dark body {
-    background-color: #09090b;
+    background-color: #071012;
     color: #f4f4f5;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
   }
-  
-  h1, h2, h3, h4, .font-heading {
-    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.035em;
   }
 }
 
-/* Smooth Scrolling & Responsive Scrollbars */
-html {
-  scroll-behavior: smooth;
-  background-color: #fafafa;
-  color: #09090b;
-  transition: background-color 0.2s ease, color 0.2s ease;
+/* Typography & Accent Helpers */
+.bg-pink {
+  background-color: #ff3366 !important;
 }
 
-html.dark {
-  background-color: #09090b;
-  color: #f4f4f5;
+.text-pink {
+  color: #ff3366 !important;
 }
 
+.border-pink {
+  border-color: #ff3366 !important;
+}
+
+.hover\:bg-pink:hover {
+  background-color: #ff4d79 !important;
+}
+
+.hover\:text-pink:hover {
+  color: #ff3366 !important;
+}
+
+.hover\:border-pink:hover {
+  border-color: #ff3366 !important;
+}
+
+.text-muted {
+  color: #9ca3af !important;
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f4f4f5;
-}
-
-html.dark ::-webkit-scrollbar-track {
-  background: #121215;
+  background: #071012;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(161, 161, 170, 0.5);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
 }
 
-html.dark ::-webkit-scrollbar-thumb {
-  background: rgba(113, 113, 122, 0.4);
-}
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(113, 113, 122, 0.7);
+  background: rgba(255, 51, 102, 0.6);
 }
 
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(161, 161, 170, 0.6);
+/* Smooth Transitions & Card Shadows */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
 }
 
-/* ==========================================================================
-   1. LIGHT THEME SYSTEM (Active when NOT in .dark mode)
-   ========================================================================== */
-
-/* Base Canvas & Backgrounds */
-html:not(.dark) .bg-slate-950,
-html:not(.dark) .bg-zinc-950:not(button):not(a):not(.btn):not([type="submit"]):not([role="button"]):not(.bg-white *) {
-  background-color: #fafafa !important;
-  color: #09090b;
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 51, 102, 0.4);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.6), 0 0 15px -3px rgba(255, 51, 102, 0.15);
 }
 
-/* Elevated Card Surfaces & Containers */
-html:not(.dark) .bg-slate-900,
-html:not(.dark) .bg-slate-900\/80,
-html:not(.dark) .bg-slate-900\/70,
-html:not(.dark) .bg-slate-900\/60,
-html:not(.dark) .bg-slate-900\/50,
-html:not(.dark) .bg-slate-900\/40,
-html:not(.dark) .bg-slate-900\/30,
-html:not(.dark) .bg-zinc-900\/80,
-html:not(.dark) .bg-zinc-900\/70,
-html:not(.dark) .bg-zinc-900\/60,
-html:not(.dark) .bg-zinc-900\/50,
-html:not(.dark) .bg-zinc-900\/40 {
-  background-color: #ffffff !important;
-  color: #09090b;
+/* Subtle glow animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 }
 
-/* Secondary Panels, Sub-cards & Muted Surface Fill */
-html:not(.dark) .bg-slate-800,
-html:not(.dark) .bg-slate-800\/80,
-html:not(.dark) .bg-slate-800\/60,
-html:not(.dark) .bg-slate-800\/40 {
-  background-color: #f4f4f5 !important;
-  color: #18181b;
-}
-
-/* Precision Neutral Borders */
-html:not(.dark) .border-slate-800,
-html:not(.dark) .border-slate-800\/80,
-html:not(.dark) .border-slate-800\/60,
-html:not(.dark) .border-slate-700,
-html:not(.dark) .border-slate-700\/80,
-html:not(.dark) .border-slate-700\/60 {
-  border-color: #e4e4e7 !important;
-}
-
-/* Neutral Typography */
-html:not(.dark) .text-white:not(button):not(button *):not(a[class*="bg-"]):not(a[class*="bg-"] *):not([class*="bg-gradient-"]):not([class*="bg-gradient-"] *):not([class*="bg-purple-"]):not([class*="bg-purple-"] *):not([class*="bg-pink-"]):not([class*="bg-pink-"] *):not([class*="bg-emerald-"]):not([class*="bg-emerald-"] *):not([class*="bg-blue-"]):not([class*="bg-blue-"] *):not([class*="bg-indigo-"]):not([class*="bg-indigo-"] *):not([class*="bg-rose-"]):not([class*="bg-rose-"] *):not([class*="bg-red-"]):not([class*="bg-red-"] *) {
-  color: #09090b !important;
-}
-
-html:not(.dark) .text-slate-100,
-html:not(.dark) .text-slate-200 {
-  color: #09090b !important;
-}
-
-html:not(.dark) .text-slate-300 {
-  color: #27272a !important;
-}
-
-html:not(.dark) .text-slate-400 {
-  color: #52525b !important;
-}
-
-html:not(.dark) .text-slate-500 {
-  color: #71717a !important;
-}
-
-html:not(.dark) .text-slate-600 {
-  color: #52525b !important;
-}
-
-/* Interactive Hover States */
-html:not(.dark) .hover\:bg-slate-800:hover,
-html:not(.dark) .hover\:bg-slate-800\/60:hover,
-html:not(.dark) .hover\:bg-slate-900:hover,
-html:not(.dark) .hover\:bg-slate-700:hover {
-  background-color: #f4f4f5 !important;
-  color: #09090b !important;
-}
-
-html:not(.dark) .hover\:border-slate-700:hover,
-html:not(.dark) .hover\:border-slate-600:hover {
-  border-color: #d4d4d8 !important;
-}
-
-/* Form Controls & Inputs in Light Mode */
-html:not(.dark) input.bg-slate-950,
-html:not(.dark) input.bg-slate-900,
-html:not(.dark) input.bg-slate-800,
-html:not(.dark) textarea.bg-slate-950,
-html:not(.dark) textarea.bg-slate-900,
-html:not(.dark) textarea.bg-slate-800,
-html:not(.dark) select.bg-slate-950,
-html:not(.dark) select.bg-slate-900,
-html:not(.dark) select.bg-slate-800 {
-  background-color: #f4f4f5 !important;
-  border-color: #e4e4e7 !important;
-  color: #09090b !important;
-}
-
-html:not(.dark) input.bg-slate-950:focus,
-html:not(.dark) input.bg-slate-900:focus,
-html:not(.dark) input.bg-slate-800:focus,
-html:not(.dark) textarea.bg-slate-950:focus,
-html:not(.dark) textarea.bg-slate-900:focus,
-html:not(.dark) textarea.bg-slate-800:focus,
-html:not(.dark) select.bg-slate-950:focus,
-html:not(.dark) select.bg-slate-900:focus,
-html:not(.dark) select.bg-slate-800:focus {
-  background-color: #ffffff !important;
-  border-color: #18181b !important;
-}
-
-/* Modal Backdrops in Light Theme */
-html:not(.dark) .bg-slate-950\/80,
-html:not(.dark) .bg-slate-900\/90 {
-  background-color: rgba(9, 9, 11, 0.45) !important;
-}
-
-
-/* ==========================================================================
-   2. DARK THEME SYSTEM (Active when html.dark is set)
-   ========================================================================== */
-
-/* Dark Background Overrides */
-html.dark .bg-\[\#fafafa\] {
-  background-color: #09090b !important;
-  color: #f4f4f5 !important;
-}
-
-html.dark .bg-white {
-  background-color: #121215 !important;
-  color: #f4f4f5 !important;
-}
-
-html.dark .bg-white\/90,
-html.dark .bg-white\/95 {
-  background-color: rgba(18, 18, 21, 0.92) !important;
-}
-
-html.dark .bg-white\/80 {
-  background-color: rgba(18, 18, 21, 0.8) !important;
-}
-
-/* Header & Footer in Dark Mode */
-html.dark header {
-  background-color: rgba(9, 9, 11, 0.88) !important;
-  border-color: #27272a !important;
-  color: #f4f4f5 !important;
-}
-
-html.dark footer {
-  background-color: #09090b !important;
-  border-color: #27272a !important;
-  color: #a1a1aa !important;
-}
-
-/* Secondary and Muted Surfaces */
-html.dark .bg-zinc-50,
-html.dark .bg-zinc-100 {
-  background-color: #18181b !important;
-  color: #f4f4f5 !important;
-}
-
-html.dark .hover\:bg-zinc-50:hover,
-html.dark .hover\:bg-zinc-100:hover,
-html.dark .hover\:bg-zinc-200:hover {
-  background-color: #27272a !important;
-  color: #ffffff !important;
-}
-
-/* Precision Dark Borders */
-html.dark .border-zinc-200,
-html.dark .border-zinc-100 {
-  border-color: #27272a !important;
-}
-
-/* Typography in Dark Mode */
-html.dark .text-zinc-950,
-html.dark .text-zinc-900 {
-  color: #f4f4f5 !important;
-}
-
-html.dark .text-zinc-800 {
-  color: #e4e4e7 !important;
-}
-
-html.dark .text-zinc-700,
-html.dark .text-zinc-600 {
-  color: #a1a1aa !important;
-}
-
-html.dark .text-zinc-500 {
-  color: #71717a !important;
-}
-
-/* Inputs & Form Fields in Dark Mode */
-html.dark input,
-html.dark textarea,
-html.dark select {
-  background-color: #18181b !important;
-  border-color: #27272a !important;
-  color: #f4f4f5 !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #71717a !important;
-}
-
-html.dark input:focus,
-html.dark textarea:focus,
-html.dark select:focus {
-  border-color: #52525b !important;
-}
-
-/* High Contrast Pearl Action Buttons in Dark Mode */
-html.dark button.bg-zinc-950,
-html.dark a.bg-zinc-950,
-html.dark button.bg-zinc-900,
-html.dark a.bg-zinc-900 {
-  background-color: #ffffff !important;
-  color: #09090b !important;
-}
-
-html.dark button.bg-zinc-950:hover,
-html.dark a.bg-zinc-950:hover,
-html.dark button.bg-zinc-900:hover,
-html.dark a.bg-zinc-900:hover {
-  background-color: #e4e4e7 !important;
-}
-
-/* Dropdown Menus and Popups in Dark Mode */
-html.dark .shadow-xl,
-html.dark .shadow-2xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
-}
-
-/* Modal Backdrops in Dark Mode */
-html.dark .bg-zinc-900\/60,
-html.dark .bg-slate-950\/80 {
-  background-color: rgba(0, 0, 0, 0.75) !important;
+.animate-glow {
+  animation: pulseGlow 6s ease-in-out infinite;
 }

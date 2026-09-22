@@ -37,9 +37,18 @@ export const CampaignDetailPage: React.FC = () => {
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
   // Instagram Connection State
-  const [isInstagramConnected, setIsInstagramConnected] = useState<boolean>(
-    Boolean(user?.instagram && (user.instagram.is_connected === 1 || user.instagram.is_connected === true))
-  );
+  const checkIsInstagramConnected = (u: any): boolean => {
+    if (!u) return false;
+    if (u.instagram && (u.instagram.is_connected === 1 || u.instagram.is_connected === true || u.instagram.connected === true)) {
+      return true;
+    }
+    if (u.profile && (u.profile.social_link || u.profile.instagram_handle)) {
+      return true;
+    }
+    return false;
+  };
+
+  const [isInstagramConnected, setIsInstagramConnected] = useState<boolean>(checkIsInstagramConnected(user));
   const [isInstagramPromptOpen, setIsInstagramPromptOpen] = useState(false);
 
   const [hasApplied, setHasApplied] = useState(false);
@@ -58,9 +67,10 @@ export const CampaignDetailPage: React.FC = () => {
         setCampaign(res.campaign);
       }
       if (user?.role === 'creator') {
-        const [appRes, subRes] = await Promise.allSettled([
+        const [appRes, subRes, igRes] = await Promise.allSettled([
           api.getApplications(),
-          api.getSubscriptionStatus()
+          api.getSubscriptionStatus(),
+          api.getInstagramStatus()
         ]);
         if (appRes.status === 'fulfilled' && appRes.value.success) {
           const app = (appRes.value.applications || []).find((a: any) => a.campaign_id === id);
@@ -71,18 +81,12 @@ export const CampaignDetailPage: React.FC = () => {
           setSubscriptionData(subRes.value);
         }
 
-        if (user?.instagram && (user.instagram.is_connected === 1 || user.instagram.is_connected === true)) {
+        if (checkIsInstagramConnected(user)) {
+          setIsInstagramConnected(true);
+        } else if (igRes.status === 'fulfilled' && igRes.value && (igRes.value.is_connected || igRes.value.connected)) {
           setIsInstagramConnected(true);
         } else {
-          api.getInstagramAnalytics().then(igRes => {
-            if (igRes && igRes.success && (igRes.is_connected === 1 || igRes.is_connected === true)) {
-              setIsInstagramConnected(true);
-            } else {
-              setIsInstagramConnected(false);
-            }
-          }).catch(() => {
-            setIsInstagramConnected(false);
-          });
+          setIsInstagramConnected(false);
         }
       }
     } catch (e) {

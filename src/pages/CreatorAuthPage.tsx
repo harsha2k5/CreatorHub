@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Users, Mail, Lock, User, AtSign, MapPin, ArrowRight, Phone, Sparkles, AlertCircle } from 'lucide-react';
+import { Logo } from '../components/common/Logo';
+import { Users, Mail, Lock, User, AtSign, MapPin, ArrowRight, Phone, Sparkles, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export const CreatorAuthPage: React.FC = () => {
   const location = useLocation();
@@ -25,6 +26,11 @@ export const CreatorAuthPage: React.FC = () => {
   const { user, login, registerUser, logout } = useAuth();
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    setIsRegister(location.pathname.includes('register'));
+    setError('');
+  }, [location.pathname]);
+
   if (user) {
     return (
       <div className="min-h-screen bg-[#fafafa] py-12 px-4 flex items-center justify-center">
@@ -35,15 +41,15 @@ export const CreatorAuthPage: React.FC = () => {
           <div>
             <h2 className="font-extrabold text-2xl text-zinc-950">Already Signed In</h2>
             <p className="text-xs text-zinc-500 mt-1">
-              Logged in as <strong className="text-zinc-900">{user.email}</strong>
+              Logged in as <strong className="text-zinc-900">{user.email}</strong> ({user.role})
             </p>
           </div>
           <div className="space-y-2.5 pt-2">
             <button
-              onClick={() => navigate(user.role === 'brand' ? '/brand/dashboard' : '/creator/feed')}
+              onClick={() => navigate(user.role === 'admin' ? '/admin/dashboard' : user.role === 'brand' ? '/brand/dashboard' : '/creator/dashboard')}
               className="w-full py-3 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              Go to {user.role === 'brand' ? 'Brand Studio' : 'Campaign Feed'} <ArrowRight className="w-4 h-4" />
+              Go to {user.role === 'admin' ? 'Admin Console' : user.role === 'brand' ? 'Brand Studio' : 'Creator Studio'} <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => logout()}
@@ -84,13 +90,15 @@ export const CreatorAuthPage: React.FC = () => {
           min_budget: Number(minBudget),
           radius_km: Number(radiusKm)
         });
-        navigate('/creator/feed');
+        navigate('/creator/dashboard');
       } else {
         const loggedUser = await login(email, password);
         if (loggedUser.role === 'admin') {
           navigate('/admin/dashboard');
+        } else if (loggedUser.role === 'brand') {
+          navigate('/brand/dashboard');
         } else {
-          navigate('/creator/feed');
+          navigate('/creator/dashboard');
         }
       }
     } catch (err: any) {
@@ -100,15 +108,14 @@ export const CreatorAuthPage: React.FC = () => {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#fafafa] py-12 px-4 flex items-center justify-center relative overflow-hidden text-zinc-900">
       <div className="max-w-md w-full bg-white border border-zinc-200 rounded-3xl p-8 shadow-xl relative z-10">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-4 group">
-            <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center font-black text-white text-base">
-              <Sparkles className="w-4 h-4 text-zinc-200" />
-            </div>
-            <span className="text-lg font-black text-zinc-950 tracking-tight">CreaterHub</span>
+          <Link to="/" className="inline-flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </Link>
 
           <h2 className="text-2xl font-black text-zinc-950">
@@ -125,6 +132,43 @@ export const CreatorAuthPage: React.FC = () => {
           <div className="p-3 mb-6 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* Quick Credentials Card for Easy Testing */}
+        {!isRegister && (
+          <div className="mb-5 p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-700 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-pink-500" /> Quick Autofill Credentials
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('chandanap234@gmail.com');
+                  setPassword('Creator@123');
+                  setError('');
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 hover:border-pink-500 text-left text-[11px] font-medium text-zinc-800 hover:text-pink-600 transition-colors shadow-2xs cursor-pointer truncate"
+                title="Fill chandanap234@gmail.com / Creator@123"
+              >
+                <strong>Chandana</strong> (chandanap234)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('creator@creatorhub.com');
+                  setPassword('Creator@123');
+                  setError('');
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 hover:border-pink-500 text-left text-[11px] font-medium text-zinc-800 hover:text-pink-600 transition-colors shadow-2xs cursor-pointer truncate"
+                title="Fill creator@creatorhub.com / Creator@123"
+              >
+                <strong>Demo Creator</strong>
+              </button>
+            </div>
           </div>
         )}
 
@@ -260,22 +304,34 @@ export const CreatorAuthPage: React.FC = () => {
 
           <div className={isRegister ? 'grid grid-cols-2 gap-3' : ''}>
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1">Password *</label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-semibold text-zinc-700">Password *</label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-zinc-500 hover:text-zinc-900 flex items-center gap-1 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showPassword ? 'Hide' : 'Show'}</span>
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="e.g. Creator@123"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 focus:bg-white focus:outline-none focus:border-zinc-900"
+                />
+              </div>
             </div>
 
             {isRegister && (
               <div>
                 <label className="block font-semibold text-zinc-700 mb-1">Confirm Password *</label>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••••••"
                   value={confirmPassword}
@@ -298,10 +354,15 @@ export const CreatorAuthPage: React.FC = () => {
 
         <div className="mt-6 pt-6 border-t border-zinc-100 text-center">
           <button
-            onClick={() => { setIsRegister(!isRegister); setError(''); }}
+            onClick={() => {
+              const nextMode = !isRegister;
+              setIsRegister(nextMode);
+              setError('');
+              navigate(nextMode ? '/creator/register' : '/creator/login');
+            }}
             className="text-xs text-zinc-900 font-bold hover:underline cursor-pointer"
           >
-            {isRegister ? 'Already have an account? Sign in here' : "New to CreaterHub? Create creator profile"}
+            {isRegister ? 'Already have an account? Sign in here' : "New to CreatorHub? Create creator profile"}
           </button>
         </div>
       </div>

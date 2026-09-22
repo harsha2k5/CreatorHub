@@ -235,25 +235,25 @@ export const InstagramAnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* 1. Global Notice: Live / Demo Data Banner */}
-      <div className="bg-gradient-to-r from-purple-950/90 via-slate-900 to-pink-950/70 border border-purple-500/30 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-[#0c1416] border border-[#1c292c] rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-pink/20 border border-pink/30 flex items-center justify-center text-pink shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-extrabold text-white">Instagram AI Analytics Suite</span>
               {profile.isDemoMode ? (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-pink-500 text-slate-950 tracking-wider shadow-sm uppercase">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-pink text-[#071012] tracking-wider shadow-sm uppercase">
                   DEMO MODE ONLY
                 </span>
               ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 tracking-wider shadow-sm uppercase">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-[#071012] tracking-wider shadow-sm uppercase">
                   LIVE VERIFIED ACCOUNT
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
               {profile.isDemoMode
                 ? `Displaying simulated performance metrics for demo creator @mrbeast_demo.`
                 : `Connected to verified live profile @${profile.username}. Metrics synchronized with verified creator activity.`}
@@ -379,12 +379,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Followers */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Followers</span>
               <Users className="w-4 h-4 text-purple-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-2xl sm:text-3xl font-black text-white font-mono">
               {formatNumber(overview.followers)}
             </div>
             <div className="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
@@ -393,12 +393,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 2: Follower Growth Net */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Follower Growth (Net)</span>
               <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-300">
+            <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
               +{formatNumber(overview.followerGrowthNet)}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
@@ -407,12 +407,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 3: Engagement Rate */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Engagement Rate</span>
-              <TrendingUp className="w-4 h-4 text-pink-400" />
+              <TrendingUp className="w-4 h-4 text-pink" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-pink-400">
+            <div className="text-2xl sm:text-3xl font-black text-pink font-mono">
               {overview.engagementRate}%
             </div>
             <div className="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
@@ -421,12 +421,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 4: Reach */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Total Reach</span>
-              <Globe className="w-4 h-4 text-blue-400" />
+              <Globe className="w-4 h-4 text-cyan-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-cyan-300">
+            <div className="text-2xl sm:text-3xl font-black text-cyan-300 font-mono">
               {formatNumber(overview.reach)}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
@@ -435,12 +435,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 5: Impressions */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Impressions</span>
               <Eye className="w-4 h-4 text-indigo-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-indigo-300">
+            <div className="text-2xl sm:text-3xl font-black text-indigo-300 font-mono">
               {formatNumber(overview.impressions)}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
@@ -449,12 +449,12 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 6: Profile Visits */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] hover:border-slate-700 transition-colors shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
               <span>Profile Visits</span>
               <Users className="w-4 h-4 text-emerald-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-300">
+            <div className="text-2xl sm:text-3xl font-black text-emerald-300 font-mono">
               {formatNumber(overview.profileVisits)}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
@@ -463,16 +463,16 @@ export const InstagramAnalyticsPage: React.FC = () => {
           </div>
 
           {/* Card 7: Average Reel Views */}
-          <div className="bg-slate-900/70 p-5 rounded-2xl border border-purple-500/30 col-span-2 md:col-span-1 lg:col-span-2 bg-gradient-to-r from-slate-900 to-purple-950/40">
+          <div className="p-5 rounded-2xl border border-[#1c292c] col-span-2 md:col-span-1 lg:col-span-2 bg-[#0c1416] shadow-sm">
             <div className="flex items-center justify-between text-xs font-bold text-purple-300 mb-2">
               <span>Average Reel Views</span>
               <Film className="w-4 h-4 text-purple-400" />
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-purple-200">
+            <div className="text-2xl sm:text-3xl font-black text-purple-200 font-mono">
               {formatNumber(overview.avgReelViews)}
             </div>
             <div className="text-[11px] text-purple-300/80 mt-1 flex items-center gap-1.5 font-medium">
-              <Sparkles className="w-3 h-3 text-amber-300" /> Top viral multiplier in Digital Creator category
+              <Sparkles className="w-3 h-3 text-amber-400" /> Top viral multiplier in Digital Creator category
             </div>
           </div>
         </div>
@@ -642,31 +642,31 @@ export const InstagramAnalyticsPage: React.FC = () => {
         </div>
 
         {/* CreatorHub AI Score Widget */}
-        <div className="bg-gradient-to-br from-purple-950/60 via-slate-900 to-slate-900 p-6 sm:p-7 rounded-3xl border border-purple-500/30 shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0c1416] p-6 sm:p-7 rounded-3xl border border-[#1c292c] shadow-xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black tracking-wider text-purple-400 uppercase bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+              <span className="text-[10px] font-black tracking-wider text-pink uppercase bg-pink/10 px-2.5 py-1 rounded-full border border-pink/20">
                 AI Diagnostic
               </span>
-              <span className="text-[10px] text-slate-400">CreatorHub Score</span>
+              <span className="text-[10px] text-zinc-400">CreatorHub Score</span>
             </div>
             <h3 className="text-lg font-black text-white">CreatorHub AI Score</h3>
-            <p className="text-xs text-slate-400 mt-1">Multi-signal algorithm grading</p>
+            <p className="text-xs text-zinc-400 mt-1">Multi-signal algorithm grading</p>
 
             {/* Big Radial/Grade Display */}
             <div className="my-5 flex items-center justify-center gap-4">
-              <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-purple-600 via-pink-600 to-amber-400 p-1 shadow-2xl flex items-center justify-center">
-                <div className="w-full h-full rounded-[22px] bg-slate-950 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-pink via-rose-500 to-amber-400 p-1 shadow-2xl flex items-center justify-center">
+                <div className="w-full h-full rounded-[22px] bg-[#071012] flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-pink via-rose-300 to-amber-300 bg-clip-text">
                     {aiScore.overallScore}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-400">/ 100</span>
+                  <span className="text-[10px] font-bold text-zinc-400">/ 100</span>
                 </div>
               </div>
               <div>
                 <div className="text-2xl font-black text-emerald-400">Grade {aiScore.grade}</div>
-                <div className="text-xs font-bold text-slate-300">Elite Impact Profile</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Top 0.1% Brand Value</div>
+                <div className="text-xs font-bold text-zinc-300">Elite Impact Profile</div>
+                <div className="text-[10px] text-zinc-400 mt-0.5">Top 0.1% Brand Value</div>
               </div>
             </div>
 
@@ -983,18 +983,18 @@ export const InstagramAnalyticsPage: React.FC = () => {
       </div>
 
       {/* 9. CreatorHub AI Insights Section (Dynamic & Actionable) */}
-      <div className="bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 p-6 sm:p-8 rounded-3xl border border-purple-500/30 shadow-2xl space-y-5">
+      <div className="bg-[#0c1416] p-6 sm:p-8 rounded-3xl border border-[#1c292c] shadow-2xl space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-300" />
               <h3 className="text-base sm:text-lg font-black text-white">CreatorHub AI Strategy Insights</h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-zinc-400 mt-0.5">
               Automated heuristics analyzing verified engagement patterns, timing, and brand fit
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-pink/15 text-pink border border-pink/30">
             {aiInsights.length} Live Insights
           </span>
         </div>
@@ -1003,7 +1003,7 @@ export const InstagramAnalyticsPage: React.FC = () => {
           {aiInsights.map(insight => (
             <div
               key={insight.id}
-              className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-purple-500/40 transition-colors"
+              className="bg-[#071012] p-5 rounded-2xl border border-[#1c292c] space-y-3 hover:border-pink/40 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <h4 className="text-xs font-black text-white leading-snug">

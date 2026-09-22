@@ -1,22 +1,52 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Building2, Mail, Lock, Phone, MapPin, Globe, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { Logo } from '../components/common/Logo';
+import { Building2, Mail, Lock, Phone, MapPin, Globe, ArrowRight, CheckCircle2, Sparkles, Image as ImageIcon, Check, Eye, EyeOff } from 'lucide-react';
+import { resolveBrandLogo, generateBrandMonogramLogo, PRESET_BRAND_SAMPLES } from '../utils/brandLogos';
 
 export const BrandAuthPage: React.FC = () => {
-  const [isRegister, setIsRegister] = useState(false);
+  const location = useLocation();
+  const [isRegister, setIsRegister] = useState(location.pathname.includes('register'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
-  const [category, setCategory] = useState('Food & Beverage');
+  const [category, setCategory] = useState('Beauty & Skincare');
   const [city, setCity] = useState('Bengaluru');
   const [state, setState] = useState('Karnataka');
   const [description, setDescription] = useState('');
+  const [customLogoUrl, setCustomLogoUrl] = useState('');
+  const [showCustomLogoInput, setShowCustomLogoInput] = useState(false);
   const [error, setError] = useState('');
 
   const { user, login, registerUser, logout } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    setIsRegister(location.pathname.includes('register'));
+    setError('');
+  }, [location.pathname]);
+
+  // Auto-suggest category if brand name matches known keywords
+  useEffect(() => {
+    if (!isRegister) return;
+    const lower = companyName.toLowerCase();
+    if (lower.includes('himalaya') || lower.includes('mamaearth') || lower.includes('plum') || lower.includes('sugar') || lower.includes('nykaa') || lower.includes('lakme') || lower.includes('derma')) {
+      setCategory('Beauty & Skincare');
+    } else if (lower.includes('blue tokai') || lower.includes('third wave') || lower.includes('starbucks') || lower.includes('coffee') || lower.includes('chai') || lower.includes('cafe') || lower.includes('zomato') || lower.includes('swiggy')) {
+      setCategory('Food & Beverage');
+    } else if (lower.includes('cult') || lower.includes('decathlon') || lower.includes('gym') || lower.includes('fitness')) {
+      setCategory('Fitness & Sports');
+    } else if (lower.includes('boat') || lower.includes('noise') || lower.includes('apple') || lower.includes('tech') || lower.includes('saas')) {
+      setCategory('Technology');
+    } else if (lower.includes('myntra') || lower.includes('souled') || lower.includes('zara') || lower.includes('clothing') || lower.includes('fashion')) {
+      setCategory('Fashion & Apparel');
+    }
+  }, [companyName, isRegister]);
+
+  const activeLogo = resolveBrandLogo(companyName, category, email, customLogoUrl);
 
   if (user) {
     return (
@@ -66,7 +96,8 @@ export const BrandAuthPage: React.FC = () => {
           category,
           city,
           state,
-          description
+          description,
+          logo_url: customLogoUrl.trim() || activeLogo
         });
       } else {
         const loggedUser = await login(email, password);
@@ -84,12 +115,9 @@ export const BrandAuthPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#fafafa] py-12 px-4 flex items-center justify-center text-zinc-900">
       <div className="max-w-md w-full bg-white border border-zinc-200 rounded-3xl p-8 shadow-xl">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-4 group">
-            <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center font-black text-white text-base shadow-xs">
-              <Sparkles className="w-4 h-4 text-zinc-200" />
-            </div>
-            <span className="text-lg font-black text-zinc-950 tracking-tight">CreaterHub</span>
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center justify-center mb-4">
+            <Logo size="lg" />
           </Link>
 
           <h2 className="font-heading font-extrabold text-2xl text-zinc-950">
@@ -114,7 +142,7 @@ export const BrandAuthPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. CCD Indiranagar"
+                  placeholder="e.g. Himalaya, Mamaearth, Cult.fit, boAt"
                   value={companyName}
                   onChange={e => setCompanyName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white"
@@ -127,13 +155,14 @@ export const BrandAuthPage: React.FC = () => {
                   <select
                     value={category}
                     onChange={e => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white cursor-pointer"
                   >
-                    <option>Food & Beverage</option>
-                    <option>Fitness & Sports</option>
-                    <option>Fashion & Apparel</option>
-                    <option>Beauty & Skincare</option>
-                    <option>Software & SaaS</option>
+                    <option value="Beauty & Skincare">Beauty & Skincare</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                    <option value="Fitness & Sports">Fitness & Sports</option>
+                    <option value="Fashion & Apparel">Fashion & Apparel</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Lifestyle">Lifestyle</option>
                   </select>
                 </div>
 
@@ -149,8 +178,102 @@ export const BrandAuthPage: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {/* Dynamic Brand Logo & Visual Card */}
+              <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-2xl space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                    <span className="text-[11px] font-bold text-zinc-800">
+                      Brand Visual & Logo Preview
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomLogoInput(!showCustomLogoInput)}
+                    className="text-[10px] text-pink-600 hover:text-pink-700 font-bold hover:underline cursor-pointer"
+                  >
+                    {showCustomLogoInput ? 'Hide URL input' : 'Custom Image URL'}
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-zinc-200">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center p-1 shrink-0 shadow-xs overflow-hidden">
+                    <img
+                      src={activeLogo}
+                      alt={companyName || 'Brand Visual'}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = generateBrandMonogramLogo(companyName, category);
+                      }}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-black text-zinc-900 truncate">
+                      {companyName ? companyName : 'Your Brand Name'}
+                    </div>
+                    <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      {companyName.toLowerCase().includes('himalaya')
+                        ? 'Official Himalaya Brand Logo'
+                        : companyName.trim()
+                        ? `Official Logo / Badge for ${companyName}`
+                        : `Category Brand Badge`}
+                    </div>
+                  </div>
+                </div>
+
+                {showCustomLogoInput && (
+                  <div className="pt-1">
+                    <input
+                      type="text"
+                      placeholder="Paste direct logo URL (https://...)"
+                      value={customLogoUrl}
+                      onChange={e => setCustomLogoUrl(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-900 text-xs focus:outline-none focus:border-zinc-900"
+                    />
+                  </div>
+                )}
+              </div>
             </>
           )}
+
+        {/* Quick Credentials Card for Easy Testing */}
+        {!isRegister && (
+          <div className="mb-5 p-3 rounded-2xl bg-zinc-50 border border-zinc-200/80 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-700 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-pink-500" /> Quick Autofill Credentials
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('himalayacare@gmail.com');
+                  setPassword('Brand@123');
+                  setError('');
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 hover:border-pink-500 text-left text-[11px] font-medium text-zinc-800 hover:text-pink-600 transition-colors shadow-2xs cursor-pointer truncate"
+                title="Fill himalayacare@gmail.com / Brand@123"
+              >
+                <strong>Himalaya</strong>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('brand@creatorhub.com');
+                  setPassword('Brand@123');
+                  setError('');
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 hover:border-pink-500 text-left text-[11px] font-medium text-zinc-800 hover:text-pink-600 transition-colors shadow-2xs cursor-pointer truncate"
+                title="Fill brand@creatorhub.com / Brand@123"
+              >
+                <strong>Demo Brand</strong>
+              </button>
+            </div>
+          </div>
+        )}
 
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1">Business Email</label>
@@ -159,7 +282,7 @@ export const BrandAuthPage: React.FC = () => {
               <input
                 type="email"
                 required
-                placeholder="marketing@ccd.com"
+                placeholder="contact@himalaya.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white"
@@ -168,11 +291,21 @@ export const BrandAuthPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-semibold text-zinc-700">Password</label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-[11px] text-zinc-500 hover:text-zinc-900 flex items-center gap-1 cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                <span>{showPassword ? 'Hide' : 'Show'}</span>
+              </button>
+            </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-zinc-400 absolute left-3.5 top-3" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••••••"
                 value={password}
@@ -193,7 +326,12 @@ export const BrandAuthPage: React.FC = () => {
 
         <div className="mt-4 pt-4 border-t border-zinc-100 flex flex-col gap-2">
           <button
-            onClick={() => setIsRegister(!isRegister)}
+            onClick={() => {
+              const nextMode = !isRegister;
+              setIsRegister(nextMode);
+              setError('');
+              navigate(nextMode ? '/brand/register' : '/brand/login');
+            }}
             className="text-xs text-zinc-900 font-bold text-center hover:underline cursor-pointer"
           >
             {isRegister ? 'Already have a brand account? Log in' : "Don't have a brand account? Register here"}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
@@ -19,8 +19,26 @@ import { MessagesPage } from './pages/MessagesPage';
 import { CreatorProfilePage } from './pages/CreatorProfilePage';
 import { DirectPitchPage } from './pages/DirectPitchPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AboutPage } from './pages/AboutPage';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import './index.css';
+
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+
+  React.useEffect(() => {
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname, hash]);
+
+  return null;
+}
 
 function DashboardRedirect() {
   const { user, loading } = useAuth();
@@ -33,14 +51,18 @@ function DashboardRedirect() {
 
 function MainLayout() {
   const { toasts } = useAuth();
+  const location = useLocation();
+  const isAdminDashboard = location.pathname.startsWith('/admin/dashboard');
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 selection:text-zinc-900 dark:selection:bg-zinc-800 dark:selection:text-zinc-100 transition-colors">
-      <Navbar />
+      <ScrollToTop />
+      {!isAdminDashboard && <Navbar />}
 
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/choose-role" element={<AuthRoleSelectPage />} />
           <Route path="/creator/feed" element={<CreatorCampaignFeedPage />} />
           <Route path="/explore" element={<CreatorCampaignFeedPage />} />
@@ -79,7 +101,7 @@ function MainLayout() {
         </Routes>
       </main>
 
-      <Footer />
+      {!isAdminDashboard && <Footer />}
 
       {/* Global Toast Alerts */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">

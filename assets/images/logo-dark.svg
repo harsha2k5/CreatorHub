@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 40" fill="none">
+  <!-- Rounded Transparent Box with Slate Border -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="none" stroke="#94A3B8" stroke-width="1.5" />
+  
+  <!-- Soft Sparkles Icon -->
+  <g transform="translate(10, 10)" stroke="#A5B4FC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    <path d="M17 3v3" />
+    <path d="M18.5 4.5h-3" />
+  </g>
+
+  <!-- Typography: CreaterHub in Bold White -->
+  <text x="48" y="27" font-family="'Outfit', 'Inter', system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">CreaterHub</text>
+</svg>
