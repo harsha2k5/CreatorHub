@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { NotificationItem } from '../../types';
+import { Logo } from '../common/Logo';
+import { resolveBrandLogo, resolveBrandDisplayName } from '../../utils/brandLogos';
 import {
   Sparkles,
   Compass,
@@ -10,27 +12,19 @@ import {
   FolderCheck,
   MessageSquare,
   Bell,
-  Sun,
-  Moon,
-  UserCheck,
-  Building2,
+  Search,
   ShieldCheck,
   LogOut,
   ChevronDown,
   Menu,
   X,
   Check,
-  ExternalLink,
-  Users,
   Send,
   Crown
 } from 'lucide-react';
-import { ThemeToggle } from '../ThemeToggle';
-import { useTheme } from '../../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
   const { user, logout, unreadNotifications, activeRole, showToast } = useAuth();
-  const { theme, toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -73,30 +67,21 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-200 text-zinc-900 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-[#071012]/90 backdrop-blur-md border-b border-white/10 text-white transition-all">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-            <Sparkles className="w-4 h-4 text-zinc-200" />
-          </div>
-          <div>
-            <span className="font-heading font-black text-xl text-zinc-950 tracking-tight">
-              CreaterHub
-            </span>
-          </div>
+        <Link to="/" className="inline-flex items-center">
+          <Logo size="md" />
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 font-semibold text-xs">
+        <nav className="hidden md:flex items-center gap-8 text-[11px] font-medium text-muted">
           {user ? (
             <>
               <Link
                 to="/creator/feed"
-                className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
-                  location.pathname === '/creator/feed'
-                    ? 'bg-zinc-100 text-zinc-950 font-bold'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                className={`transition hover:text-white flex items-center gap-1.5 ${
+                  location.pathname === '/creator/feed' ? 'text-pink font-semibold' : ''
                 }`}
               >
                 <Compass className="w-3.5 h-3.5" /> Discovery Feed
@@ -104,17 +89,13 @@ export const Navbar: React.FC = () => {
 
               <Link
                 to={user?.role === 'admin' ? '/admin/dashboard' : isBrand ? '/brand/dashboard' : '/creator/dashboard'}
-                className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
-                  location.pathname.includes('dashboard')
-                    ? user?.role === 'admin'
-                      ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
-                      : 'bg-zinc-100 text-zinc-950 font-bold'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                className={`transition hover:text-white flex items-center gap-1.5 ${
+                  location.pathname.includes('dashboard') ? 'text-pink font-semibold' : ''
                 }`}
               >
                 {user?.role === 'admin' ? (
                   <>
-                    <ShieldCheck className="w-3.5 h-3.5 text-rose-600" /> Admin Console
+                    <ShieldCheck className="w-3.5 h-3.5 text-pink" /> Admin Console
                   </>
                 ) : (
                   <>
@@ -126,10 +107,8 @@ export const Navbar: React.FC = () => {
               {isBrand && (
                 <Link
                   to="/pitch-creators"
-                  className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
-                    location.pathname === '/pitch-creators'
-                      ? 'bg-zinc-100 text-zinc-950 font-bold'
-                      : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                  className={`transition hover:text-white flex items-center gap-1.5 ${
+                    location.pathname === '/pitch-creators' ? 'text-pink font-semibold' : ''
                   }`}
                 >
                   <Send className="w-3.5 h-3.5" /> Direct Pitch
@@ -138,10 +117,8 @@ export const Navbar: React.FC = () => {
 
               <Link
                 to="/creator/messages"
-                className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
-                  location.pathname.includes('messages')
-                    ? 'bg-zinc-100 text-zinc-950 font-bold'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                className={`transition hover:text-white flex items-center gap-1.5 ${
+                  location.pathname.includes('messages') ? 'text-pink font-semibold' : ''
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5" /> Messages
@@ -150,50 +127,62 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <Link
-                to="/"
-                className="px-3.5 py-2 rounded-xl text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
+                to="/creator/login"
+                className={`transition hover:text-white ${
+                  location.pathname === '/creator/login' || location.pathname === '/creator/register' ? 'text-pink font-semibold' : ''
+                }`}
               >
-                Home
+                Creators
               </Link>
               <Link
-                to="/creator/register"
-                className="px-3.5 py-2 rounded-xl text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
+                to="/brand/login"
+                className={`transition hover:text-white ${
+                  location.pathname === '/brand/login' || location.pathname === '/brand/register' ? 'text-pink font-semibold' : ''
+                }`}
               >
-                For Creators
-              </Link>
-              <Link
-                to="/brand/register"
-                className="px-3.5 py-2 rounded-xl text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
-              >
-                For Brands
+                Brands
               </Link>
               <Link
                 to="/creator/feed"
-                className="px-3.5 py-2 rounded-xl text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 transition-colors"
+                className={`transition hover:text-white ${location.pathname === '/creator/feed' ? 'text-pink font-semibold' : ''}`}
               >
                 Campaigns
+              </Link>
+              <Link
+                to="/about"
+                className={`transition hover:text-white ${location.pathname === '/about' ? 'text-pink font-semibold' : ''}`}
+              >
+                About
               </Link>
             </>
           )}
         </nav>
 
         {/* Right Header Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <ThemeToggle />
+        <div className="flex items-center gap-4 text-[11px]">
+          {/* Quick Search Link */}
+          <Link
+            to="/creator/feed"
+            className="text-muted hover:text-white transition p-1.5 rounded-full hover:bg-white/5"
+            title="Explore Discovery Feed"
+          >
+            <Search className="w-4 h-4" />
+          </Link>
 
           {user ? (
             <div className="relative flex items-center gap-2">
+              {/* Notifications Button */}
               <button
                 onClick={() => {
                   setShowNotifMenu(!showNotifMenu);
                   setShowProfileMenu(false);
                 }}
-                className="relative p-2 rounded-xl text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 transition-colors cursor-pointer"
+                className="relative p-2 rounded-full text-muted hover:bg-white/5 hover:text-white transition cursor-pointer"
                 title="Notifications"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 bg-pink text-[#181012] text-[9px] font-extrabold rounded-full flex items-center justify-center">
                     {unreadNotifications > 9 ? '9+' : unreadNotifications}
                   </span>
                 )}
@@ -201,19 +190,19 @@ export const Navbar: React.FC = () => {
 
               {/* Notifications Dropdown */}
               {showNotifMenu && (
-                <div className="absolute right-0 top-12 w-80 sm:w-96 rounded-2xl border border-zinc-200 bg-white shadow-xl p-4 z-50 text-zinc-900">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3">
+                <div className="absolute right-0 top-12 w-80 sm:w-96 rounded-2xl border border-white/15 bg-[#0c1416] shadow-2xl p-4 z-50 text-white animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-zinc-950">Notifications</span>
+                      <span className="text-xs font-bold text-white">Notifications</span>
                       {unreadNotifications > 0 && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-pink/20 text-pink border border-pink/40">
                           {unreadNotifications} new
                         </span>
                       )}
                     </div>
                     <button
                       onClick={handleMarkAllRead}
-                      className="text-[11px] font-bold text-zinc-600 hover:text-zinc-950 hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[10px] font-semibold text-muted hover:text-white flex items-center gap-1 cursor-pointer"
                     >
                       <Check className="w-3 h-3" /> Mark all read
                     </button>
@@ -221,9 +210,9 @@ export const Navbar: React.FC = () => {
 
                   <div className="max-h-80 overflow-y-auto space-y-2">
                     {loadingNotifs ? (
-                      <div className="p-4 text-center text-xs text-zinc-400">Loading alerts...</div>
+                      <div className="p-4 text-center text-xs text-muted">Loading alerts...</div>
                     ) : notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-zinc-400">No alerts yet.</div>
+                      <div className="p-6 text-center text-xs text-muted">No alerts yet.</div>
                     ) : (
                       notifications.map(n => (
                         <div
@@ -234,27 +223,22 @@ export const Navbar: React.FC = () => {
                           }}
                           className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
                             n.read_status === 0
-                              ? 'bg-zinc-50 border-zinc-300 hover:bg-zinc-100 shadow-xs'
-                              : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                              ? 'bg-[#10191a] border-white/20 hover:border-pink/50'
+                              : 'bg-transparent border-white/10 text-muted hover:bg-white/5'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <div className="font-bold text-zinc-900 flex items-center gap-1.5 truncate">
+                            <div className="font-bold text-white flex items-center gap-1.5 truncate">
                               {n.read_status === 0 && (
-                                <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                                <span className="w-2 h-2 rounded-full bg-pink shrink-0" />
                               )}
                               <span className="truncate">{n.title}</span>
                             </div>
-                            <span className="text-[10px] text-zinc-400 shrink-0 ml-2">
+                            <span className="text-[9px] text-muted shrink-0 ml-2">
                               {new Date(n.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                             </span>
                           </div>
-                          <p className="text-[11px] text-zinc-600 leading-relaxed line-clamp-2">{n.message}</p>
-                          {n.link && (
-                            <div className="mt-2 text-[10px] font-semibold text-zinc-900 flex items-center gap-1">
-                              View pitch in Messages →
-                            </div>
-                          )}
+                          <p className="text-[11px] text-muted leading-relaxed line-clamp-2">{n.message}</p>
                         </div>
                       ))
                     )}
@@ -268,104 +252,71 @@ export const Navbar: React.FC = () => {
                   setShowProfileMenu(!showProfileMenu);
                   setShowNotifMenu(false);
                 }}
-                className="flex items-center gap-2 p-1.5 pl-2.5 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors shadow-xs"
+                className="flex items-center gap-2 p-1.5 pl-2.5 rounded-full border border-white/20 bg-[#0c1416] hover:border-pink transition cursor-pointer"
               >
                 <img
-                  src={
-                    (user.profile as any)?.avatar_url ||
-                    (user.profile as any)?.logo_url ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'
-                  }
+                  src={(() => {
+                    const prof: any = user.profile || {};
+                    if (user.role === 'brand') {
+                      return resolveBrandLogo(prof.company_name, prof.category, user.email, prof.logo_url);
+                    }
+                    return prof.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+                  })()}
                   alt="Avatar"
-                  className="w-6 h-6 rounded-full object-cover border border-zinc-200"
+                  className="w-5 h-5 rounded-full object-cover border border-white/20"
                 />
-                <span className="text-xs font-bold text-zinc-800 hidden sm:inline max-w-[100px] truncate">
-                  {(user.profile as any)?.full_name || (user.profile as any)?.company_name || user.email.split('@')[0]}
+                <span className="text-[11px] font-semibold text-white hidden sm:inline max-w-[100px] truncate">
+                  {(() => {
+                    const prof: any = user.profile || {};
+                    if (user.role === 'brand') {
+                      return resolveBrandDisplayName(prof, user.email);
+                    }
+                    return prof.full_name || user.email.split('@')[0];
+                  })()}
                 </span>
-                {user.role === 'admin' ? (
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200">
-                    Admin
-                  </span>
-                ) : !isBrand && (user.profile as any)?.subscription_tier && (user.profile as any)?.subscription_tier !== 'free' ? (
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-zinc-100 text-zinc-700 border border-zinc-200">
-                    {(user.profile as any)?.subscription_tier}
-                  </span>
-                ) : null}
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
+                <ChevronDown className="w-3 h-3 text-muted" />
               </button>
 
               {/* Profile Menu Dropdown */}
               {showProfileMenu && (
-                <div className="absolute right-0 top-12 w-56 rounded-2xl border border-zinc-200 bg-white shadow-xl p-2 z-50 text-xs font-semibold text-zinc-900">
+                <div className="absolute right-0 top-12 w-56 rounded-2xl border border-white/15 bg-[#0c1416] shadow-2xl p-2 z-50 text-xs font-medium text-white">
                   {user.role === 'admin' ? (
-                    <div className="p-2 mb-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-bold flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-rose-600" /> System Administrator
+                    <div className="p-2 mb-1.5 rounded-xl bg-pink/10 border border-pink/30 text-pink font-bold flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-pink" /> System Administrator
                     </div>
                   ) : !isBrand && (
                     <Link
                       to="/creator/dashboard"
                       onClick={() => setShowProfileMenu(false)}
-                      className="p-2 mb-1.5 rounded-xl bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 flex items-center justify-between text-zinc-800 transition-colors"
+                      className="p-2 mb-1.5 rounded-xl bg-[#10191a] border border-white/10 hover:border-pink/40 flex items-center justify-between text-white transition"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <Crown className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="flex items-center gap-1.5 text-xs">
+                        <Crown className="w-3.5 h-3.5 text-pink" />
                         <span className="capitalize font-bold">{(user.profile as any)?.subscription_tier || 'Free'} Member</span>
                       </span>
-                      <span className="text-[10px] text-zinc-500 font-bold">Manage ↗</span>
+                      <span className="text-[9px] text-pink font-bold">Manage ↗</span>
                     </Link>
                   )}
 
                   <Link
                     to={user.role === 'admin' ? '/admin/dashboard' : isBrand ? '/brand/dashboard' : '/creator/dashboard'}
                     onClick={() => setShowProfileMenu(false)}
-                    className="p-2 rounded-xl text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 flex items-center gap-2 transition-colors"
+                    className="p-2 rounded-xl text-muted hover:text-white hover:bg-white/5 flex items-center gap-2 transition"
                   >
-                    {user.role === 'admin' ? (
-                      <>
-                        <ShieldCheck className="w-4 h-4 text-rose-600" /> Admin Portal
-                      </>
-                    ) : (
-                      <>
-                        <Briefcase className="w-4 h-4 text-zinc-600" /> Dashboard
-                      </>
-                    )}
+                    <Briefcase className="w-4 h-4 text-muted" /> Dashboard
                   </Link>
 
                   {isBrand && (
                     <Link
                       to="/pitch-creators"
                       onClick={() => setShowProfileMenu(false)}
-                      className="p-2 rounded-xl text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 flex items-center gap-2 font-bold transition-colors"
+                      className="p-2 rounded-xl text-muted hover:text-white hover:bg-white/5 flex items-center gap-2 transition"
                     >
-                      <Send className="w-4 h-4 text-zinc-600" /> Direct Pitch Creators
+                      <Send className="w-4 h-4 text-muted" /> Direct Pitch Creators
                     </Link>
                   )}
 
-                  {user.role === 'admin' && (
-                    <Link
-                      to="/admin/dashboard"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition-colors"
-                    >
-                      <ShieldCheck className="w-4 h-4" /> Admin Portal
-                    </Link>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="w-full p-2 rounded-xl text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 flex items-center justify-between transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">
-                      {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-zinc-600" />}
-                      <span>Appearance</span>
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                      {theme}
-                    </span>
-                  </button>
-
-                  <hr className="my-1 border-zinc-200" />
+                  <hr className="my-1 border-white/10" />
 
                   <button
                     onClick={() => {
@@ -373,7 +324,7 @@ export const Navbar: React.FC = () => {
                       setShowProfileMenu(false);
                       navigate('/');
                     }}
-                    className="w-full p-2 rounded-xl text-rose-600 hover:bg-rose-50 flex items-center gap-2 text-left cursor-pointer transition-colors"
+                    className="w-full p-2 rounded-xl text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 text-left cursor-pointer transition"
                   >
                     <LogOut className="w-4 h-4" /> Log Out
                   </button>
@@ -381,23 +332,83 @@ export const Navbar: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <Link
-                to="/creator/login"
-                className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-950 rounded-xl hover:bg-zinc-100 transition-colors"
+                to="/choose-role"
+                className="hidden sm:inline-block text-muted hover:text-white font-medium transition"
               >
-                Login
+                Log in
               </Link>
               <Link
                 to="/choose-role"
-                className="px-4 py-2 text-xs font-semibold text-white rounded-xl bg-zinc-900 hover:bg-zinc-800 shadow-sm transition-all"
+                className="rounded-full bg-pink px-5 py-2.5 font-semibold text-[#181012] hover:bg-[#ff4d79] transition shadow-md"
               >
                 Get Started
               </Link>
             </div>
           )}
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="md:hidden p-1.5 rounded-lg text-muted hover:text-white hover:bg-white/5"
+          >
+            {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {showMobileMenu && (
+        <div className="md:hidden border-t border-white/10 bg-[#071012] px-6 py-4 space-y-3 text-xs">
+          <Link
+            to="/creator/feed"
+            onClick={() => setShowMobileMenu(false)}
+            className="block py-2 text-muted hover:text-white"
+          >
+            Explore Creators & Campaigns
+          </Link>
+          <Link
+            to="/creator/login"
+            onClick={() => setShowMobileMenu(false)}
+            className="block py-2 text-muted hover:text-white"
+          >
+            Creators (Login Portal)
+          </Link>
+          <Link
+            to="/brand/login"
+            onClick={() => setShowMobileMenu(false)}
+            className="block py-2 text-muted hover:text-white"
+          >
+            Brands (Login Portal)
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setShowMobileMenu(false)}
+            className="block py-2 text-muted hover:text-white"
+          >
+            About CreatorHub
+          </Link>
+          <div className="pt-2 border-t border-white/10 flex gap-2">
+            <Link
+              to="/choose-role"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex-1 text-center py-2.5 rounded-full border border-white/20 text-white font-semibold"
+            >
+              Log In
+            </Link>
+            <Link
+              to="/choose-role"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex-1 text-center py-2.5 rounded-full bg-pink text-[#181012] font-semibold"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
+
+export default Navbar;

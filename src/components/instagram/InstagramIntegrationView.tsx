@@ -356,11 +356,11 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
   if (!isConnected) {
     return (
       <div className="space-y-6 max-w-2xl mx-auto">
-        <div className="bg-slate-900/80 rounded-3xl border border-slate-800 p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="bg-[#0c1416] rounded-3xl border border-[#1c292c] p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-tr from-pink/15 via-cyan-500/10 to-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Instagram Icon */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-600 via-purple-600 to-amber-500 mx-auto flex items-center justify-center text-white mb-5 shadow-xl shadow-pink-500/25">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink via-purple-600 to-amber-500 mx-auto flex items-center justify-center text-white mb-5 shadow-xl shadow-pink/20">
             <Instagram className="w-8 h-8" />
           </div>
 
@@ -368,7 +368,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
             Connect Your Instagram Account
           </h2>
 
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6 max-w-md mx-auto">
+          <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6 max-w-md mx-auto">
             Paste your Instagram profile link below. We'll connect your account and set up your verified creator stats immediately.
           </p>
 
@@ -382,9 +382,9 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
           {/* Form: Direct Paste Link */}
           <form onSubmit={handleConnectByLink} className="space-y-4 text-left">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+              <label className="block text-xs font-bold text-zinc-300 mb-1.5 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <Link2 className="w-3.5 h-3.5 text-purple-400" />
+                  <Link2 className="w-3.5 h-3.5 text-pink" />
                   Paste Instagram Profile Link or Username
                 </span>
                 {detectedHandle && (
@@ -403,33 +403,33 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     setProfileLink(e.target.value);
                     if (verifiedProfile) setVerifiedProfile(null);
                   }}
-                  className="w-full px-4 py-3.5 pr-28 rounded-xl bg-slate-950 border border-slate-700 hover:border-purple-500/60 focus:border-purple-500 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  className="w-full px-4 py-3.5 pr-28 rounded-xl bg-[#071012] border border-[#1c292c] hover:border-pink/60 focus:border-pink text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-pink/20 transition-all"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => handleVerifyLink()}
                   disabled={verifyingLink || !profileLink.trim()}
-                  className="absolute right-2 px-3 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-xs font-bold border border-purple-500/40 transition-all disabled:opacity-40 flex items-center gap-1.5 cursor-pointer"
+                  className="absolute right-2 px-3 py-2 rounded-lg bg-pink/20 hover:bg-pink/30 text-pink text-xs font-bold border border-pink/40 transition-all disabled:opacity-40 flex items-center gap-1.5 cursor-pointer"
                 >
                   <RefreshCw className={`w-3 h-3 ${verifyingLink ? 'animate-spin' : ''}`} />
                   {verifyingLink ? 'Verifying...' : 'Verify'}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1.5">
-                Example: <code className="text-purple-300">https://www.instagram.com/crazy__rider__84/</code> or <code className="text-purple-300">@crazy__rider__84</code>
+              <p className="text-[11px] text-zinc-400 mt-1.5">
+                Example: <code className="text-pink">https://www.instagram.com/crazy__rider__84/</code> or <code className="text-pink">@crazy__rider__84</code>
               </p>
             </div>
 
             {/* Live Verified Preview Box */}
             {verifiedProfile && (
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/40 space-y-3 animate-in fade-in duration-300">
+              <div className="p-4 rounded-2xl bg-[#071012] border border-emerald-500/30 space-y-3 animate-in fade-in duration-300">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                     Live Instagram Account Verified
                   </span>
-                  <span className="text-[10px] text-slate-400">Live Crawl</span>
+                  <span className="text-[10px] text-zinc-400">Live Crawl</span>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -440,7 +440,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       className="w-12 h-12 rounded-xl object-cover border border-emerald-500/40"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
+                    <div className="w-12 h-12 rounded-xl bg-pink/20 border border-pink/30 flex items-center justify-center text-pink">
                       <Instagram className="w-6 h-6" />
                     </div>
                   )}
@@ -453,23 +453,23 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       </span>
                     </div>
                     {verifiedProfile.full_name && (
-                      <p className="text-xs text-slate-300 truncate">{verifiedProfile.full_name}</p>
+                      <p className="text-xs text-zinc-300 truncate">{verifiedProfile.full_name}</p>
                     )}
                     {verifiedProfile.bio && (
-                      <p className="text-[11px] text-slate-400 line-clamp-1 italic mt-0.5">"{verifiedProfile.bio}"</p>
+                      <p className="text-[11px] text-zinc-400 line-clamp-1 italic mt-0.5">"{verifiedProfile.bio}"</p>
                     )}
                   </div>
                 </div>
 
                 {/* Verified Metrics Counter */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1c292c] text-center">
                   <div
                     onClick={() => setShowCustomFields(true)}
-                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    className="bg-[#0c1416] p-2 rounded-xl border border-[#1c292c] hover:border-pink/50 cursor-pointer transition-all group"
                     title="Click to edit follower count"
                   >
-                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
-                      Followers <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    <span className="block text-[10px] font-bold uppercase text-zinc-400 group-hover:text-pink transition-colors flex items-center justify-center gap-1">
+                      Followers <Edit3 className="w-2.5 h-2.5 text-zinc-500 group-hover:text-pink" />
                     </span>
                     <span className="text-sm font-black text-emerald-400">
                       {(customFollowers.trim() && !isNaN(Number(customFollowers)))
@@ -479,13 +479,13 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                   </div>
                   <div
                     onClick={() => setShowCustomFields(true)}
-                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    className="bg-[#0c1416] p-2 rounded-xl border border-[#1c292c] hover:border-pink/50 cursor-pointer transition-all group"
                     title="Click to edit following count"
                   >
-                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
-                      Following <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    <span className="block text-[10px] font-bold uppercase text-zinc-400 group-hover:text-pink transition-colors flex items-center justify-center gap-1">
+                      Following <Edit3 className="w-2.5 h-2.5 text-zinc-500 group-hover:text-pink" />
                     </span>
-                    <span className="text-sm font-black text-slate-200">
+                    <span className="text-sm font-black text-zinc-200">
                       {(customFollowing.trim() && !isNaN(Number(customFollowing)))
                         ? Number(customFollowing).toLocaleString()
                         : (verifiedProfile.following_count !== null ? verifiedProfile.following_count.toLocaleString() : 'N/A')}
@@ -493,13 +493,13 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                   </div>
                   <div
                     onClick={() => setShowCustomFields(true)}
-                    className="bg-slate-950/70 p-2 rounded-xl border border-slate-800/80 hover:border-purple-500/50 cursor-pointer transition-all group"
+                    className="bg-[#0c1416] p-2 rounded-xl border border-[#1c292c] hover:border-pink/50 cursor-pointer transition-all group"
                     title="Click to edit post count"
                   >
-                    <span className="block text-[10px] font-bold uppercase text-slate-400 group-hover:text-purple-300 transition-colors flex items-center justify-center gap-1">
-                      Posts <Edit3 className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
+                    <span className="block text-[10px] font-bold uppercase text-zinc-400 group-hover:text-pink transition-colors flex items-center justify-center gap-1">
+                      Posts <Edit3 className="w-2.5 h-2.5 text-zinc-500 group-hover:text-pink" />
                     </span>
-                    <span className="text-sm font-black text-purple-400">
+                    <span className="text-sm font-black text-pink">
                       {(customPosts.trim() && !isNaN(Number(customPosts)))
                         ? Number(customPosts).toLocaleString()
                         : (verifiedProfile.media_count !== null ? verifiedProfile.media_count.toLocaleString() : 'N/A')}
@@ -512,9 +512,9 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                   <button
                     type="button"
                     onClick={() => setShowCustomFields(!showCustomFields)}
-                    className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                    className="w-full py-2 px-3 rounded-xl bg-[#131d20] hover:bg-[#1a282c] border border-[#1c292c] text-zinc-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
                   >
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400" />
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-pink" />
                     <span>{showCustomFields ? 'Hide Metric Adjuster' : 'Follower count mismatch? Click here to correct your numbers'}</span>
                   </button>
                 </div>
@@ -529,59 +529,59 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
 
             {/* Stats Confirmation & Override */}
             {((verifiedProfile && verifiedProfile.followers_count === null) || showCustomFields) && (
-              <div className="p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 space-y-3 animate-in fade-in duration-200">
+              <div className="p-4 rounded-2xl bg-[#071012] border border-[#1c292c] space-y-3 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-purple-300 font-bold flex items-center gap-1.5">
+                  <span className="text-xs text-pink font-bold flex items-center gap-1.5">
                     <SlidersHorizontal className="w-3.5 h-3.5" />
                     Adjust Your Verified Instagram Metrics:
                   </span>
                   <span className="text-[10px] text-emerald-400 font-medium">Updates live on your profile</span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-normal">
+                <p className="text-[11px] text-zinc-400 leading-normal">
                   If Instagram returned an older cached number (e.g. 408 instead of 793), enter your exact current follower count below to connect with accurate numbers.
                 </p>
                 <div className="grid grid-cols-3 gap-2.5">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 mb-1">
-                      Followers <span className="text-purple-400">*</span>
+                    <label className="block text-[10px] font-bold text-zinc-400 mb-1">
+                      Followers <span className="text-pink">*</span>
                     </label>
                     <input
                       type="number"
                       placeholder="e.g. 793"
                       value={customFollowers}
                       onChange={(e) => setCustomFollowers(e.target.value)}
-                      className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-2 rounded-lg bg-[#0c1416] border border-[#1c292c] text-emerald-400 font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 mb-1">Following</label>
+                    <label className="block text-[10px] font-bold text-zinc-400 mb-1">Following</label>
                     <input
                       type="number"
                       placeholder="e.g. 768"
                       value={customFollowing}
                       onChange={(e) => setCustomFollowing(e.target.value)}
-                      className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-2 rounded-lg bg-[#0c1416] border border-[#1c292c] text-zinc-200 font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 mb-1">Posts</label>
+                    <label className="block text-[10px] font-bold text-zinc-400 mb-1">Posts</label>
                     <input
                       type="number"
                       placeholder="e.g. 2"
                       value={customPosts}
                       onChange={(e) => setCustomPosts(e.target.value)}
-                      className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-purple-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-2 rounded-lg bg-[#0c1416] border border-[#1c292c] text-pink font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Bio (Optional)</label>
+                  <label className="block text-[10px] font-bold text-zinc-400 mb-1">Bio (Optional)</label>
                   <input
                     type="text"
                     placeholder="My creator bio & highlights..."
                     value={customBio}
                     onChange={(e) => setCustomBio(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-purple-400"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#0c1416] border border-[#1c292c] text-white text-xs focus:outline-none focus:border-pink"
                   />
                 </div>
               </div>
@@ -591,7 +591,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
             <button
               type="submit"
               disabled={connectingLink}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-purple-600/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] font-black text-sm shadow-xl shadow-pink/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             >
               <Instagram className="w-4 h-4" />
               {connectingLink ? 'Verifying & Connecting...' : 'Connect Instagram Account'}
@@ -600,13 +600,13 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
           </form>
 
           {/* Guarantee Pills */}
-          <div className="grid grid-cols-2 gap-3 text-left mt-6 pt-6 border-t border-slate-800 text-xs text-slate-400">
+          <div className="grid grid-cols-2 gap-3 text-left mt-6 pt-6 border-t border-[#1c292c] text-xs text-zinc-400">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
               <span>Instant profile link validation</span>
             </div>
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-purple-400 flex-shrink-0" />
+              <Lock className="w-4 h-4 text-pink flex-shrink-0" />
               <span>No Instagram passwords needed</span>
             </div>
           </div>
@@ -617,7 +617,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               type="button"
               onClick={handleConnectOAuth}
               disabled={connectingOAuth}
-              className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
             >
               {connectingOAuth ? 'Redirecting...' : 'Prefer official Meta OAuth Login? Click here'}
             </button>
@@ -666,48 +666,48 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       )}
 
       {/* Connection Status Header Card */}
-      <div className="bg-slate-900/70 p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="relative">
             {account.profile_picture_url ? (
               <img
                 src={account.profile_picture_url}
                 alt={account.username}
-                className="w-14 h-14 rounded-2xl object-cover border-2 border-purple-500/40"
+                className="w-14 h-14 rounded-2xl object-cover border-2 border-pink/40"
               />
             ) : (
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <div className="w-14 h-14 rounded-2xl bg-pink/20 border border-pink/30 flex items-center justify-center text-pink">
                 <Instagram className="w-7 h-7" />
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-900 flex items-center justify-center text-[10px] text-white">
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#0c1416] flex items-center justify-center text-[10px] text-white">
               ✓
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-slate-900 dark:text-white">@{account.username}</h2>
+              <h2 className="text-xl font-black text-white">@{account.username}</h2>
               <a
                 href={instagramProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
+                className="text-slate-400 hover:text-pink transition-colors"
                 title="Open Instagram Profile"
               >
                 <ExternalLink className="w-4 h-4" />
               </a>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 Connected ✓
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
-              <span>Profile: <a href={instagramProfileUrl} target="_blank" rel="noopener noreferrer" className="text-purple-600 dark:text-purple-300 hover:underline">{account.username ? `instagram.com/${account.username}` : 'Instagram'}</a></span>
+            <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+              <span>Profile: <a href={instagramProfileUrl} target="_blank" rel="noopener noreferrer" className="text-pink hover:underline">{account.username ? `instagram.com/${account.username}` : 'Instagram'}</a></span>
               <span>•</span>
-              <span>Last verified: <span className="text-slate-700 dark:text-slate-300 font-semibold">{formatTimeAgo(account.last_synced_at)}</span></span>
+              <span>Last verified: <span className="text-slate-300 font-semibold">{formatTimeAgo(account.last_synced_at)}</span></span>
             </p>
             {(account.biography || account.bio) && (
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 italic max-w-xl line-clamp-2">
+              <p className="text-xs text-slate-300 mt-2 italic max-w-xl line-clamp-2">
                 "{account.biography || account.bio}"
               </p>
             )}
@@ -725,7 +725,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               setCustomBio(account.biography || account.bio || '');
               setShowEditLinkModal(true);
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/20 flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-bold transition-all shadow-md shadow-pink/20 flex items-center gap-1.5 cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             Edit Metrics & Link
@@ -733,16 +733,16 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
           <button
             onClick={handleManualSync}
             disabled={syncing}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#080f11] hover:bg-[#121c1f] text-slate-200 text-xs font-bold border border-[#1c292c] transition-all disabled:opacity-50 cursor-pointer"
             title="Re-crawl live stats from Instagram"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin text-pink' : ''}`} />
             {syncing ? 'Re-crawling...' : 'Re-crawl Live'}
           </button>
           <button
             onClick={() => setShowDisconnectModal(true)}
             disabled={disconnecting}
-            className="px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 dark:text-red-400 text-xs font-bold border border-red-500/20 transition-all disabled:opacity-50 cursor-pointer"
+            className="px-3.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/20 transition-all disabled:opacity-50 cursor-pointer"
           >
             Disconnect
           </button>
@@ -752,65 +752,65 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       {/* Synchronized Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Followers Card */}
-        <div className="bg-white dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
-            <span>Followers</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        <div className="bg-[#0c1416] p-6 rounded-2xl border border-[#1c292c] shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span className="font-semibold">Followers</span>
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               Verified
             </span>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">
+          <div className="text-3xl font-black text-white mb-1 font-mono">
             {followersVal !== null ? followersVal.toLocaleString() : '0'}
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-400">
             Instagram Audience • {formatTimeAgo(account.last_synced_at)}
           </div>
         </div>
 
         {/* Engagement Rate Card */}
-        <div className="bg-white dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
-            <span>Engagement Rate</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+        <div className="bg-[#0c1416] p-6 rounded-2xl border border-[#1c292c] shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span className="font-semibold">Engagement Rate</span>
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-pink/10 text-pink border border-pink/20">
               Calculated
             </span>
           </div>
-          <div className="text-3xl font-black text-purple-600 dark:text-purple-400 mb-1">
+          <div className="text-3xl font-black text-pink mb-1 font-mono">
             {engagementVal}
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-400">
             Interaction score on content
           </div>
         </div>
 
         {/* Following Card */}
-        <div className="bg-white dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
-            <span>Following</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+        <div className="bg-[#0c1416] p-6 rounded-2xl border border-[#1c292c] shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span className="font-semibold">Following</span>
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               Profile
             </span>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">
+          <div className="text-3xl font-black text-white mb-1 font-mono">
             {followingVal !== null ? followingVal.toLocaleString() : '0'}
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-400">
             Accounts followed on Instagram
           </div>
         </div>
 
         {/* Media / Posts Count Card */}
-        <div className="bg-white dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
-            <span>Posts Count</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+        <div className="bg-[#0c1416] p-6 rounded-2xl border border-[#1c292c] shadow-sm">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span className="font-semibold">Posts Count</span>
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
               Catalog
             </span>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white mb-1">
+          <div className="text-3xl font-black text-purple-400 mb-1 font-mono">
             {postsVal !== null ? postsVal.toLocaleString() : '0'}
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-400">
             Published posts on profile
           </div>
         </div>
@@ -819,32 +819,32 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       {/* Additional Insights (Reach & Impressions) */}
       {(reachVal !== null || impressionsVal !== null) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="bg-white dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] flex items-center justify-between shadow-sm">
             <div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
-                <Eye className="w-4 h-4 text-purple-500 dark:text-purple-400" />
-                <span>Account Reach (30 Days)</span>
+              <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+                <Eye className="w-4 h-4 text-pink" />
+                <span className="font-semibold">Account Reach (30 Days)</span>
               </div>
-              <div className="text-2xl font-black text-slate-900 dark:text-white">
+              <div className="text-2xl font-black text-white font-mono">
                 {reachVal !== null ? reachVal.toLocaleString() : '0'}
               </div>
             </div>
-            <span className="text-[10px] font-bold px-2 py-1 rounded bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20">
+            <span className="text-[10px] font-bold px-2 py-1 rounded bg-pink/10 text-pink border border-pink/20">
               Source: Instagram
             </span>
           </div>
 
-          <div className="bg-white dark:bg-slate-900/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="bg-[#0c1416] p-5 rounded-2xl border border-[#1c292c] flex items-center justify-between shadow-sm">
             <div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
-                <BarChart3 className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-                <span>Account Impressions</span>
+              <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+                <BarChart3 className="w-4 h-4 text-cyan-400" />
+                <span className="font-semibold">Account Impressions</span>
               </div>
-              <div className="text-2xl font-black text-slate-900 dark:text-white">
+              <div className="text-2xl font-black text-white font-mono">
                 {impressionsVal !== null ? impressionsVal.toLocaleString() : '0'}
               </div>
             </div>
-            <span className="text-[10px] font-bold px-2 py-1 rounded bg-blue-500/10 text-blue-600 dark:text-blue-300 border border-blue-500/20">
+            <span className="text-[10px] font-bold px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               Source: Instagram
             </span>
           </div>
@@ -852,14 +852,14 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       )}
 
       {/* Historical Trend Chart */}
-      <div className="bg-white dark:bg-slate-900/60 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-lg">
+      <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Audience Growth Timeline</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Verifiable historical snapshots over time</p>
+            <h3 className="text-base font-bold text-white">Audience Growth Timeline</h3>
+            <p className="text-xs text-slate-400">Verifiable historical snapshots over time</p>
           </div>
           {chartPoints.length > 0 && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-pink/10 text-pink border border-pink/20">
               {trends.followerGrowthPercentage !== null && trends.followerGrowthPercentage !== undefined
                 ? `Growth: ${trends.followerGrowthPercentage > 0 ? `+${trends.followerGrowthPercentage}%` : `${trends.followerGrowthPercentage}%`}`
                 : `Verified Base: ${followersVal?.toLocaleString() ?? 'Active'} Followers`}
@@ -873,27 +873,27 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               <AreaChart data={chartPoints} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#9333ea" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#9333ea" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#ff3366" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#ff3366" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" opacity={0.6} />
-                <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v)} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1c292c" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748b" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v)} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderColor: '#334155',
-                    borderRadius: '12px',
+                    backgroundColor: '#080f11',
+                    borderColor: '#1c292c',
+                    borderRadius: '8px',
                     color: '#ffffff',
-                    fontSize: '12px'
+                    fontSize: '11px'
                   }}
                   formatter={(value: any) => [`${Number(value).toLocaleString()} Followers`, 'Audience Size']}
                 />
                 <Area
                   type="monotone"
                   dataKey="followers"
-                  stroke="#9333ea"
+                  stroke="#ff3366"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#growthGrad)"
@@ -902,11 +902,11 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-48 flex flex-col items-center justify-center text-center p-6 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-200 dark:border-slate-800/80">
-            <TrendingUp className="w-8 h-8 text-slate-400 dark:text-slate-600 mb-2" />
-            <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Growth tracking active</h4>
+          <div className="h-48 flex flex-col items-center justify-center text-center p-6 bg-[#080f11] rounded-2xl border border-[#1c292c]">
+            <TrendingUp className="w-8 h-8 text-slate-600 mb-2" />
+            <h4 className="text-sm font-bold text-slate-300 mb-1">Growth tracking active</h4>
             <p className="text-xs text-slate-500 max-w-sm">
-              As your account remains active on CreaterHub, daily snapshots will chart your audience progression.
+              As your account remains active on CreatorHub, daily snapshots will chart your audience progression.
             </p>
           </div>
         )}
@@ -916,13 +916,13 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
       {media.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Instagram Media Catalog</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">Showing latest {media.length} items</span>
+            <h3 className="text-base font-bold text-white">Instagram Media Catalog</h3>
+            <span className="text-xs text-slate-400">Showing latest {media.length} items</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {media.map((m: any) => (
-              <div key={m.id || m.media_id} className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden group shadow-sm">
-                <div className="relative aspect-square bg-slate-100 dark:bg-slate-950 overflow-hidden">
+              <div key={m.id || m.media_id} className="bg-[#0c1416] rounded-2xl border border-[#1c292c] overflow-hidden group shadow-sm">
+                <div className="relative aspect-square bg-[#080f11] overflow-hidden">
                   {m.media_url ? (
                     <img
                       src={m.media_url}
@@ -930,23 +930,23 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-700">
+                    <div className="w-full h-full flex items-center justify-center text-slate-600">
                       <Instagram className="w-8 h-8" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-bold">
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-xs font-bold">
                     <span className="flex items-center gap-1">
-                      <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                      <Heart className="w-4 h-4 text-pink fill-pink" />
                       {m.like_count !== null && m.like_count !== undefined ? m.like_count.toLocaleString() : '850'}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4 text-blue-400" />
+                      <MessageCircle className="w-4 h-4 text-cyan-400" />
                       {m.comments_count !== null && m.comments_count !== undefined ? m.comments_count.toLocaleString() : '48'}
                     </span>
                   </div>
                 </div>
                 {m.caption && (
-                  <p className="p-3 text-[11px] text-slate-600 dark:text-slate-400 line-clamp-1">
+                  <p className="p-3 text-[11px] text-slate-400 line-clamp-1">
                     {m.caption}
                   </p>
                 )}
@@ -958,11 +958,11 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
 
       {/* Edit Profile Link Modal */}
       {showEditLinkModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#091214] border border-[#1c292c] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Link2 className="w-5 h-5 text-purple-400" />
+                <Link2 className="w-5 h-5 text-pink" />
                 Update Instagram Profile Link
               </h3>
               <button
@@ -981,8 +981,8 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
             </p>
 
             {connectError && (
-              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
                 <span>{connectError}</span>
               </div>
             )}
@@ -1001,21 +1001,21 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       setProfileLink(e.target.value);
                       if (verifiedProfile) setVerifiedProfile(null);
                     }}
-                    className="w-full px-3.5 py-2.5 pr-24 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-purple-400"
+                    className="w-full px-3.5 py-2.5 pr-24 rounded-xl bg-[#080f11] border border-[#1c292c] text-white text-xs focus:outline-none focus:border-pink"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={() => handleVerifyLink()}
                     disabled={verifyingLink || !profileLink.trim()}
-                    className="absolute right-1.5 px-2.5 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 text-[11px] font-bold border border-purple-500/40 transition-all disabled:opacity-40 flex items-center gap-1 cursor-pointer"
+                    className="absolute right-1.5 px-2.5 py-1.5 rounded-lg bg-pink/20 hover:bg-pink/30 text-pink text-[11px] font-bold border border-pink/40 transition-all disabled:opacity-40 flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className={`w-3 h-3 ${verifyingLink ? 'animate-spin' : ''}`} />
                     {verifyingLink ? 'Verifying...' : 'Verify'}
                   </button>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Supports full URLs or handles (e.g. <code className="text-purple-400">@crazy__rider__84</code>)
+                  Supports full URLs or handles (e.g. <code className="text-pink">@crazy__rider__84</code>)
                 </p>
               </div>
 
@@ -1030,7 +1030,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                         className="w-10 h-10 rounded-xl object-cover border border-emerald-500/40"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
+                      <div className="w-10 h-10 rounded-xl bg-pink/20 border border-pink/30 flex items-center justify-center text-pink">
                         <Instagram className="w-5 h-5" />
                       </div>
                     )}
@@ -1047,22 +1047,22 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-center pt-1.5 border-t border-slate-800">
-                    <div className="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800/80">
+                  <div className="grid grid-cols-3 gap-2 text-center pt-1.5 border-t border-[#1c292c]">
+                    <div className="bg-[#080f11] p-1.5 rounded-lg border border-[#1c292c]">
                       <span className="block text-[9px] font-bold uppercase text-slate-400">Followers</span>
-                      <span className="text-xs font-black text-emerald-400">
+                      <span className="text-xs font-black text-emerald-400 font-mono">
                         {verifiedProfile.followers_count !== null ? verifiedProfile.followers_count.toLocaleString() : 'N/A'}
                       </span>
                     </div>
-                    <div className="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800/80">
+                    <div className="bg-[#080f11] p-1.5 rounded-lg border border-[#1c292c]">
                       <span className="block text-[9px] font-bold uppercase text-slate-400">Following</span>
-                      <span className="text-xs font-black text-slate-200">
+                      <span className="text-xs font-black text-white font-mono">
                         {verifiedProfile.following_count !== null ? verifiedProfile.following_count.toLocaleString() : 'N/A'}
                       </span>
                     </div>
-                    <div className="bg-slate-950/60 p-1.5 rounded-lg border border-slate-800/80">
+                    <div className="bg-[#080f11] p-1.5 rounded-lg border border-[#1c292c]">
                       <span className="block text-[9px] font-bold uppercase text-slate-400">Posts</span>
-                      <span className="text-xs font-black text-purple-400">
+                      <span className="text-xs font-black text-pink font-mono">
                         {verifiedProfile.media_count !== null ? verifiedProfile.media_count.toLocaleString() : 'N/A'}
                       </span>
                     </div>
@@ -1071,13 +1071,13 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
               )}
 
               {/* Direct Stats Verification & Editing Fields */}
-              <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-2.5">
+              <div className="p-3.5 rounded-2xl bg-[#080f11] border border-[#1c292c] space-y-2.5">
                 <div className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-purple-300">
+                  <span className="flex items-center gap-1.5 text-pink">
                     <SlidersHorizontal className="w-3 h-3" />
                     Verified Instagram Metrics:
                   </span>
-                  <span className="text-[10px] text-slate-400">Live Dashboard Values</span>
+                  <span className="text-[10px] text-slate-400">Live Values</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
@@ -1087,7 +1087,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       placeholder="e.g. 794"
                       value={customFollowers}
                       onChange={(e) => setCustomFollowers(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#0c1416] border border-[#1c292c] text-emerald-400 font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                   <div>
@@ -1097,7 +1097,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       placeholder="e.g. 769"
                       value={customFollowing}
                       onChange={(e) => setCustomFollowing(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#0c1416] border border-[#1c292c] text-white font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                   <div>
@@ -1107,7 +1107,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                       placeholder="e.g. 2"
                       value={customPosts}
                       onChange={(e) => setCustomPosts(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-purple-400 font-bold text-xs text-center focus:outline-none focus:border-purple-400"
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#0c1416] border border-[#1c292c] text-pink font-bold text-xs text-center focus:outline-none focus:border-pink font-mono"
                     />
                   </div>
                 </div>
@@ -1118,7 +1118,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     placeholder="My creator bio & highlights..."
                     value={customBio}
                     onChange={(e) => setCustomBio(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-purple-400"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-[#0c1416] border border-[#1c292c] text-white text-xs focus:outline-none focus:border-pink"
                   />
                 </div>
               </div>
@@ -1136,14 +1136,14 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                     setShowEditLinkModal(false);
                     setVerifiedProfile(null);
                   }}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#131d20] hover:bg-[#1a282c] text-slate-300 font-bold text-xs border border-[#1c292c] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={connectingLink}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] font-bold text-xs transition-all shadow-md shadow-pink/20 cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   {connectingLink ? (
                     <>
@@ -1162,9 +1162,9 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
 
       {/* Disconnect Confirmation Modal */}
       {showDisconnectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#091214] border border-[#1c292c] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -1182,7 +1182,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                 type="button"
                 onClick={() => setShowDisconnectModal(false)}
                 disabled={disconnecting}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#131d20] hover:bg-[#1a282c] text-slate-300 font-bold text-xs border border-[#1c292c] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1190,7 +1190,7 @@ export const InstagramIntegrationView: React.FC<InstagramIntegrationViewProps> =
                 type="button"
                 onClick={handleDisconnect}
                 disabled={disconnecting}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-colors shadow-lg shadow-red-600/20"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors shadow-lg shadow-rose-600/20 cursor-pointer"
               >
                 {disconnecting ? 'Disconnecting...' : 'Disconnect Account'}
               </button>

@@ -64,14 +64,14 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-900/90 via-slate-900 to-purple-950/30 p-6 sm:p-7 rounded-3xl border border-purple-500/20 shadow-xl relative overflow-hidden">
+    <div className="bg-[#0c1416] p-6 sm:p-7 rounded-3xl border border-[#1c292c] shadow-xl relative overflow-hidden">
       {/* Background Glow Accent */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink/10 via-cyan-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-600 via-rose-500 to-amber-500 p-0.5 shadow-lg shadow-pink-500/20 flex-shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink via-rose-500 to-amber-500 p-0.5 shadow-lg shadow-pink/20 flex-shrink-0">
             <img
               src={profile?.avatarUrl || '/mrbeast-avatar.jpg'}
               alt={profile?.name || 'Creator'}
@@ -84,11 +84,11 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-base font-black text-white flex items-center gap-1.5">
-                <Instagram className="w-4 h-4 text-pink-400" />
+                <Instagram className="w-4 h-4 text-pink" />
                 Instagram Performance
               </h3>
               {profile?.isDemoMode ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-pink-500/20 border border-pink-500/30 text-pink-300">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-pink/20 border border-pink/30 text-pink">
                   DEMO DATA
                 </span>
               ) : (
@@ -106,10 +106,10 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-              <span className="font-semibold text-slate-300">@{profile?.username || 'creator'}</span>
+            <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
+              <span className="font-semibold text-zinc-300">@{profile?.username || 'creator'}</span>
               <span>•</span>
-              <span className="text-purple-400 font-medium">{profile?.category || 'Digital Creator'}</span>
+              <span className="text-pink font-medium">{profile?.category || 'Digital Creator'}</span>
             </div>
           </div>
         </div>
@@ -117,9 +117,9 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
         {/* View Full Analytics Action Button */}
         <button
           onClick={onViewFullAnalytics}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 transition-all self-start sm:self-auto group"
+          className="px-4 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-pink/20 transition-all self-start sm:self-auto group cursor-pointer"
         >
-          <Sparkles className="w-3.5 h-3.5 text-pink-200 group-hover:rotate-12 transition-transform" />
+          <Sparkles className="w-3.5 h-3.5 text-[#071012] group-hover:rotate-12 transition-transform" />
           <span>View Full Analytics</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </button>
@@ -128,27 +128,27 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
       {/* 4 Compact Metric Tiles */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
         {/* Metric 1: Followers */}
-        <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-colors">
-          <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between mb-1.5">
+        <div className="bg-[#071012] p-4 rounded-2xl border border-[#1c292c] hover:border-[#2a3f44] transition-colors">
+          <div className="text-[11px] font-bold text-zinc-400 flex items-center justify-between mb-1.5">
             <span>Followers</span>
-            <Users className="w-3.5 h-3.5 text-purple-400" />
+            <Users className="w-3.5 h-3.5 text-pink" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+          <div className="text-xl sm:text-2xl font-black text-white">
             {formatNumber(profile?.followersCount)}
           </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1 flex items-center gap-1">
+          <div className="text-[10px] text-zinc-400 font-medium mt-1 flex items-center gap-1">
             <span className="text-emerald-400 font-bold">+{metrics?.followerGrowthRate ?? 8.4}%</span>
             <span>growth rate</span>
           </div>
         </div>
 
         {/* Metric 2: Engagement Rate */}
-        <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-colors">
-          <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between mb-1.5">
+        <div className="bg-[#071012] p-4 rounded-2xl border border-[#1c292c] hover:border-[#2a3f44] transition-colors">
+          <div className="text-[11px] font-bold text-zinc-400 flex items-center justify-between mb-1.5">
             <span>Engagement Rate</span>
-            <TrendingUp className="w-3.5 h-3.5 text-pink-400" />
+            <TrendingUp className="w-3.5 h-3.5 text-pink" />
           </div>
-          <div className="text-xl sm:text-2xl font-black text-pink-400">
+          <div className="text-xl sm:text-2xl font-black text-pink">
             {metrics?.engagementRate ?? 4.37}%
           </div>
           <div className="text-[10px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
@@ -157,45 +157,45 @@ export const InstagramPerformanceCard: React.FC<InstagramPerformanceCardProps> =
         </div>
 
         {/* Metric 3: Follower Growth */}
-        <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-colors">
-          <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between mb-1.5">
+        <div className="bg-[#071012] p-4 rounded-2xl border border-[#1c292c] hover:border-[#2a3f44] transition-colors">
+          <div className="text-[11px] font-bold text-zinc-400 flex items-center justify-between mb-1.5">
             <span>Quarterly Growth</span>
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-emerald-300">
             +{formatNumber(metrics?.followerGrowthNet)}
           </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1">
+          <div className="text-[10px] text-zinc-400 font-medium mt-1">
             Net new followers
           </div>
         </div>
 
         {/* Metric 4: Avg Reel Views */}
-        <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-colors">
-          <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between mb-1.5">
+        <div className="bg-[#071012] p-4 rounded-2xl border border-[#1c292c] hover:border-[#2a3f44] transition-colors">
+          <div className="text-[11px] font-bold text-zinc-400 flex items-center justify-between mb-1.5">
             <span>Avg Reel Views</span>
-            <Eye className="w-3.5 h-3.5 text-blue-400" />
+            <Eye className="w-3.5 h-3.5 text-cyan-400" />
           </div>
           <div className="text-xl sm:text-2xl font-black text-cyan-300">
             {formatNumber(metrics?.avgReelViews)}
           </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1">
+          <div className="text-[10px] text-zinc-400 font-medium mt-1">
             Per video average
           </div>
         </div>
       </div>
 
       {/* Mini Footnote */}
-      <div className="mt-4 pt-3 border-t border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+      <div className="mt-4 pt-3 border-t border-[#1c292c] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-zinc-500">
         <div className="flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+          <ShieldCheck className="w-3.5 h-3.5 text-pink" />
           {profile?.isDemoMode ? (
-            <span>Demo profile reference: <strong className="text-slate-400">MrBeast (@mrbeast_demo)</strong></span>
+            <span>Demo profile reference: <strong className="text-zinc-400">MrBeast (@mrbeast_demo)</strong></span>
           ) : (
-            <span>Verified live Instagram data: <strong className="text-purple-300">@{profile?.username}</strong></span>
+            <span>Verified live Instagram data: <strong className="text-zinc-300">@{profile?.username}</strong></span>
           )}
         </div>
-        <span className="text-[10px] bg-slate-800/50 px-2 py-0.5 rounded text-slate-400">
+        <span className="text-[10px] bg-[#071012] px-2 py-0.5 rounded text-zinc-400 border border-[#1c292c]">
           CreatorHub AI Analytics Engine v1.0
         </span>
       </div>

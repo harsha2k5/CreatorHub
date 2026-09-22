@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { Logo } from '../components/common/Logo';
 import {
   Compass,
   Bot,
@@ -58,6 +59,7 @@ export const CreatorDashboard: React.FC = () => {
   const [targetUpgradeTier, setTargetUpgradeTier] = useState<SubscriptionTier | undefined>(undefined);
   const [oauthFeedback, setOauthFeedback] = useState<{ message: string; isError?: boolean } | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [nearbyCampaigns, setNearbyCampaigns] = useState<any[]>([]);
 
   // Deliverables submission state
   const [selectedCollab, setSelectedCollab] = useState<any>(null);
@@ -68,6 +70,23 @@ export const CreatorDashboard: React.FC = () => {
   const [proofSuccess, setProofSuccess] = useState(false);
 
   const profile = (user?.profile as any) || {};
+
+  const getCategoryFallbackImage = (category?: string) => {
+    const cat = (category || '').toLowerCase();
+    if (cat.includes('food') || cat.includes('beverage') || cat.includes('coffee') || cat.includes('brew') || cat.includes('cafe')) {
+      return 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=500&auto=format&fit=crop&q=80';
+    }
+    if (cat.includes('fitness') || cat.includes('gym') || cat.includes('sport') || cat.includes('wellness') || cat.includes('workout')) {
+      return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&h=500&auto=format&fit=crop&q=80';
+    }
+    if (cat.includes('beauty') || cat.includes('skin') || cat.includes('cosmetic') || cat.includes('makeup')) {
+      return 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=500&auto=format&fit=crop&q=80';
+    }
+    if (cat.includes('fashion') || cat.includes('apparel') || cat.includes('clothing') || cat.includes('style')) {
+      return 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=500&auto=format&fit=crop&q=80';
+    }
+    return 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=500&auto=format&fit=crop&q=80';
+  };
 
   const handleAcceptApplication = async (appId: string) => {
     setActionLoadingId(appId);
@@ -129,6 +148,23 @@ export const CreatorDashboard: React.FC = () => {
       }
       if (convRes.status === 'fulfilled' && convRes.value.success) {
         setConversations(convRes.value.conversations || []);
+      }
+
+      // Load nearest campaigns based on creator coordinates (defaulting to Vijaynagar/Bengaluru)
+      const lat = profile.lat || 12.9719;
+      const lng = profile.lng || 77.5305;
+      try {
+        const campRes = await api.getCampaigns({
+          lat: String(lat),
+          lng: String(lng),
+          radius: '25',
+          status: 'PUBLISHED'
+        });
+        if (campRes && campRes.success && Array.isArray(campRes.campaigns)) {
+          setNearbyCampaigns(campRes.campaigns.slice(0, 4));
+        }
+      } catch (campErr) {
+        console.warn('Failed to load nearby campaigns:', campErr);
       }
 
       // Check if creator already has stored AI analysis
@@ -343,51 +379,50 @@ export const CreatorDashboard: React.FC = () => {
   const TierIcon = tierInfo.icon;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#071012] text-slate-100 flex flex-col md:flex-row">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-slate-900/60 border-r border-slate-800/80 p-6 flex flex-col justify-between flex-shrink-0">
+      <aside className="w-full md:w-64 bg-[#080f11] border-r border-[#1c292c] p-6 flex flex-col justify-between flex-shrink-0">
         <div>
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-purple-500/25">
-              C
-            </div>
-            <span className="font-black text-white text-xl tracking-tight">CreaterHub</span>
+          <Link to="/" className="inline-flex items-center mb-8">
+            <Logo size="md" />
           </Link>
 
           {/* Navigation Links */}
           <nav className="space-y-1.5 text-xs font-bold">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
-              <Compass className="w-4 h-4" /> Overview
+              <Compass className={`w-4 h-4 ${activeTab === 'overview' ? 'text-[#071012]' : 'text-slate-400'}`} /> Overview
             </button>
 
             <Link
               to="/creator/feed"
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#131d20] transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-purple-400" /> Discover Briefs
+              <Sparkles className="w-4 h-4 text-pink" /> Discover Briefs
             </Link>
 
             <button
               onClick={() => setActiveTab('applications')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'applications'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <FileCheck className="w-4 h-4" /> Applications
+                <FileCheck className={`w-4 h-4 ${activeTab === 'applications' ? 'text-[#071012]' : 'text-slate-400'}`} /> Applications
               </span>
               {applications.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-800 text-purple-300">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                  activeTab === 'applications' ? 'bg-[#071012]/30 text-[#071012] font-black' : 'bg-[#1c292c] text-slate-300'
+                }`}>
                   {applications.length}
                 </span>
               )}
@@ -395,17 +430,19 @@ export const CreatorDashboard: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('collaborations')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'collaborations'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Layers className="w-4 h-4" /> Deliverables
+                <Layers className={`w-4 h-4 ${activeTab === 'collaborations' ? 'text-[#071012]' : 'text-slate-400'}`} /> Deliverables
               </span>
               {collaborations.filter(c => c.status === 'ACTIVE').length > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 font-bold">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  activeTab === 'collaborations' ? 'bg-[#071012]/30 text-[#071012]' : 'bg-emerald-500/20 text-emerald-400'
+                }`}>
                   {collaborations.filter(c => c.status === 'ACTIVE').length} active
                 </span>
               )}
@@ -416,54 +453,59 @@ export const CreatorDashboard: React.FC = () => {
                 setActiveTab('instagram-analytics');
                 navigate('/creator/instagram-analytics');
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'instagram-analytics'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-pink-400" /> Instagram Analytics
+                <Sparkles className={`w-4 h-4 ${activeTab === 'instagram-analytics' ? 'text-[#071012]' : 'text-pink'}`} /> Instagram Analytics
               </span>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-pink-500/20 text-pink-300 border border-pink-500/30">
+              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black ${
+                activeTab === 'instagram-analytics' ? 'bg-[#071012]/30 text-[#071012]' : 'bg-pink/20 text-pink border border-pink/30'
+              }`}>
                 DEMO
               </span>
             </button>
 
             <button
+              data-tab="instagram"
               onClick={() => setActiveTab('instagram')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'instagram'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Instagram className="w-4 h-4 text-slate-400" /> Meta API Sync
+                <Instagram className={`w-4 h-4 ${activeTab === 'instagram' ? 'text-[#071012]' : 'text-slate-400'}`} /> Meta API Sync
               </span>
-              {isIgConnected && <span className="w-2 h-2 rounded-full bg-emerald-400" />}
+              {isIgConnected && (
+                <span className={`w-2 h-2 rounded-full ${activeTab === 'instagram' ? 'bg-[#071012]' : 'bg-emerald-400'}`} />
+              )}
             </button>
 
             <button
               onClick={() => setActiveTab('ai')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'ai'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
-              <Bot className="w-4 h-4 text-purple-400" /> AI Analysis
+              <Bot className={`w-4 h-4 ${activeTab === 'ai' ? 'text-[#071012]' : 'text-pink'}`} /> AI Analysis
             </button>
 
             <Link
               to="/creator/messages"
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#131d20] transition-all cursor-pointer"
             >
               <span className="flex items-center gap-3">
-                <MessageSquare className="w-4 h-4 text-blue-400" /> Messages & Pitches
+                <MessageSquare className="w-4 h-4 text-cyan-400" /> Messages & Pitches
               </span>
               {unreadPitchCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-600 text-white animate-pulse">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-pink text-[#071012] animate-pulse">
                   {unreadPitchCount} new
                 </span>
               )}
@@ -471,17 +513,19 @@ export const CreatorDashboard: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('earnings')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'earnings'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <DollarSign className="w-4 h-4 text-emerald-400" /> Escrow & Earnings
+                <DollarSign className={`w-4 h-4 ${activeTab === 'earnings' ? 'text-[#071012]' : 'text-emerald-400'}`} /> Escrow & Earnings
               </span>
               {Number(earnings?.total_earned || 0) > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                  activeTab === 'earnings' ? 'bg-[#071012]/30 text-[#071012]' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                }`}>
                   ₹{Number(earnings.total_earned).toLocaleString()}
                 </span>
               )}
@@ -489,37 +533,39 @@ export const CreatorDashboard: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('membership')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'membership'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-pink text-[#071012] font-bold shadow-md shadow-pink/20'
+                  : 'text-slate-400 hover:text-white hover:bg-[#131d20]'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Crown className="w-4 h-4 text-amber-400" /> Pro Membership
+                <Crown className={`w-4 h-4 ${activeTab === 'membership' ? 'text-[#071012]' : 'text-amber-400'}`} /> Pro Membership
               </span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${tierInfo.bgColor} ${tierInfo.textColor} border ${tierInfo.borderColor}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === 'membership' ? 'bg-[#071012]/30 text-[#071012]' : `${tierInfo.bgColor} ${tierInfo.textColor} border ${tierInfo.borderColor}`
+              }`}>
                 {tierInfo.label.split(' ')[0]}
               </span>
             </button>
 
             <Link
               to={`/creators/${profile.id || ''}`}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#131d20] transition-all cursor-pointer"
             >
-              <UserCheck className="w-4 h-4" /> Public Profile
+              <UserCheck className="w-4 h-4 text-slate-400" /> Public Profile
             </Link>
           </nav>
         </div>
 
         {/* User Mini Profile & Theme Toggle */}
-        <div className="pt-6 border-t border-slate-800">
+        <div className="pt-6 border-t border-[#1c292c]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img
                 src={profile.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
                 alt={profile.full_name || 'Creator'}
-                className="w-9 h-9 rounded-xl object-cover border border-slate-700"
+                className="w-9 h-9 rounded-xl object-cover border border-[#1c292c]"
               />
               <div className="overflow-hidden">
                 <div className="text-xs font-bold text-white truncate">{profile.full_name || 'Creator'}</div>
@@ -554,7 +600,7 @@ export const CreatorDashboard: React.FC = () => {
 
         {/* Top Profile Header (Section 9) - Hidden on dedicated Instagram Analytics tab to avoid duplicate headers */}
         {activeTab !== 'instagram-analytics' && (
-          <div className="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 shadow-xl">
+          <div className="bg-[#0c1416] p-6 rounded-3xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 shadow-2xl text-white">
             <div className="flex items-center gap-4">
               <img
                 src={
@@ -562,29 +608,31 @@ export const CreatorDashboard: React.FC = () => {
                   profile.avatar_url ||
                   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
                 }
-                alt={profile.full_name}
-                className="w-16 h-16 rounded-2xl object-cover border-2 border-purple-500/30 shadow-md"
+                alt={profile.full_name || 'Creator'}
+                className="w-16 h-16 rounded-2xl object-cover border-2 border-pink/30 shadow-md"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
                 }}
               />
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black text-white">{profile.full_name || 'Creator'}</h1>
-                  {profile.verified && (
-                    <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[10px] text-white">
+                  <h1 className="text-2xl font-black text-white font-heading">
+                    {profile.full_name || profile.username || 'Creator'}
+                  </h1>
+                  {Boolean(profile.verified) && (
+                    <span className="w-4 h-4 rounded-full bg-pink flex items-center justify-center text-[10px] text-[#181012] font-black">
                       ✓
                     </span>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-1">
-                  <span>@{profile.username}</span>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted mt-1">
+                  <span className="font-semibold text-white">@{profile.username || 'creator'}</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1 text-purple-400 font-semibold">
+                  <span className="flex items-center gap-1 text-pink font-semibold">
                     <MapPin className="w-3.5 h-3.5" /> {profile.area || profile.city || 'Bengaluru'}
                   </span>
                   <span>•</span>
-                  <span className="text-slate-300">
+                  <span className="text-muted">
                     Min: ₹{Number(profile.min_budget || 3000).toLocaleString()}
                   </span>
                   {Number(earnings?.total_earned || 0) > 0 && (
@@ -603,34 +651,30 @@ export const CreatorDashboard: React.FC = () => {
             {/* Status Badges & Subscription */}
             <div className="flex flex-wrap items-center gap-3">
               {/* Membership Tier Pill */}
-              <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-2 ${tierInfo.bgColor} ${tierInfo.borderColor} ${tierInfo.textColor}`}>
-                <TierIcon className="w-3.5 h-3.5" />
-                <span>{tierInfo.label}</span>
+              <div className="px-3.5 py-1.5 rounded-full border border-white/15 bg-[#10191a] text-xs font-bold flex items-center gap-2 text-muted">
+                <TierIcon className="w-3.5 h-3.5 text-pink" />
+                <span className="text-white">{tierInfo.label}</span>
               </div>
 
               <button
                 onClick={() => setIsSubscriptionModalOpen(true)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
-                  currentTier === 'free'
-                    ? 'bg-gradient-to-r from-amber-500 to-purple-600 text-white hover:from-amber-400 hover:to-purple-500 shadow-amber-500/20'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-                }`}
+                className="px-4 py-2 rounded-full bg-pink text-[#181012] hover:bg-[#ff4d79] text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <Sparkles className="w-3.5 h-3.5" />
                 {currentTier === 'free' ? 'Upgrade to Pro' : 'Manage Tier'}
               </button>
 
               {isIgConnected ? (
-                <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   Instagram Connected ✓
                 </div>
               ) : (
                 <button
                   onClick={() => setActiveTab('instagram')}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20"
+                  className="px-4 py-2 rounded-full border border-white/25 hover:border-pink hover:text-pink bg-[#10191a] text-white text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
                 >
-                  <Instagram className="w-4 h-4" /> Connect Instagram
+                  <Instagram className="w-4 h-4 text-pink" /> Connect Instagram
                 </button>
               )}
             </div>
@@ -642,9 +686,9 @@ export const CreatorDashboard: React.FC = () => {
           <div className="space-y-8">
             {/* Incoming Brand Pitches Banner */}
             {incomingPitches.length > 0 && (
-              <div className="bg-gradient-to-r from-purple-950/80 via-indigo-950/70 to-slate-900 border-2 border-purple-500/40 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5 animate-in fade-in duration-300">
+              <div className="bg-[#0c1416] border border-pink/30 rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5 animate-in fade-in duration-300">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0 text-2xl shadow-inner">
+                  <div className="w-12 h-12 rounded-2xl bg-pink/15 border border-pink/30 flex items-center justify-center text-pink shrink-0 text-2xl shadow-inner">
                     🎯
                   </div>
                   <div>
@@ -652,16 +696,16 @@ export const CreatorDashboard: React.FC = () => {
                       <h3 className="font-extrabold text-white text-base sm:text-lg flex items-center gap-2">
                         Direct Brand Collaboration Offers
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white animate-pulse">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-pink text-[#071012] animate-pulse">
                         {incomingPitches.length} Offer{incomingPitches.length > 1 ? 's' : ''} Received
                       </span>
                     </div>
                     <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
                       Brands have pitched paid collaboration proposals with guaranteed reward budgets to your inbox.
                     </p>
-                    <div className="mt-2.5 flex items-center gap-2 text-xs text-purple-200 font-semibold bg-purple-900/30 px-3 py-1.5 rounded-xl border border-purple-500/20 w-fit">
+                    <div className="mt-2.5 flex items-center gap-2 text-xs text-pink font-semibold bg-[#080f11] px-3 py-1.5 rounded-xl border border-[#1c292c] w-fit">
                       <span>Latest from {incomingPitches[0].other_name || incomingPitches[0].other_party_name || 'Brand Partner'}:</span>
-                      <span className="text-purple-300 font-normal truncate max-w-sm">"{incomingPitches[0].last_message}"</span>
+                      <span className="text-slate-300 font-normal truncate max-w-sm">"{incomingPitches[0].last_message}"</span>
                     </div>
                   </div>
                 </div>
@@ -684,15 +728,15 @@ export const CreatorDashboard: React.FC = () => {
                         setActiveTab('applications');
                       }
                     }}
-                    className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center justify-center gap-2 shadow-xl shadow-purple-600/30 transition-all cursor-pointer hover:scale-[1.02]"
+                    className="px-5 py-3 rounded-2xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center justify-center gap-2 shadow-md shadow-pink/20 transition-all cursor-pointer hover:scale-[1.02]"
                   >
                     <Send className="w-4 h-4" /> Submit Content Proof
                   </button>
                   <Link
                     to="/creator/messages"
-                    className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-all"
+                    className="px-4 py-3 rounded-2xl bg-[#080f11] hover:bg-[#131d20] text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-[#1c292c] transition-all"
                   >
-                    <MessageSquare className="w-4 h-4 text-purple-400" /> Chat in Messages
+                    <MessageSquare className="w-4 h-4 text-pink" /> Chat in Messages
                   </Link>
                 </div>
               </div>
@@ -739,9 +783,9 @@ export const CreatorDashboard: React.FC = () => {
               </div>
 
               {/* Applications Submitted */}
-              <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
+              <div className="bg-[#0c1416] p-6 rounded-2xl border border-[#1c292c]">
                 <div className="text-xs font-bold text-slate-400 mb-1">Applications Submitted</div>
-                <div className="text-3xl font-black text-purple-400">
+                <div className="text-3xl font-black text-cyan-400">
                   {applications.length}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1">
@@ -752,20 +796,20 @@ export const CreatorDashboard: React.FC = () => {
 
             {/* Active Deliverables & Proof Submissions on Overview */}
             {(collaborations.filter(c => c.status !== 'COMPLETED').length > 0 || applications.filter(isDirectPitch).length > 0) && (
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-purple-500/30 shadow-xl space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] shadow-xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1c292c]">
                   <div>
-                    <span className="text-[10px] font-extrabold text-purple-400 uppercase tracking-wider block mb-0.5">
+                    <span className="text-[10px] font-extrabold text-pink uppercase tracking-wider block mb-0.5">
                       Deliverable Action Required
                     </span>
                     <h3 className="text-lg font-black text-white flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-purple-400" /> Active Deliverables & Content Proof Submissions
+                      <Layers className="w-5 h-5 text-pink" /> Active Deliverables & Content Proof Submissions
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('collaborations')}
-                    className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+                    className="text-xs font-bold text-pink hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto"
                   >
                     View in Deliverables tab →
                   </button>
@@ -776,16 +820,16 @@ export const CreatorDashboard: React.FC = () => {
                   {collaborations.filter(c => c.status !== 'COMPLETED').map(col => (
                     <div
                       key={col.id}
-                      className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-700 transition-all"
+                      className="p-4 bg-[#080f11] rounded-2xl border border-[#1c292c] flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-pink/40 transition-all"
                     >
                       <div className="flex items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0 font-black text-lg">
+                        <div className="w-11 h-11 rounded-xl bg-pink/15 border border-pink/30 flex items-center justify-center text-pink shrink-0 font-black text-lg">
                           🎯
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-purple-400 font-bold">{col.brand_name || 'Brand Partner'}</span>
-                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <span className="text-xs text-pink font-bold">{col.brand_name || 'Brand Partner'}</span>
+                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-pink/15 text-pink border border-pink/30">
                               {col.status === 'SUBMITTED' ? 'Proof in Review' : 'Deliverable Active'}
                             </span>
                           </div>
@@ -802,7 +846,7 @@ export const CreatorDashboard: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedCollab(col)}
-                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                          className="px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center gap-2 shadow-md shadow-pink/20 transition-all cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
                           {col.status === 'SUBMITTED' ? 'Update Proof' : 'Submit Proof'}
@@ -815,18 +859,18 @@ export const CreatorDashboard: React.FC = () => {
                   {applications.filter(isDirectPitch).filter(a => !collaborations.some(c => c.application_id === a.id || c.campaign_id === a.campaign_id)).map(app => (
                     <div
                       key={app.id}
-                      className="p-4 bg-slate-950/70 rounded-2xl border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-purple-500/50 transition-all"
+                      className="p-4 bg-[#080f11] rounded-2xl border border-pink/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-pink/50 transition-all"
                     >
                       <div className="flex items-center gap-3.5">
                         <img
                           src={app.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
                           alt={app.brand_name || 'Brand'}
-                          className="w-11 h-11 rounded-xl object-cover border border-slate-700"
+                          className="w-11 h-11 rounded-xl object-cover border border-[#1c292c]"
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-purple-400 font-bold">{app.brand_name || 'Brand Partner'}</span>
-                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <span className="text-xs text-pink font-bold">{app.brand_name || 'Brand Partner'}</span>
+                            <span className="px-2 py-0.2 rounded-full text-[9px] font-black bg-pink/15 text-pink border border-pink/30">
                               Direct Offer
                             </span>
                           </div>
@@ -848,7 +892,7 @@ export const CreatorDashboard: React.FC = () => {
                               reward_per_creator: app.proposed_budget || app.reward_per_creator || 5000
                             });
                           }}
-                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                          className="px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center gap-2 shadow-md shadow-pink/20 transition-all cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" /> Submit Proof
                         </button>
@@ -868,7 +912,7 @@ export const CreatorDashboard: React.FC = () => {
             />
 
             {/* Membership & Application Quota Card */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900/90 to-purple-950/40 p-6 rounded-3xl border border-slate-800 relative overflow-hidden shadow-xl">
+            <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] relative overflow-hidden shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2.5">
@@ -895,7 +939,7 @@ export const CreatorDashboard: React.FC = () => {
                       ? 'Gold VIP unlocked: 40 applications/month, brief payouts up to ₹50,000, AI Pitch Assistant & Brand Match boost!'
                       : 'Diamond Elite unlocked: Unlimited applications, mega payouts (₹50k+), 0% platform fee & top matchmaking priority!'}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-purple-300 font-semibold">
+                  <div className="flex items-center gap-2 text-xs text-slate-300 font-semibold">
                     <span>Brief Payout Limit:</span>
                     <span className="text-emerald-400 font-bold">
                       {subscriptionData?.max_campaign_reward === 'unlimited'
@@ -906,7 +950,7 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
 
                 {/* Quota Gauge & Upgrade CTA */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-950/70 p-4 rounded-2xl border border-slate-800/80">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-[#080f11] p-4 rounded-2xl border border-[#1c292c]">
                   <div className="min-w-[170px]">
                     <div className="flex justify-between text-xs font-bold mb-1.5">
                       <span className="text-slate-400">Monthly Applications</span>
@@ -915,9 +959,9 @@ export const CreatorDashboard: React.FC = () => {
                       </span>
                     </div>
                     {/* Progress Bar */}
-                    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-[#131d20] overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                        className="h-full bg-pink transition-all duration-500"
                         style={{
                           width: subscriptionData?.applications_limit === 'unlimited'
                             ? '15%'
@@ -934,45 +978,138 @@ export const CreatorDashboard: React.FC = () => {
 
                   <button
                     onClick={() => setIsSubscriptionModalOpen(true)}
-                    className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30 whitespace-nowrap transition-all"
+                    className="px-4 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center gap-2 shadow-md shadow-pink/20 whitespace-nowrap transition-all cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#071012]" />
                     {currentTier === 'diamond' ? 'View Perks' : 'Upgrade Plan'}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Campaign Discovery CTA Banner */}
-            <div className="bg-gradient-to-r from-purple-950/50 via-slate-900 to-slate-900 p-8 rounded-3xl border border-purple-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl">
-              <div>
-                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-1">
-                  Local Matchmaker
-                </span>
-                <h3 className="text-xl font-black text-white mb-2">Explore Nearby Campaign Feed</h3>
-                <p className="text-xs text-slate-400 max-w-lg leading-relaxed">
-                  Discover briefs within 1km - 25km radius from your current location and apply with custom pitches.
-                </p>
+            {/* Nearest Brand Briefs Proximity Showcase */}
+            <div className="bg-[#0c1416] p-6 sm:p-8 rounded-3xl border border-[#1c292c] shadow-xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1c292c]">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-pink uppercase tracking-wider block">
+                      Local Matchmaker & Proximity Feed
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Live Km Distance
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-black text-white mt-1 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-pink" /> Nearest Campaigns in {profile.area || profile.city || 'Your Area'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Real-time proximity sorted briefs based on your registered creator location ({profile.area || profile.city || 'Bengaluru'}).
+                  </p>
+                </div>
+                <Link
+                  to="/creator/feed"
+                  className="px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] font-black text-xs flex items-center gap-2 shadow-md shadow-pink/20 transition-all self-start sm:self-auto cursor-pointer"
+                >
+                  <Compass className="w-4 h-4" /> Open Full Campaign Feed ({nearbyCampaigns.length > 0 ? `${nearbyCampaigns.length}+ nearby` : 'Explore'})
+                </Link>
               </div>
-              <Link
-                to="/creator/feed"
-                className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30 self-start sm:self-auto"
-              >
-                <Compass className="w-4 h-4" /> Open Campaign Feed
-              </Link>
+
+              {nearbyCampaigns.length === 0 ? (
+                <div className="text-center py-10 bg-[#080f11] rounded-2xl border border-[#1c292c] text-xs text-slate-400">
+                  <Compass className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  No campaigns within 25 km yet. Explore the full pan-India feed to discover open brand briefs.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {nearbyCampaigns.slice(0, 3).map((camp) => (
+                    <div
+                      key={camp.id}
+                      className="bg-[#080f11] rounded-2xl border border-[#1c292c] hover:border-pink/40 hover:shadow-lg transition-all flex flex-col justify-between overflow-hidden group"
+                    >
+                      <div>
+                        {/* Card Image Banner */}
+                        <div className="relative h-36 overflow-hidden bg-[#04080a] flex items-center justify-center">
+                          <img
+                            src={camp.image_url || getCategoryFallbackImage(camp.category)}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none"
+                          />
+                          <img
+                            src={camp.image_url || getCategoryFallbackImage(camp.category)}
+                            alt={camp.title}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = getCategoryFallbackImage(camp.category);
+                            }}
+                            className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain group-hover:scale-105 transition-transform duration-500 p-1"
+                          />
+                          <div className="absolute top-2.5 left-2.5 z-20 bg-[#080f11]/90 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white border border-[#1c292c]">
+                            {camp.category}
+                          </div>
+                          <div className="absolute bottom-2.5 right-2.5 z-20 bg-[#080f11]/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-xs font-black text-emerald-400 border border-emerald-500/30 font-mono shadow-sm">
+                            ₹{Number(camp.reward_per_creator || 5000).toLocaleString()}
+                          </div>
+                        </div>
+
+                        {/* Card Content */}
+                        <div className="p-4 space-y-2.5">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={camp.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
+                              alt={camp.brand_name || 'Brand'}
+                              className="w-6 h-6 rounded-full object-cover border border-[#1c292c]"
+                            />
+                            <span className="text-xs font-bold text-slate-300 truncate">
+                              {camp.brand_name || 'Verified Brand'}
+                            </span>
+                          </div>
+
+                          <h4 className="text-sm font-black text-white group-hover:text-pink transition-colors line-clamp-1">
+                            {camp.title}
+                          </h4>
+
+                          {/* Distance & Location Pill */}
+                          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#0c1416] border border-[#1c292c] text-xs">
+                            <span className="flex items-center gap-1.5 font-bold text-pink">
+                              <MapPin className="w-3.5 h-3.5 text-pink" />
+                              {typeof camp.distance_km === 'number' && !isNaN(camp.distance_km)
+                                ? `${camp.distance_km} km away`
+                                : (camp.location_name || camp.city || 'Nearby')}
+                            </span>
+                            {typeof camp.distance_km === 'number' && camp.distance_km <= 1 && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                In Your Area
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 pt-0">
+                        <Link
+                          to="/creator/feed"
+                          className="w-full py-2 rounded-xl bg-[#131d20] hover:bg-pink hover:text-[#071012] text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-[#1c292c]"
+                        >
+                          View Brief & Apply <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Active Collaborations Quick List */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold text-white">Current Collaborations</h3>
-                <button onClick={() => setActiveTab('collaborations')} className="text-xs text-purple-400 font-bold hover:underline">
+                <button onClick={() => setActiveTab('collaborations')} className="text-xs text-pink font-bold hover:underline">
                   View All ({collaborations.length})
                 </button>
               </div>
 
               {collaborations.length === 0 ? (
-                <div className="text-center py-10 bg-slate-900/30 rounded-2xl border border-slate-800 text-xs text-slate-400">
+                <div className="text-center py-10 bg-[#0c1416] rounded-2xl border border-[#1c292c] text-xs text-slate-400">
                   No active collaborations yet. Apply to campaigns on the feed to get hired!
                 </div>
               ) : (
@@ -980,7 +1117,7 @@ export const CreatorDashboard: React.FC = () => {
                   {collaborations.slice(0, 3).map(col => (
                     <div
                       key={col.id}
-                      className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="bg-[#0c1416] p-4 rounded-2xl border border-[#1c292c] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="flex items-center gap-3">
                         <img src={col.brand_logo} alt={col.brand_name} className="w-10 h-10 rounded-xl object-cover" />
@@ -1004,15 +1141,15 @@ export const CreatorDashboard: React.FC = () => {
                         ) : (
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             col.status === 'SUBMITTED'
-                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                              : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                              ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                              : 'bg-pink/10 text-pink border border-pink/20'
                           }`}>
                             {col.status}
                           </span>
                         )}
                         <button
                           onClick={() => { setSelectedCollab(col); setActiveTab('collaborations'); }}
-                          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200"
+                          className="px-3 py-1.5 rounded-lg bg-[#080f11] hover:bg-[#131d20] text-xs font-bold text-slate-200 border border-[#1c292c]"
                         >
                           Details & Proof
                         </button>
@@ -1070,9 +1207,9 @@ export const CreatorDashboard: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-400" /> Direct Brand Pitches & Collaboration Offers
+                  <Sparkles className="w-5 h-5 text-pink" /> Direct Brand Pitches & Collaboration Offers
                   {applications.filter(isDirectPitch).length > 0 && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-600 text-white animate-pulse">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-pink text-[#071012] animate-pulse">
                       {applications.filter(isDirectPitch).length} Offer{applications.filter(isDirectPitch).length > 1 ? 's' : ''}
                     </span>
                   )}
@@ -1080,8 +1217,8 @@ export const CreatorDashboard: React.FC = () => {
               </div>
 
               {applications.filter(isDirectPitch).length === 0 ? (
-                <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/80 text-center space-y-2">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-2 text-xl">
+                <div className="p-8 rounded-3xl bg-[#0c1416] border border-[#1c292c] text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-pink/10 text-pink flex items-center justify-center mx-auto mb-2 text-xl">
                     🎯
                   </div>
                   <h4 className="text-sm font-bold text-slate-300">No Pending Direct Brand Pitches</h4>
@@ -1096,21 +1233,21 @@ export const CreatorDashboard: React.FC = () => {
                     .map(app => (
                       <div
                         key={app.id}
-                        className="bg-gradient-to-r from-slate-900 via-slate-900/90 to-purple-950/30 p-6 rounded-3xl border-2 border-purple-500/40 shadow-xl space-y-4 relative"
+                        className="bg-[#0c1416] p-6 rounded-3xl border border-pink/30 shadow-xl space-y-4 relative"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-3.5">
                             <img
                               src={app.brand_logo || 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=150'}
                               alt={app.brand_name || 'Brand'}
-                              className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                              className="w-12 h-12 rounded-2xl object-cover border border-[#1c292c]"
                             />
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                                <span className="text-xs font-bold text-pink uppercase tracking-wider">
                                   {app.brand_name || 'Brand Partner'}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-pink/15 text-pink border border-pink/30">
                                   Direct Offer
                                 </span>
                               </div>
@@ -1130,13 +1267,13 @@ export const CreatorDashboard: React.FC = () => {
                         </div>
 
                         {/* Brand Pitch Message */}
-                        <div className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 text-xs space-y-1.5">
+                        <div className="p-4 bg-[#080f11] rounded-2xl border border-[#1c292c] text-xs space-y-1.5">
                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Message from Brand:</div>
                           <p className="text-slate-200 leading-relaxed italic">
                             "{app.pitch}"
                           </p>
                           {app.proposed_deliverables && (
-                            <div className="text-[11px] text-purple-300 font-semibold pt-1 border-t border-slate-800/60 mt-2">
+                            <div className="text-[11px] text-pink font-semibold pt-1 border-t border-[#1c292c] mt-2">
                               Deliverables requested: {app.proposed_deliverables}
                             </div>
                           )}
@@ -1150,7 +1287,7 @@ export const CreatorDashboard: React.FC = () => {
 
                           <div className="flex flex-wrap items-center gap-2.5">
                             {app.status === 'REJECTED' ? (
-                              <span className="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold">
+                              <span className="px-4 py-2 rounded-xl bg-[#080f11] text-slate-400 text-xs font-bold border border-[#1c292c]">
                                 Offer Declined
                               </span>
                             ) : app.collaboration_step === 3 ? (
@@ -1169,7 +1306,7 @@ export const CreatorDashboard: React.FC = () => {
                                       reward_per_creator: app.proposed_budget || app.reward_per_creator
                                     });
                                   }}
-                                  className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all cursor-pointer"
+                                  className="px-3.5 py-1.5 rounded-xl bg-[#080f11] hover:bg-[#131d20] text-slate-200 text-xs font-bold transition-all cursor-pointer border border-[#1c292c]"
                                 >
                                   Update Proof
                                 </button>
@@ -1182,9 +1319,9 @@ export const CreatorDashboard: React.FC = () => {
                               <>
                                 <Link
                                   to="/creator/messages"
-                                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all flex items-center gap-1.5"
+                                  className="px-3.5 py-2 rounded-xl bg-[#080f11] hover:bg-[#131d20] text-slate-300 hover:text-white text-xs font-bold border border-[#1c292c] transition-all flex items-center gap-1.5"
                                 >
-                                  <MessageSquare className="w-3.5 h-3.5 text-purple-400" /> Chat with Brand
+                                  <MessageSquare className="w-3.5 h-3.5 text-pink" /> Chat with Brand
                                 </Link>
                                 <button
                                   type="button"
@@ -1197,7 +1334,7 @@ export const CreatorDashboard: React.FC = () => {
                                       reward_per_creator: app.proposed_budget || app.reward_per_creator
                                     });
                                   }}
-                                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                                  className="px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center gap-2 shadow-md shadow-pink/20 transition-all cursor-pointer"
                                 >
                                   <Send className="w-3.5 h-3.5" /> Submit Proof
                                 </button>
@@ -1222,7 +1359,7 @@ export const CreatorDashboard: React.FC = () => {
                   <p className="text-xs text-slate-400">You haven't submitted any campaign applications yet.</p>
                   <Link
                     to="/creator/feed"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-600/25"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-bold shadow-md shadow-pink/20"
                   >
                     <Sparkles className="w-3.5 h-3.5" /> Explore Open Briefs
                   </Link>
@@ -1294,10 +1431,10 @@ export const CreatorDashboard: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {collaborations.map(col => (
-                  <div key={col.id} className="bg-slate-900/70 p-6 rounded-3xl border border-slate-800 space-y-4">
+                  <div key={col.id} className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-pink uppercase tracking-wider block">
                           Campaign Brief
                         </span>
                         <h3 className="text-lg font-black text-white">{col.campaign_title}</h3>
@@ -1316,14 +1453,14 @@ export const CreatorDashboard: React.FC = () => {
                             </span>
                           </div>
                         ) : (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-pink/10 text-pink border border-pink/20">
                             Status: {col.status}
                           </span>
                         )}
                         {col.status !== 'COMPLETED' && (
                           <button
                             onClick={() => setSelectedCollab(col)}
-                            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md"
+                            className="px-4 py-2 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black shadow-md shadow-pink/20 cursor-pointer"
                           >
                             Submit Proof
                           </button>
@@ -1332,7 +1469,7 @@ export const CreatorDashboard: React.FC = () => {
                     </div>
 
                     {/* Step Progression Bar */}
-                    <div className="grid grid-cols-4 gap-2 pt-4 border-t border-slate-800 text-center">
+                    <div className="grid grid-cols-4 gap-2 pt-4 border-t border-[#1c292c] text-center">
                       {[
                         { step: 1, label: 'Accepted' },
                         { step: 2, label: 'Content Creation' },
@@ -1345,8 +1482,8 @@ export const CreatorDashboard: React.FC = () => {
                             col.status === 'COMPLETED' && s.step === 4
                               ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm'
                               : (col.current_step || 1) >= s.step
-                              ? 'bg-purple-500/10 text-purple-300 border-purple-500/30'
-                              : 'bg-slate-950/40 text-slate-500 border-slate-800'
+                              ? 'bg-pink/10 text-pink border-pink/30'
+                              : 'bg-[#080f11] text-slate-500 border-[#1c292c]'
                           }`}
                         >
                           Step {s.step}: {s.label}
@@ -1359,16 +1496,16 @@ export const CreatorDashboard: React.FC = () => {
                       <div className="pt-2">
                         <span className="text-xs font-bold text-slate-400 block mb-2">Submitted Proof History:</span>
                         {col.submissions.map((sub: any) => (
-                          <div key={sub.id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
+                          <div key={sub.id} className="p-3 bg-[#080f11] rounded-xl border border-[#1c292c] text-xs flex items-center justify-between">
                             <a
                               href={sub.live_post_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-purple-400 font-semibold hover:underline flex items-center gap-1"
+                              className="text-pink font-semibold hover:underline flex items-center gap-1"
                             >
                               {sub.live_post_url} <ExternalLink className="w-3 h-3" />
                             </a>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#131d20] text-slate-300 border border-[#1c292c]">
                               {sub.status}
                             </span>
                           </div>
@@ -1422,16 +1559,16 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-slate-900/60 p-6 rounded-3xl border border-slate-800">
+              <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c]">
                 <div className="flex items-center justify-between mb-1">
                   <div className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-purple-400" /> Currently Held in Escrow
+                    <Clock className="w-4 h-4 text-cyan-400" /> Currently Held in Escrow
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                     In Escrow
                   </span>
                 </div>
-                <div className="text-4xl font-black text-purple-400">
+                <div className="text-4xl font-black text-cyan-400">
                   ₹{Number(earnings?.held_in_escrow || 0).toLocaleString()}
                 </div>
                 <div className="text-xs text-slate-400 font-semibold mt-1">
@@ -1444,13 +1581,13 @@ export const CreatorDashboard: React.FC = () => {
             </div>
 
             {/* Payment Ledger Notice */}
-            <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-              <span>Payment Mode: <strong className="text-purple-300">{earnings?.mode_notice || 'Development Escrow Simulator'}</strong></span>
+            <div className="p-4 rounded-2xl bg-[#0c1416] border border-[#1c292c] text-xs text-slate-400 flex items-center justify-between">
+              <span>Payment Mode: <strong className="text-pink">{earnings?.mode_notice || 'Development Escrow Simulator'}</strong></span>
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
             </div>
 
             {/* Transaction & Escrow Release History */}
-            <div className="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 space-y-4">
+            <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -1466,7 +1603,7 @@ export const CreatorDashboard: React.FC = () => {
               </div>
 
               {(!earnings?.payments || earnings.payments.length === 0) ? (
-                <div className="text-center py-12 bg-slate-950/40 rounded-2xl border border-slate-800/80 text-xs text-slate-400">
+                <div className="text-center py-12 bg-[#080f11] rounded-2xl border border-[#1c292c] text-xs text-slate-400">
                   <Clock className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                   <p className="font-semibold text-slate-300">No escrow transactions recorded yet</p>
                   <p className="text-[11px] text-slate-500 mt-1">
@@ -1478,13 +1615,13 @@ export const CreatorDashboard: React.FC = () => {
                   {earnings.payments.map((txn: any) => (
                     <div
                       key={txn.id}
-                      className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-700 transition-all"
+                      className="p-4 bg-[#080f11] rounded-2xl border border-[#1c292c] flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-pink/40 transition-all"
                     >
                       <div className="flex items-start gap-3.5">
                         <div className={`p-2.5 rounded-xl border mt-0.5 ${
                           txn.status === 'RELEASED'
                             ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                            : 'bg-purple-500/10 border-purple-500/30 text-purple-400'
+                            : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
                         }`}>
                           {txn.status === 'RELEASED' ? (
                             <CheckCircle2 className="w-5 h-5" />
@@ -1512,7 +1649,7 @@ export const CreatorDashboard: React.FC = () => {
                             {txn.is_simulated ? (
                               <>
                                 <span>•</span>
-                                <span className="text-[10px] text-purple-400 font-semibold bg-purple-500/10 px-2 py-0.5 rounded">
+                                <span className="text-[10px] text-pink font-semibold bg-pink/10 px-2 py-0.5 rounded border border-pink/20">
                                   Escrow Simulated
                                 </span>
                               </>
@@ -1521,9 +1658,9 @@ export const CreatorDashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-800/60">
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[#1c292c]">
                         <span className={`text-base font-black ${
-                          txn.status === 'RELEASED' ? 'text-emerald-400' : 'text-purple-300'
+                          txn.status === 'RELEASED' ? 'text-emerald-400' : 'text-slate-200'
                         }`}>
                           {txn.status === 'RELEASED' ? '+' : ''}₹{Number(txn.amount || 0).toLocaleString()}
                         </span>
@@ -1531,7 +1668,7 @@ export const CreatorDashboard: React.FC = () => {
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black mt-1 inline-flex items-center gap-1 ${
                           txn.status === 'RELEASED'
                             ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-purple-500/15 text-purple-400 border border-purple-500/30'
+                            : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
                         }`}>
                           {txn.status === 'RELEASED' ? 'Approved & Escrow Released ✓' : 'Held in Escrow'}
                         </span>
@@ -1549,8 +1686,8 @@ export const CreatorDashboard: React.FC = () => {
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
-                  <Crown className="w-4 h-4" /> Creator Monetization Plans
+                <div className="flex items-center gap-2 text-xs font-bold text-pink uppercase tracking-wider mb-1">
+                  <Crown className="w-4 h-4 text-pink" /> Creator Monetization Plans
                 </div>
                 <h2 className="text-2xl font-black text-white">Creator Pro Membership</h2>
                 <p className="text-xs text-slate-400 mt-1 max-w-xl">
@@ -1560,14 +1697,14 @@ export const CreatorDashboard: React.FC = () => {
 
               <button
                 onClick={() => setIsSubscriptionModalOpen(true)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-600/25 self-start sm:self-auto"
+                className="px-5 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center gap-2 shadow-md shadow-pink/20 self-start sm:self-auto cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" /> Change / Upgrade Tier
               </button>
             </div>
 
             {/* Current Active Plan Card */}
-            <div className="bg-gradient-to-r from-slate-900 via-purple-950/30 to-slate-900 p-6 rounded-3xl border border-purple-500/30 shadow-xl">
+            <div className="bg-[#0c1416] p-6 rounded-3xl border border-[#1c292c] shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
@@ -1586,19 +1723,19 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
-                  <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div className="bg-[#080f11] p-3 rounded-2xl border border-[#1c292c]">
                     <div className="text-[10px] text-slate-400 font-bold uppercase">Apps Used</div>
                     <div className="text-lg font-black text-white mt-0.5">
                       {subscriptionData?.applications_used_this_month ?? 0}
                     </div>
                   </div>
-                  <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div className="bg-[#080f11] p-3 rounded-2xl border border-[#1c292c]">
                     <div className="text-[10px] text-slate-400 font-bold uppercase">Monthly Limit</div>
-                    <div className="text-lg font-black text-purple-400 mt-0.5">
+                    <div className="text-lg font-black text-pink mt-0.5">
                       {subscriptionData?.applications_limit === 'unlimited' ? 'Unlimited' : (subscriptionData?.applications_limit ?? 3)}
                     </div>
                   </div>
-                  <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 col-span-2 sm:col-span-1">
+                  <div className="bg-[#080f11] p-3 rounded-2xl border border-[#1c292c] col-span-2 sm:col-span-1">
                     <div className="text-[10px] text-slate-400 font-bold uppercase">Max Brief Payout</div>
                     <div className="text-lg font-black text-emerald-400 mt-0.5">
                       {subscriptionData?.max_campaign_reward === 'unlimited' ? 'No Limit' : `₹${(subscriptionData?.max_campaign_reward || 5000).toLocaleString()}`}
@@ -1615,12 +1752,12 @@ export const CreatorDashboard: React.FC = () => {
                 {/* Silver */}
                 <div className={`p-6 rounded-3xl border flex flex-col justify-between transition-all ${
                   currentTier === 'silver'
-                    ? 'bg-slate-900 border-slate-400/50 ring-2 ring-slate-400/30'
-                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                    ? 'bg-[#0c1416] border-slate-400/50 ring-2 ring-slate-400/30'
+                    : 'bg-[#0c1416] border-[#1c292c] hover:border-slate-600'
                 }`}>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-500/10 text-slate-300 border border-slate-500/20">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#080f11] text-slate-300 border border-[#1c292c]">
                         Silver Pro
                       </span>
                       {currentTier === 'silver' && (
@@ -1632,21 +1769,21 @@ export const CreatorDashboard: React.FC = () => {
                     <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Great for rising creators seeking regular local brand collaborations.</p>
 
-                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
+                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-[#1c292c]">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span><strong>15</strong> Campaign Applications / month</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Apply to briefs up to <strong>₹15,000</strong></span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Early Brief Access (12 hrs before Free)</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Silver Pro Verified Badge</span>
                       </li>
                     </ul>
@@ -1657,7 +1794,7 @@ export const CreatorDashboard: React.FC = () => {
                       setTargetUpgradeTier('silver');
                       setIsSubscriptionModalOpen(true);
                     }}
-                    className="w-full mt-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all"
+                    className="w-full mt-6 py-2.5 rounded-xl bg-[#080f11] hover:bg-[#131d20] text-slate-200 text-xs font-bold border border-[#1c292c] transition-all cursor-pointer"
                   >
                     {currentTier === 'silver' ? 'Manage Plan' : 'Select Silver (₹1)'}
                   </button>
@@ -1666,15 +1803,15 @@ export const CreatorDashboard: React.FC = () => {
                 {/* Gold */}
                 <div className={`p-6 rounded-3xl border flex flex-col justify-between relative transition-all shadow-xl ${
                   currentTier === 'gold'
-                    ? 'bg-slate-900 border-amber-500/50 ring-2 ring-amber-500/30'
-                    : 'bg-slate-900/80 border-amber-500/30 hover:border-amber-500/50'
+                    ? 'bg-[#0c1416] border-pink ring-2 ring-pink/40'
+                    : 'bg-[#0c1416] border-pink/50 hover:border-pink ring-1 ring-pink/20'
                 }`}>
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-pink text-[#071012] text-[10px] font-black uppercase tracking-wider shadow-md shadow-pink/20">
                     Most Popular
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-pink/15 text-pink border border-pink/30">
                         Gold VIP
                       </span>
                       {currentTier === 'gold' && (
@@ -1686,25 +1823,25 @@ export const CreatorDashboard: React.FC = () => {
                     <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">For full-time influencers and high-engagement content creators.</p>
 
-                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
+                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-[#1c292c]">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span><strong>40</strong> Campaign Applications / month</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Apply to briefs up to <strong>₹50,000</strong></span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>AI Pitch Assistant (Generates high-converting pitches)</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>2x Ranking Boost in Brand Matchmaker</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Gold VIP Verified Badge</span>
                       </li>
                     </ul>
@@ -1715,7 +1852,7 @@ export const CreatorDashboard: React.FC = () => {
                       setTargetUpgradeTier('gold');
                       setIsSubscriptionModalOpen(true);
                     }}
-                    className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs hover:opacity-95 shadow-md shadow-amber-500/20 transition-all"
+                    className="w-full mt-6 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] font-black text-xs shadow-md shadow-pink/20 transition-all cursor-pointer"
                   >
                     {currentTier === 'gold' ? 'Manage Plan' : 'Select Gold VIP (₹1)'}
                   </button>
@@ -1724,10 +1861,10 @@ export const CreatorDashboard: React.FC = () => {
                 {/* Diamond */}
                 <div className={`p-6 rounded-3xl border flex flex-col justify-between relative transition-all shadow-xl ${
                   currentTier === 'diamond'
-                    ? 'bg-slate-900 border-cyan-500/50 ring-2 ring-cyan-500/30'
-                    : 'bg-slate-900/60 border-cyan-500/30 hover:border-cyan-500/50'
+                    ? 'bg-[#0c1416] border-cyan-500/50 ring-2 ring-cyan-500/30'
+                    : 'bg-[#0c1416] border-cyan-500/30 hover:border-cyan-500/50'
                 }`}>
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-[#071012] text-[10px] font-black uppercase tracking-wider shadow-md">
                     Top Tier
                   </div>
                   <div>
@@ -1744,25 +1881,25 @@ export const CreatorDashboard: React.FC = () => {
                     <div className="text-2xl font-black text-white mt-2">₹1 <span className="text-xs text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-400 mt-1 mb-4">Elite creators, agencies, and top-tier influencers desiring VIP privileges.</p>
 
-                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-slate-800">
+                    <ul className="space-y-2.5 text-xs text-slate-300 pt-3 border-t border-[#1c292c]">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span><strong>Unlimited</strong> Campaign Applications</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span><strong>No Payout Cap</strong> (₹50,000+ mega briefs)</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span><strong>0% Platform Escrow Fee</strong></span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Featured at Top of Brand Discovery</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>Diamond Elite Verified Badge</span>
                       </li>
                     </ul>
@@ -1773,7 +1910,7 @@ export const CreatorDashboard: React.FC = () => {
                       setTargetUpgradeTier('diamond');
                       setIsSubscriptionModalOpen(true);
                     }}
-                    className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs hover:opacity-95 shadow-md shadow-cyan-500/20 transition-all"
+                    className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-[#071012] font-black text-xs hover:opacity-95 shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
                   >
                     {currentTier === 'diamond' ? 'Manage Plan' : 'Select Diamond Elite (₹1)'}
                   </button>
@@ -1808,11 +1945,8 @@ export const CreatorDashboard: React.FC = () => {
 
         {/* Submit Deliverable Proof Modal - Globally Accessible Across All Tabs */}
         {selectedCollab && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl shadow-purple-950/50 relative overflow-hidden">
-              {/* Background gradient glow */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
-
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#071012]/90 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[#0c1416] border border-[#1c292c] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative overflow-hidden">
               {proofSuccess ? (
                 <div className="text-center py-8 space-y-4">
                   <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto animate-bounce">
@@ -1824,7 +1958,7 @@ export const CreatorDashboard: React.FC = () => {
                       Your post link has been forwarded to <strong className="text-white">{selectedCollab.brand_name || 'the brand'}</strong> for review.
                     </p>
                   </div>
-                  <div className="p-3 bg-slate-950/70 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-semibold inline-block">
+                  <div className="p-3 bg-[#080f11] border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-semibold inline-block">
                     Escrow payout of ₹{Number(selectedCollab.reward_per_creator || selectedCollab.payment_amount || 5000).toLocaleString()} will be automatically released upon brand approval.
                   </div>
                   <div className="text-[11px] text-slate-500 animate-pulse">
@@ -1834,10 +1968,10 @@ export const CreatorDashboard: React.FC = () => {
               ) : (
                 <form onSubmit={handleSubmitProof} className="space-y-4">
                   {/* Modal Header */}
-                  <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+                  <div className="flex items-start justify-between pb-3 border-b border-[#1c292c]">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-extrabold text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                        <span className="text-[10px] font-extrabold text-pink uppercase tracking-wider bg-pink/15 px-2 py-0.5 rounded-full border border-pink/30">
                           Deliverable Verification
                         </span>
                         <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
@@ -1861,7 +1995,7 @@ export const CreatorDashboard: React.FC = () => {
                         setSelectedCollab(null);
                         setProofError('');
                       }}
-                      className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-[#131d20] transition-colors cursor-pointer border border-[#1c292c]"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -1881,8 +2015,8 @@ export const CreatorDashboard: React.FC = () => {
                           s.done
                             ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
                             : s.active
-                            ? 'bg-purple-600/30 text-purple-200 border-purple-500 ring-1 ring-purple-500/50'
-                            : 'bg-slate-950/40 text-slate-500 border-slate-800'
+                            ? 'bg-pink/15 text-pink border-pink ring-1 ring-pink/50'
+                            : 'bg-[#080f11] text-slate-500 border-[#1c292c]'
                         }`}
                       >
                         {s.step}. {s.label}
@@ -1908,7 +2042,7 @@ export const CreatorDashboard: React.FC = () => {
                       value={liveUrl}
                       onChange={e => setLiveUrl(e.target.value)}
                       placeholder="https://www.instagram.com/reel/... or https://www.instagram.com/p/..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#080f11] border border-[#1c292c] text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-pink transition-colors"
                     />
                     <p className="text-[10px] text-slate-500 mt-1">
                       Provide the live public link to your published Reel, Feed Post, or Story.
@@ -1925,7 +2059,7 @@ export const CreatorDashboard: React.FC = () => {
                       value={proofNotes}
                       onChange={e => setProofNotes(e.target.value)}
                       placeholder="E.g. Reel achieved 15k views in first 6 hours, tagged brand official handle and used campaign hashtags..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#080f11] border border-[#1c292c] text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-pink transition-colors resize-none"
                     />
                   </div>
 
@@ -1946,14 +2080,14 @@ export const CreatorDashboard: React.FC = () => {
                         setSelectedCollab(null);
                         setProofError('');
                       }}
-                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-[#080f11] hover:bg-[#131d20] text-slate-300 text-xs font-bold transition-all cursor-pointer border border-[#1c292c]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={submittingProof || !liveUrl.trim()}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 text-white text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 disabled:opacity-50 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 rounded-xl bg-pink hover:bg-pink-hover text-[#071012] text-xs font-black flex items-center justify-center gap-2 shadow-md shadow-pink/20 disabled:opacity-50 transition-all cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
                       {submittingProof ? 'Submitting Deliverable...' : 'Submit Deliverable for Review'}

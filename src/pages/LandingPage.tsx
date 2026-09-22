@@ -6,31 +6,18 @@ import {
   ArrowRight,
   MapPin,
   ShieldCheck,
-  Zap,
+  ChevronDown,
+  Search,
+  CheckCircle2,
+  Lock,
+  Layers,
   Users,
   Building2,
-  CheckCircle2,
-  TrendingUp,
-  Award,
-  Clock,
-  BarChart3,
-  Bot,
-  Compass,
-  DollarSign,
-  HeartHandshake,
-  Check,
-  ChevronDown,
-  Star,
-  Layers,
-  Send,
-  ExternalLink
+  Instagram
 } from 'lucide-react';
-import { Instagram } from '../components/icons/InstagramIcon';
 
 export const LandingPage: React.FC = () => {
   const [featuredCampaigns, setFeaturedCampaigns] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'creator' | 'brand'>('creator');
-  const [heroPreviewTab, setHeroPreviewTab] = useState<'creator' | 'brand'>('creator');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [loading, setLoading] = useState(true);
 
@@ -38,11 +25,11 @@ export const LandingPage: React.FC = () => {
     const fetchCampaigns = async () => {
       try {
         const res = await api.getCampaigns({ limit: '3' });
-        if (res.success && res.campaigns) {
+        if (res.success && res.campaigns && res.campaigns.length > 0) {
           setFeaturedCampaigns(res.campaigns.slice(0, 3));
         }
       } catch (err) {
-        console.warn('Could not load featured briefs:', err);
+        console.warn('Could not load live campaigns:', err);
       } finally {
         setLoading(false);
       }
@@ -50,640 +37,617 @@ export const LandingPage: React.FC = () => {
     fetchCampaigns();
   }, []);
 
-  const stats = [
-    { value: '₹2.4M+', label: 'Escrow Volume Protected', sub: 'Zero payout risk' },
-    { value: '< 3.5 km', label: 'Average Proximity Radius', sub: 'Real foot traffic' },
-    { value: '100%', label: 'Meta API Provenance', sub: 'No scraped vanity stats' },
-    { value: '94%', label: 'Deliverable Approval Rate', sub: 'Verified completion' }
+  const fallbackCampaigns = [
+    {
+      id: 1,
+      title: 'Glow Naturally',
+      business_name: 'Skincare Brand',
+      category: 'Beauty',
+      budget: 25000,
+      deliverables_summary: '3–5 Posts',
+      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85'
+    },
+    {
+      id: 2,
+      title: 'Move Better',
+      business_name: 'Fitness Brand',
+      category: 'Fitness',
+      budget: 15000,
+      deliverables_summary: '1–3 Reels',
+      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=85'
+    },
+    {
+      id: 3,
+      title: 'Explore More',
+      business_name: 'Travel Brand',
+      category: 'Travel',
+      budget: 40000,
+      deliverables_summary: '1–2 Videos',
+      image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=85'
+    }
   ];
+
+  const displayCampaigns = featuredCampaigns.length > 0 ? featuredCampaigns : fallbackCampaigns;
 
   const faqs = [
     {
-      q: 'How does Escrow Protection work for brands and creators?',
-      a: 'When a brand initiates a direct pitch or approves a creator application, the agreed campaign budget is immediately held in simulated escrow. Funds are securely locked before any content creation begins and released instantly to the creator once deliverable proof is submitted and reviewed.'
+      q: 'How does CreatorHub work for brands and creators?',
+      a: 'CreatorHub connects local brands with verified neighborhood creators based on precise geographic coordinates (Haversine formula), content categories, and real Meta Graph API metrics. Brands create campaign briefs or direct pitches, lock funds in escrow, and creators submit proof before payout.'
     },
     {
-      q: 'How is hyperlocal proximity calculated?',
-      a: 'CreatorHub computes real-time geospatial coordinates using the Haversine spherical algorithm. Brands define exact radius zones (1km to 25km), and creators within that precise footprint receive discovery priority, ensuring genuine neighborhood influence.'
+      q: 'How do I verify a creator on CreatorHub?',
+      a: 'All creators connect via official Meta Graph API OAuth. We verify real follower counts, average reach, and engagement rates directly from Instagram with zero synthetic or scraped data.'
     },
     {
-      q: 'Why does CreatorHub use official Meta Graph API instead of web scraping?',
-      a: 'Scraping is inaccurate, prone to breaking, and exposes accounts to security bans. We connect directly through official Meta OAuth, pulling real-time followers, reach, impression benchmarks, and verified engagement rates without ever storing creator passwords.'
+      q: 'What types of campaigns are available?',
+      a: 'Brands can launch hyperlocal outlet briefs, product seeding campaigns, event visits, and custom content deliverables (Instagram Reels, Carousels, and Stories) tailored for 1 km to 25 km target radii.'
     },
     {
-      q: 'How do creators submit content proof for brand review?',
-      a: 'Once content goes live on Instagram, creators paste the verified post or Reel URL along with reach metrics into CreatorHub. Brands inspect the live deliverable directly in-app and can approve with a single click to trigger automated escrow payout.'
+      q: 'How is payment handled on the platform?',
+      a: 'Payments are backed by an automated Escrow Guard. When a brand approves a pitch or application, the budget is held securely in escrow and released to the creator immediately upon proof validation and approval.'
+    },
+    {
+      q: 'Can I work with creators outside my city?',
+      a: 'Yes! While CreatorHub excels at hyperlocal radius discovery for neighborhood businesses, brands can also run city-wide or nationwide digital influencer campaigns.'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-zinc-900 selection:bg-zinc-200 selection:text-zinc-900 relative overflow-hidden font-sans">
-      {/* Architectural Background Grid & Ambient Lighting */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e760_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e760_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[380px] bg-zinc-200/50 blur-[150px] rounded-full pointer-events-none" />
-
-      {/* Top Announcement Bar */}
-      <div className="relative z-10 bg-zinc-100/90 backdrop-blur-md border-b border-zinc-200 px-4 py-2 text-center text-xs font-medium text-zinc-600">
-        <div className="inline-flex items-center gap-2">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-          </span>
-          <span className="text-zinc-900 font-semibold">Real Data Provenance</span>
-          <span className="text-zinc-400">·</span>
-          <span>Official Meta Graph API</span>
-          <span className="text-zinc-400">·</span>
-          <span className="text-zinc-900 font-medium">Escrow Protected Payouts</span>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-zinc-200 text-zinc-700 font-medium text-xs mb-8 shadow-xs hover:border-zinc-300 transition-colors">
-              <Compass className="w-3.5 h-3.5 text-zinc-500" />
-              <span>Hyperlocal Influencer Collaboration Platform</span>
-              <span className="text-zinc-300">|</span>
-              <span className="text-emerald-700 font-semibold">100% Escrow Guard</span>
-            </div>
-
-            {/* Headline with High-End Charcoal Gradient */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] mb-6 text-zinc-950">
-              Where Local Brands Meet{' '}
-              <span className="bg-gradient-to-b from-zinc-950 via-zinc-800 to-zinc-600 bg-clip-text text-transparent">
-                Neighborhood Creators
-              </span>.
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
-              Connect nearby cafes, gyms, and retail brands with authentic local influencers.
-              Powered by verified Instagram metrics, Haversine radius precision, and guaranteed escrow payments.
-            </p>
-
-            {/* High-Contrast Action CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-              <Link
-                to="/creator/register"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-950 text-white hover:bg-zinc-800 font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <Users className="w-4 h-4 text-zinc-200" /> Join as Creator
-                <ArrowRight className="w-4 h-4 text-zinc-200" />
-              </Link>
-              <Link
-                to="/brand/register"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-all"
-              >
-                <Building2 className="w-4 h-4 text-zinc-500" /> Launch Brand Brief
-                <ArrowRight className="w-4 h-4 text-zinc-500" />
-              </Link>
-            </div>
-
-            {/* Trust Markers Bar */}
-            <div className="pt-6 border-t border-zinc-200 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-medium text-zinc-600">
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-white border border-zinc-200/80 shadow-xs">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" /> Escrow Fund Protection
-              </div>
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-white border border-zinc-200/80 shadow-xs">
-                <MapPin className="w-4 h-4 text-zinc-600" /> Haversine Radius Match
-              </div>
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-white border border-zinc-200/80 shadow-xs">
-                <Instagram className="w-4 h-4 text-zinc-600" /> Meta Graph API Synced
-              </div>
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-white border border-zinc-200/80 shadow-xs">
-                <Bot className="w-4 h-4 text-zinc-600" /> AI Collaboration Score
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Live Product Showcase (App Mockup) */}
-          <div className="mt-16 max-w-4xl mx-auto">
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-xl p-4 sm:p-7 backdrop-blur-xl relative overflow-hidden">
-              {/* Window Controls Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-zinc-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-zinc-300" />
-                  <span className="ml-2 text-xs font-mono text-zinc-500 font-semibold tracking-wide uppercase">
-                    Live Collaboration Engine
-                  </span>
-                </div>
-
-                {/* Interactive Toggle */}
-                <div className="inline-flex p-1 rounded-xl bg-zinc-100 border border-zinc-200 text-xs">
-                  <button
-                    onClick={() => setHeroPreviewTab('creator')}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      heroPreviewTab === 'creator'
-                        ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                        : 'text-zinc-600 hover:text-zinc-900'
-                    }`}
-                  >
-                    Creator Experience
-                  </button>
-                  <button
-                    onClick={() => setHeroPreviewTab('brand')}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      heroPreviewTab === 'brand'
-                        ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                        : 'text-zinc-600 hover:text-zinc-900'
-                    }`}
-                  >
-                    Brand Experience
-                  </button>
-                </div>
-              </div>
-
-              {/* Showcase Content: Creator View */}
-              {heroPreviewTab === 'creator' ? (
-                <div className="pt-6">
-                  <div className="bg-zinc-50/80 rounded-xl p-5 border border-zinc-200">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[11px]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" /> Direct Pitch Received
-                          </span>
-                          <span className="text-xs text-zinc-500">24 mins ago</span>
-                        </div>
-                        <h3 className="text-lg font-bold text-zinc-900">Artisan Roast & Brew · Weekend Specialty Launch</h3>
-                        <p className="text-xs text-zinc-500 mt-0.5">Indiranagar 100ft Road · 1.4 km from your home neighborhood</p>
-                      </div>
-                      <div className="text-right sm:border-l sm:border-zinc-200 sm:pl-6">
-                        <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Guaranteed Reward</div>
-                        <div className="text-2xl font-black text-zinc-950 font-mono">₹8,500</div>
-                        <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1 justify-end">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Held in Escrow
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Step Progress Visual */}
-                    <div className="p-3.5 rounded-lg bg-white border border-zinc-200 mb-4 shadow-xs">
-                      <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                        <div className="border-b-2 border-emerald-600 pb-1.5 font-semibold text-emerald-700">
-                          1. Offer Accepted
-                        </div>
-                        <div className="border-b-2 border-zinc-400 pb-1.5 font-semibold text-zinc-800">
-                          2. Creating Content
-                        </div>
-                        <div className="border-b-2 border-zinc-200 pb-1.5 font-medium text-zinc-400">
-                          3. Submit Proof
-                        </div>
-                        <div className="border-b-2 border-zinc-200 pb-1.5 font-medium text-zinc-400">
-                          4. Escrow Released
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                      <div className="text-xs text-zinc-600">
-                        Deliverables: <span className="text-zinc-900 font-semibold">1x 60s Reel, 2x Stories with Geotag</span>
-                      </div>
-                      <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                        <span className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-700 font-medium text-xs">
-                          Chat in Messages
-                        </span>
-                        <span className="px-4 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs">
-                          Submit Content Proof <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Showcase Content: Brand View */
-                <div className="pt-6">
-                  <div className="bg-zinc-50/80 rounded-xl p-5 border border-zinc-200">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-zinc-200 border border-zinc-300 flex items-center justify-center text-zinc-700 font-bold text-lg">
-                          AS
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-base font-bold text-zinc-900">Aarav Sharma</h3>
-                            <span className="text-xs text-zinc-500 font-mono">@aarav.eats</span>
-                            <span className="px-2 py-0.5 rounded-full bg-zinc-200 text-[10px] text-zinc-700 font-semibold">
-                              Meta Verified
-                            </span>
-                          </div>
-                          <p className="text-xs text-zinc-500 mt-0.5">Food, Cafe Culture & Bengaluru Lifestyle</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="px-3 py-1 rounded-lg bg-white border border-zinc-200 text-center shadow-xs">
-                          <div className="text-[10px] text-zinc-500 uppercase font-semibold">Proximity</div>
-                          <div className="text-xs font-bold text-zinc-800">1.8 km away</div>
-                        </div>
-                        <div className="px-3 py-1 rounded-lg bg-white border border-zinc-200 text-center shadow-xs">
-                          <div className="text-[10px] text-zinc-500 uppercase font-semibold">AI Match Score</div>
-                          <div className="text-xs font-bold text-emerald-700">94% High Fit</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Verified Instagram Metrics Strip */}
-                    <div className="grid grid-cols-3 gap-3 p-3.5 rounded-lg bg-white border border-zinc-200 mb-4 text-center shadow-xs">
-                      <div>
-                        <div className="text-xs text-zinc-500">Instagram Followers</div>
-                        <div className="text-lg font-black text-zinc-900 font-mono">48.2K</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-zinc-500">Engagement Rate</div>
-                        <div className="text-lg font-black text-emerald-700 font-mono">4.9%</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-zinc-500">Avg Reel Reach</div>
-                        <div className="text-lg font-black text-zinc-900 font-mono">82.5K</div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                      <div className="text-xs text-zinc-600 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        Audience verified: 78% resides within 10km of Bengaluru Central
-                      </div>
-                      <span className="px-4 py-1.5 rounded-lg bg-zinc-900 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs">
-                        <Send className="w-3.5 h-3.5 text-zinc-200" /> Direct Pitch Creator
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Metrics & Impact Strip */}
-      <section className="py-12 border-y border-zinc-200 bg-zinc-100/70 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((s, idx) => (
-              <div key={idx} className="p-6 rounded-2xl bg-white border border-zinc-200/90 text-center shadow-xs hover:border-zinc-300 transition-colors">
-                <div className="text-3xl sm:text-4xl font-black text-zinc-950 font-mono tracking-tight mb-1">
-                  {s.value}
-                </div>
-                <div className="text-xs font-semibold text-zinc-800 mb-1">{s.label}</div>
-                <div className="text-[11px] text-zinc-500">{s.sub}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* The 3-Pillar Hyperlocal Collaboration Engine */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 font-semibold">
-            The Engine
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-950 tracking-tight mb-3">
-            Hyperlocal Collaboration Architecture
-          </h2>
-          <p className="text-zinc-600 text-sm leading-relaxed">
-            Eliminating guesswork with physical location verification, transparent escrow locking, and direct creator communication.
+    <div className="min-h-screen bg-[#071012] text-white selection:bg-pink selection:text-[#181012] overflow-x-hidden font-sans">
+      
+      {/* 1. HERO SECTION */}
+      <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 pb-16 pt-12 lg:grid-cols-[0.9fr_1.1fr] lg:px-0 lg:pb-24 lg:pt-16">
+        <div>
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+            Connect · Collaborate · Grow
           </p>
+          <h1 className="max-w-xl text-balance font-heading text-5xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-6xl text-white">
+            Where Local Brands Meet Neighborhood <span className="text-pink">Creators.</span>
+          </h1>
+          <p className="mt-6 max-w-md text-sm leading-6 text-muted">
+            CreatorHub connects ambitious brands with creators who can bring their stories to life.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              to="/creator/feed"
+              className="rounded-full bg-pink px-6 py-3 text-[11px] font-semibold text-[#181012] hover:bg-[#ff4d79] transition flex items-center shadow-lg"
+            >
+              Explore Creators
+              <ArrowRight className="ml-2 h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/brand/register"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[11px] font-semibold transition hover:border-pink hover:text-pink"
+            >
+              Work With Brands
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Brand Briefs */}
-          <div className="p-7 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all flex flex-col justify-between group shadow-xs">
-            <div>
-              <div className="w-11 h-11 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-800 mb-5">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Local Brand Briefs</h3>
-              <p className="text-xs text-zinc-600 leading-relaxed mb-6">
-                Define exact geographic radius filters, deliverable specs, and guaranteed escrow rewards. No vague expectations.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
-              <span className="font-semibold text-zinc-800">100% Escrow Guarded</span>
-              <span className="font-mono text-zinc-400">01</span>
-            </div>
+        {/* Hero Right: Layered Creator Photos & Floating Badges */}
+        <div className="relative min-h-[380px] sm:min-h-[420px] select-none">
+          {/* Layer 1: Left Rotated */}
+          <div className="absolute left-[14%] top-4 h-52 w-36 rotate-[-4deg] overflow-hidden rounded-md border-4 border-[#071012] shadow-2xl sm:h-64 sm:w-44 transition-transform hover:rotate-0 duration-300">
+            <img
+              alt="Creator portrait"
+              className="object-cover h-full w-full"
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85"
+            />
           </div>
 
-          {/* Card 2: Haversine Radar Match */}
-          <div className="p-7 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all flex flex-col justify-between group shadow-xs">
-            <div>
-              <div className="w-11 h-11 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-800 mb-5">
-                <Compass className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Haversine Distance Radar</h3>
-              <p className="text-xs text-zinc-600 leading-relaxed mb-6">
-                Calculates precise kilometer distances between brand storefronts and creator home turf to drive genuine neighborhood foot traffic.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
-              <span className="font-semibold text-zinc-800">1km – 25km Precision</span>
-              <span className="font-mono text-zinc-400">02</span>
-            </div>
+          {/* Layer 2: Main Center Photo */}
+          <div className="absolute left-[28%] top-8 h-72 w-56 overflow-hidden rounded-md border-4 border-[#071012] shadow-2xl sm:h-80 sm:w-64 z-10 transition-transform hover:scale-105 duration-300">
+            <img
+              alt="Fashion creator"
+              className="object-cover h-full w-full"
+              src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85"
+            />
           </div>
 
-          {/* Card 3: Meta-Verified Creators */}
-          <div className="p-7 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all flex flex-col justify-between group shadow-xs">
-            <div>
-              <div className="w-11 h-11 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-800 mb-5">
-                <Instagram className="w-5 h-5" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-950 mb-2">Meta-Verified Analytics</h3>
-              <p className="text-xs text-zinc-600 leading-relaxed mb-6">
-                Real engagement, audience geography, and reach benchmarks ingested via official Meta Graph APIs with zero web scraping.
-              </p>
-            </div>
-            <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
-              <span className="font-semibold text-zinc-800">OAuth Provenance</span>
-              <span className="font-mono text-zinc-400">03</span>
-            </div>
+          {/* Layer 3: Top Right Coffee */}
+          <div className="absolute right-[4%] top-0 h-40 w-28 overflow-hidden rounded-md border-4 border-[#071012] shadow-xl sm:h-48 sm:w-36">
+            <img
+              alt="Coffee campaign"
+              className="object-cover h-full w-full"
+              src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=700&q=85"
+            />
+          </div>
+
+          {/* Layer 4: Bottom Left Shoes */}
+          <div className="absolute bottom-6 left-[2%] h-28 w-32 overflow-hidden rounded-md border-4 border-[#071012] shadow-xl sm:h-32 sm:w-40 z-20">
+            <img
+              alt="Travel shoes"
+              className="object-cover h-full w-full"
+              src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=85"
+            />
+          </div>
+
+          {/* Layer 5: Bottom Right Lifestyle */}
+          <div className="absolute bottom-10 right-[4%] h-44 w-36 overflow-hidden rounded-md border-4 border-[#071012] shadow-xl sm:h-52 sm:w-44 z-20">
+            <img
+              alt="Lifestyle creator"
+              className="object-cover h-full w-full"
+              src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85"
+            />
+          </div>
+
+          {/* Floating Metric Badge 1 */}
+          <div className="absolute right-0 top-24 rounded-md border border-white/20 bg-[#10191a]/95 backdrop-blur-md px-4 py-3 text-[10px] shadow-2xl z-30 animate-in fade-in slide-in-from-right-4 duration-500">
+            <span className="text-muted font-medium">Brand Campaign</span>
+            <b className="mt-1.5 flex items-center justify-between text-white text-xs font-bold">
+              <span>Skincare</span>
+              <span className="text-pink ml-6 font-mono">₹ 25,000</span>
+            </b>
+          </div>
+
+          {/* Floating Metric Badge 2 */}
+          <div className="absolute bottom-20 left-10 rounded-md border border-white/20 bg-[#10191a]/95 backdrop-blur-md px-3.5 py-2.5 text-[11px] shadow-2xl z-30 flex items-center gap-2">
+            <span className="text-pink font-bold text-xs">12.4%</span>
+            <span className="text-muted text-[10px]">Avg. Engagement</span>
           </div>
         </div>
       </section>
 
-      {/* Featured Active Campaigns (Neighborhood Opportunities) */}
-      <section className="py-20 border-t border-zinc-200 bg-zinc-100/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">
-            <div>
-              <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 font-semibold">
-                Live Brand Briefs
-              </div>
-              <h2 className="text-3xl font-black text-zinc-950">Active Neighborhood Opportunities</h2>
-            </div>
-            <Link
-              to="/creator/register"
-              className="mt-4 sm:mt-0 font-semibold text-xs text-zinc-700 hover:text-zinc-950 flex items-center gap-1.5 group"
-            >
-              Explore All Briefs <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+      {/* 2. THE CREATORHUB EXPERIENCE / ABOUT MOSAIC */}
+      <section id="about" className="border-y border-white/10 bg-[#071012]">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1fr_1fr_170px] lg:px-0 items-center">
+          {/* 6-Photo Mosaic Grid */}
+          <div className="grid grid-cols-3 gap-1.5 rounded-lg overflow-hidden border border-white/10">
+            <img alt="Creator" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85" />
+            <img alt="Coffee" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=700&q=85" />
+            <img alt="Fitness" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=85" />
+            <img alt="Beauty" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85" />
+            <img alt="Fashion" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=85" />
+            <img alt="Travel" className="object-cover h-40 sm:h-48 w-full hover:scale-105 transition duration-300" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=85" />
+          </div>
+
+          {/* Experience Copy */}
+          <div className="flex flex-col justify-center">
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              The CreatorHub Experience
+            </p>
+            <h2 className="font-heading text-3xl font-semibold leading-tight text-white">
+              Meet the people behind the influence.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-muted">
+              From emerging local voices to established creators, discover people who connect with your audience in meaningful ways.
+            </p>
+            <Link to="/creator/feed" className="mt-6 text-xs font-semibold text-pink hover:text-[#ff4d79] transition flex items-center">
+              Explore Creators <ArrowRight className="ml-2 h-3.5 w-3.5" />
             </Link>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-64 rounded-2xl bg-zinc-200/70 animate-pulse border border-zinc-200" />
-              ))}
+          {/* Vertical Pillar List */}
+          <div className="hidden border-l border-pink/40 pl-7 lg:block">
+            <div className="space-y-6 text-[11px] text-muted">
+              <p>
+                <span className="text-pink">◉</span> <span className="ml-1 text-white font-semibold">Fashion</span><br />
+                <span className="ml-4 text-muted">Creators</span>
+              </p>
+              <p>
+                <span className="text-pink">◉</span> <span className="ml-1 text-white font-semibold">Food</span><br />
+                <span className="ml-4 text-muted">Creators</span>
+              </p>
+              <p>
+                <span className="text-pink">◉</span> <span className="ml-1 text-white font-semibold">Fitness</span><br />
+                <span className="ml-4 text-muted">Creators</span>
+              </p>
+              <p>
+                <span className="text-pink">◉</span> <span className="ml-1 text-white font-semibold">Lifestyle</span><br />
+                <span className="ml-4 text-muted">Creators</span>
+              </p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredCampaigns.map(camp => (
-                <div
-                  key={camp.id}
-                  className="bg-white rounded-2xl border border-zinc-200 overflow-hidden hover:border-zinc-300 transition-all group flex flex-col justify-between shadow-xs"
-                >
-                  <div>
-                    <div className="relative h-44 overflow-hidden bg-zinc-100">
-                      <img
-                        src={camp.image_url}
-                        alt={camp.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-medium text-zinc-800 border border-zinc-200 shadow-xs">
-                        {camp.category}
-                      </div>
-                      <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl text-sm font-black text-zinc-950 font-mono border border-zinc-200 shadow-xs">
-                        ₹{camp.reward_per_creator?.toLocaleString()}
-                      </div>
-                    </div>
-
-                    <div className="p-5">
-                      <div className="flex items-center gap-2 mb-2">
-                        <img src={camp.brand_logo} alt={camp.brand_name} className="w-5 h-5 rounded-full object-cover border border-zinc-200" />
-                        <span className="text-xs font-semibold text-zinc-700">{camp.brand_name}</span>
-                      </div>
-                      <h3 className="font-bold text-zinc-950 text-base mb-2 group-hover:text-zinc-700 transition-colors line-clamp-1">
-                        {camp.title}
-                      </h3>
-                      <p className="text-zinc-600 text-xs line-clamp-2 mb-4 leading-relaxed">
-                        {camp.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-5 pt-0 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
-                    <div className="flex items-center gap-1.5 font-medium text-zinc-600">
-                      <MapPin className="w-3.5 h-3.5 text-zinc-400" />
-                      <span>{camp.location_name || camp.city}</span>
-                    </div>
-                    <Link
-                      to="/creator/register"
-                      className="font-semibold text-zinc-900 hover:text-zinc-700 flex items-center gap-1"
-                    >
-                      Apply <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* How It Works (Minimalist Numbered Flow) */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 font-semibold">
-            Workflow Transparency
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-950 tracking-tight mb-6">
-            How CreaterHub Works
+      {/* 3. FOR BRANDS / FEATURED CREATORS */}
+      <section id="creators" className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[0.7fr_1.7fr] lg:px-0">
+        <div>
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+            For Brands
+          </p>
+          <h2 className="font-heading text-3xl font-semibold leading-tight text-white">
+            Find the right voice for your brand.
           </h2>
-
-          {/* Toggle Switch */}
-          <div className="inline-flex p-1 bg-zinc-100 rounded-xl border border-zinc-200">
-            <button
-              onClick={() => setActiveTab('creator')}
-              className={`px-6 py-2 rounded-lg font-semibold text-xs transition-all ${
-                activeTab === 'creator'
-                  ? 'bg-white text-zinc-950 shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              For Creators
-            </button>
-            <button
-              onClick={() => setActiveTab('brand')}
-              className={`px-6 py-2 rounded-lg font-semibold text-xs transition-all ${
-                activeTab === 'brand'
-                  ? 'bg-white text-zinc-950 shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              For Brands
-            </button>
-          </div>
+          <p className="mt-4 max-w-xs text-sm leading-6 text-muted">
+            CreatorHub helps brands discover creators based on your goals, audience, location, and content category.
+          </p>
+          <Link to="/creator/feed" className="mt-6 inline-flex items-center text-xs font-semibold text-pink hover:text-[#ff4d79] transition">
+            View All Creators <ArrowRight className="ml-2 h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        {activeTab === 'creator' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { step: '01', title: 'Create Creator Profile', desc: 'Sign up with bio, content categories, minimum rate card, and home neighborhood coordinates.' },
-              { step: '02', title: 'Connect Instagram Profile', desc: 'Securely authenticate via official Meta OAuth. Real engagement metrics, zero passwords stored.' },
-              { step: '03', title: 'Discover Nearby Briefs', desc: 'Browse neighborhood brand campaigns filtered by physical radius (1km to 25km) and niche fit.' },
-              { step: '04', title: 'Receive Direct Pitches', desc: 'Accept direct collaboration offers from local business owners with guaranteed escrow budgets.' },
-              { step: '05', title: 'Submit Live Content Proof', desc: 'Publish your Instagram Reel or Story, then upload the live URL directly in-app for brand review.' },
-              { step: '06', title: 'Instant Escrow Release', desc: 'Receive your payout immediately into your balance upon approval, build reviews, and level up.' }
-            ].map(s => (
-              <div key={s.step} className="bg-white p-6 rounded-2xl border border-zinc-200 hover:border-zinc-300 transition-all shadow-xs">
-                <div className="text-xl font-black text-zinc-400 mb-3 font-mono">{s.step}</div>
-                <h3 className="font-bold text-zinc-900 text-base mb-1.5">{s.title}</h3>
-                <p className="text-zinc-600 text-xs leading-relaxed">{s.desc}</p>
+        {/* 3 Creator Cards */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {/* Creator 1 */}
+          <article className="overflow-hidden rounded-md border border-white/15 bg-[#0c1416] card-hover">
+            <div className="relative h-44">
+              <img
+                alt="Riya Sharma"
+                className="object-cover h-full w-full"
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85"
+              />
+              <span className="absolute right-2.5 top-2.5 rounded-full bg-white px-2.5 py-1 text-[9px] font-bold text-black shadow-sm">
+                Lifestyle
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="text-xs font-bold text-white">Riya Sharma</h3>
+              <p className="mt-0.5 text-[10px] text-muted">Bengaluru, India</p>
+              <div className="mt-3.5 flex gap-8 text-[9px] text-muted border-t border-white/10 pt-3">
+                <span><b className="block text-white text-xs font-bold">48K</b>Followers</span>
+                <span><b className="block text-pink text-xs font-bold">6.8%</b>Engagement</span>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { step: '01', title: 'Register Local Store', desc: 'Set up your retail outlet, cafe, salon, or fitness gym with exact map coordinates.' },
-              { step: '02', title: 'Publish Campaign Brief', desc: 'Specify deliverable requirements, budget, timeline, and maximum proximity radius.' },
-              { step: '03', title: 'Discover Verified Creators', desc: 'Browse nearby creators ranked by distance, verified engagement rate, and AI Match Score.' },
-              { step: '04', title: 'Direct Pitch or Review Applications', desc: 'Send direct collaboration offers with escrow funds locked immediately upon initiation.' },
-              { step: '05', title: 'Inspect Submitted Proof', desc: 'Review the live Instagram deliverable submitted by the creator with reach metrics.' },
-              { step: '06', title: 'Approve & Release Funds', desc: 'Approve deliverable with one click to release payment, post verified reviews, and track ROI.' }
-            ].map(s => (
-              <div key={s.step} className="bg-white p-6 rounded-2xl border border-zinc-200 hover:border-zinc-300 transition-all shadow-xs">
-                <div className="text-xl font-black text-zinc-400 mb-3 font-mono">{s.step}</div>
-                <h3 className="font-bold text-zinc-900 text-base mb-1.5">{s.title}</h3>
-                <p className="text-zinc-600 text-xs leading-relaxed">{s.desc}</p>
+              <Link
+                to="/creator/feed"
+                className="mt-3.5 block text-center rounded-full border border-white/25 py-1.5 text-[10px] font-semibold text-white hover:border-pink hover:text-pink transition"
+              >
+                View Profile <ArrowRight className="ml-1 inline h-2.5 w-2.5" />
+              </Link>
+            </div>
+          </article>
+
+          {/* Creator 2 */}
+          <article className="overflow-hidden rounded-md border border-white/15 bg-[#0c1416] card-hover">
+            <div className="relative h-44">
+              <img
+                alt="Arjun Mehta"
+                className="object-cover h-full w-full"
+                src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=85"
+              />
+              <span className="absolute right-2.5 top-2.5 rounded-full bg-white px-2.5 py-1 text-[9px] font-bold text-black shadow-sm">
+                Fitness
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="text-xs font-bold text-white">Arjun Mehta</h3>
+              <p className="mt-0.5 text-[10px] text-muted">Mumbai, India</p>
+              <div className="mt-3.5 flex gap-8 text-[9px] text-muted border-t border-white/10 pt-3">
+                <span><b className="block text-white text-xs font-bold">120K</b>Followers</span>
+                <span><b className="block text-pink text-xs font-bold">5.2%</b>Engagement</span>
               </div>
-            ))}
-          </div>
-        )}
+              <Link
+                to="/creator/feed"
+                className="mt-3.5 block text-center rounded-full border border-white/25 py-1.5 text-[10px] font-semibold text-white hover:border-pink hover:text-pink transition"
+              >
+                View Profile <ArrowRight className="ml-1 inline h-2.5 w-2.5" />
+              </Link>
+            </div>
+          </article>
+
+          {/* Creator 3 */}
+          <article className="overflow-hidden rounded-md border border-white/15 bg-[#0c1416] card-hover">
+            <div className="relative h-44">
+              <img
+                alt="Neha Kapoor"
+                className="object-cover h-full w-full"
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85"
+              />
+              <span className="absolute right-2.5 top-2.5 rounded-full bg-white px-2.5 py-1 text-[9px] font-bold text-black shadow-sm">
+                Beauty
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="text-xs font-bold text-white">Neha Kapoor</h3>
+              <p className="mt-0.5 text-[10px] text-muted">Delhi, India</p>
+              <div className="mt-3.5 flex gap-8 text-[9px] text-muted border-t border-white/10 pt-3">
+                <span><b className="block text-white text-xs font-bold">92K</b>Followers</span>
+                <span><b className="block text-pink text-xs font-bold">7.1%</b>Engagement</span>
+              </div>
+              <Link
+                to="/creator/feed"
+                className="mt-3.5 block text-center rounded-full border border-white/25 py-1.5 text-[10px] font-semibold text-white hover:border-pink hover:text-pink transition"
+              >
+                View Profile <ArrowRight className="ml-1 inline h-2.5 w-2.5" />
+              </Link>
+            </div>
+          </article>
+        </div>
       </section>
 
-      {/* Verified Local Testimonials / Social Proof */}
-      <section className="py-20 border-y border-zinc-200 bg-zinc-100/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 font-semibold">
-              Social Proof
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-950 tracking-tight mb-3">
-              Trusted by Local Brands & Creators
+      {/* 4. FEATURED CAMPAIGNS */}
+      <section id="campaigns" className="border-y border-white/10 bg-[#071012]">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[0.7fr_1.7fr] lg:px-0">
+          <div>
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              Featured Campaigns
+            </p>
+            <h2 className="font-heading text-3xl font-semibold leading-tight text-white">
+              Opportunities worth creating for.
             </h2>
-            <p className="text-zinc-600 text-sm">
-              Real partnerships creating tangible neighborhood customer reach.
+            <p className="mt-4 max-w-xs text-sm leading-6 text-muted">
+              Explore active campaigns from leading brands and find the perfect match for your content and audience.
+            </p>
+            <Link to="/creator/feed" className="mt-6 inline-flex items-center text-xs font-semibold text-pink hover:text-[#ff4d79] transition">
+              View All Campaigns <ArrowRight className="ml-2 h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {/* 3 Campaign Cards */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {displayCampaigns.map((c, idx) => (
+              <article key={c.id || idx} className="overflow-hidden rounded-md border border-white/15 bg-[#0c1416] card-hover">
+                <div className="relative h-36">
+                  <img
+                    alt={c.title}
+                    className="object-cover h-full w-full"
+                    src={c.image || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=85'}
+                  />
+                  <span className="absolute right-2.5 top-2.5 rounded-full bg-white px-2.5 py-1 text-[9px] font-bold text-black shadow-sm">
+                    {c.category || 'Retail'}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-xs font-bold text-white truncate">{c.title}</h3>
+                  <p className="mt-0.5 text-[10px] text-muted truncate">{c.business_name || c.brand_name || 'Verified Outlet'}</p>
+                  <div className="mt-3 flex gap-6 text-[9px] text-muted border-t border-white/10 pt-3">
+                    <span>
+                      <b className="block text-pink text-xs font-bold">₹{Number(c.budget || 15000).toLocaleString('en-IN')}</b>
+                      Budget
+                    </span>
+                    <span>
+                      <b className="block text-white text-xs font-bold">{c.deliverables_summary || '1–3 Deliverables'}</b>
+                      Deliverables
+                    </span>
+                  </div>
+                  <Link
+                    to="/creator/feed"
+                    className="mt-3.5 block text-center rounded-full border border-white/25 py-1.5 text-[10px] font-semibold text-white hover:border-pink hover:text-pink transition"
+                  >
+                    Apply Now <ArrowRight className="ml-1 inline h-2.5 w-2.5" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. TESTIMONIALS / SOCIAL PROOF */}
+      <section className="mx-auto max-w-6xl px-6 py-16 lg:px-0">
+        <div className="grid gap-8 border-b border-white/10 pb-16 md:grid-cols-2">
+          {/* Creator Testimonial */}
+          <div className="rounded-xl border border-white/10 bg-[#0c1416] p-6">
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              Creator Story
+            </p>
+            <div className="flex items-start gap-4">
+              <img
+                alt="Riya Sharma"
+                className="h-12 w-12 rounded-full object-cover border border-white/20 shrink-0"
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85"
+              />
+              <div>
+                <p className="text-sm leading-6 text-white/90 italic">
+                  “CreatorHub made it so easy to find brands that actually align with my content. The escrow payout process is super smooth, transparent and fast.”
+                </p>
+                <p className="mt-3 text-[11px] text-muted font-medium">
+                  <span className="text-white font-semibold">Riya Sharma</span> · Lifestyle Creator · 52K followers
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Brand Testimonial */}
+          <div className="rounded-xl border border-white/10 bg-[#0c1416] p-6">
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              Brand Story
+            </p>
+            <div className="flex items-start gap-4">
+              <img
+                alt="Arjun Nair"
+                className="h-12 w-12 rounded-full object-cover border border-white/20 shrink-0"
+                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=85"
+              />
+              <div>
+                <p className="text-sm leading-6 text-white/90 italic">
+                  “We’ve worked with multiple creators through CreatorHub and the foot-traffic results have been amazing. Haversine radius filtering is a game changer for local retail.”
+                </p>
+                <p className="mt-3 text-[11px] text-muted font-medium">
+                  <span className="text-white font-semibold">Arjun Nair</span> · Marketing Manager · Third Wave Coffee
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. MID-PAGE CTA BANNER */}
+      <section className="relative overflow-hidden border-y border-white/10">
+        <img
+          alt="Woman wearing sunglasses"
+          className="absolute inset-0 h-full w-full object-cover opacity-35"
+          src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85"
+        />
+        <div className="absolute inset-0 bg-[#071012]/80 backdrop-blur-xs" />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-0">
+          <div>
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              Join CreatorHub
+            </p>
+            <h2 className="max-w-md font-heading text-3xl font-semibold leading-tight text-white sm:text-4xl">
+              Your next collaboration could start here.
+            </h2>
+            <p className="mt-3 text-sm text-muted max-w-lg">
+              Join thousands of creators and local brands building something amazing together with verified metrics and guaranteed escrow payments.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/choose-role"
+              className="rounded-full bg-pink px-6 py-3 text-[11px] font-semibold text-[#181012] hover:bg-[#ff4d79] transition flex items-center shadow-lg"
+            >
+              Get Started <ArrowRight className="ml-2 h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/creator/feed"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[11px] font-semibold transition hover:border-pink hover:text-pink"
+            >
+              Learn More <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. HOW CREATORHUB WORKS */}
+      <section className="mx-auto max-w-6xl px-6 py-18 lg:px-0">
+        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+          How CreatorHub Works
+        </p>
+        <h2 className="font-heading text-3xl font-semibold text-white">
+          Simple steps. Big opportunities.
+        </h2>
+        <p className="mt-3 max-w-md text-sm text-muted">
+          From discovering the right creators to getting paid securely, we make collaborations easy for everyone.
+        </p>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-4">
+          <div className="rounded-xl border border-white/15 bg-[#0c1416] p-6 card-hover">
+            <div className="font-heading text-3xl font-bold text-pink font-mono">01</div>
+            <h3 className="mt-6 text-sm font-bold text-white">Discover Creators</h3>
+            <p className="mt-2 text-xs leading-5 text-muted">
+              Find verified creators based on location radius, target audience, and engagement rate.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                quote: 'Being able to pitch creators who live within 2km of our cafe brought authentic foot traffic on launch weekend. The escrow feature made it zero risk.',
-                author: 'Rohan Mehta',
-                role: 'Founder, Third Wave Artisans',
-                location: 'Indiranagar, Bengaluru'
-              },
-              {
-                quote: 'I love that brand budgets are held in escrow before I even start recording. I submit my live Reel link in-app and get paid right after approval.',
-                author: 'Priya Kulkarni',
-                role: 'Lifestyle Creator (48k Followers)',
-                location: 'Koramangala, Bengaluru'
-              },
-              {
-                quote: 'Official Meta stats eliminated influencers with purchased vanity followings. We saw a 3.4x return on our promotional spend across 5 local creators.',
-                author: 'Vikram Sen',
-                role: 'Marketing Lead, Peak Fitness',
-                location: 'HSR Layout, Bengaluru'
-              }
-            ].map((t, idx) => (
-              <div key={idx} className="p-7 rounded-2xl bg-white border border-zinc-200 flex flex-col justify-between shadow-xs">
-                <div>
-                  <div className="flex items-center gap-1 text-amber-500 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-zinc-700 leading-relaxed italic mb-6">
-                    "{t.quote}"
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-zinc-100">
-                  <div className="font-bold text-sm text-zinc-950">{t.author}</div>
-                  <div className="text-xs text-zinc-600">{t.role}</div>
-                  <div className="text-[11px] text-zinc-400 mt-0.5">{t.location}</div>
-                </div>
-              </div>
-            ))}
+          <div className="rounded-xl border border-white/15 bg-[#0c1416] p-6 card-hover">
+            <div className="font-heading text-3xl font-bold text-pink font-mono">02</div>
+            <h3 className="mt-6 text-sm font-bold text-white">Launch a Campaign</h3>
+            <p className="mt-2 text-xs leading-5 text-muted">
+              Post your campaign brief or direct pitch with escrow budget and exact deliverable goals.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/15 bg-[#0c1416] p-6 card-hover">
+            <div className="font-heading text-3xl font-bold text-pink font-mono">03</div>
+            <h3 className="mt-6 text-sm font-bold text-white">Collaborate</h3>
+            <p className="mt-2 text-xs leading-5 text-muted">
+              Manage briefs, direct messages, track live progress, and communicate seamlessly in one place.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-white/15 bg-[#0c1416] p-6 card-hover">
+            <div className="font-heading text-3xl font-bold text-pink font-mono">04</div>
+            <h3 className="mt-6 text-sm font-bold text-white">Get Paid Securely</h3>
+            <p className="mt-2 text-xs leading-5 text-muted">
+              Funds are held safely in escrow and released instantly upon proof review and approval.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Platform Architecture & FAQ Accordion */}
-      <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-14">
-          <div className="text-xs font-mono uppercase tracking-widest text-zinc-500 mb-2 font-semibold">
-            Frequently Asked Questions
+      {/* 8. TRUST & SECURITY BANNER */}
+      <section className="border-y border-white/10 bg-[#0c1416]">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 lg:flex-row lg:items-center lg:justify-between lg:px-0">
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+              Trust &amp; Security
+            </p>
+            <h2 className="font-heading text-2xl font-semibold text-white">
+              Creative work. Built on trust.
+            </h2>
           </div>
-          <h2 className="text-3xl font-extrabold text-zinc-950 tracking-tight mb-3">
+          <div className="grid gap-6 text-[11px] text-muted sm:grid-cols-3">
+            <div className="flex items-start gap-2.5">
+              <span className="text-pink text-base">◉</span>
+              <span>
+                <b className="text-white block font-semibold">Verified Creator</b>
+                <span className="text-muted">Meta OAuth Connected</span>
+              </span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="text-pink text-base">◉</span>
+              <span>
+                <b className="text-white block font-semibold">Transparent</b>
+                <span className="text-muted">Campaign Briefs &amp; Terms</span>
+              </span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="text-pink text-base">◉</span>
+              <span>
+                <b className="text-white block font-semibold">Secure</b>
+                <span className="text-muted">100% Escrow Protection</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. FAQ SECTION */}
+      <section id="faq" className="mx-auto grid max-w-6xl gap-10 px-6 py-18 lg:grid-cols-[0.7fr_1.3fr] lg:px-0">
+        <div>
+          <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-pink">
+            Frequently Asked Questions
+          </p>
+          <h2 className="font-heading text-3xl font-semibold text-white">
             Clear Answers, Zero Guesswork
           </h2>
-          <p className="text-zinc-600 text-sm">
-            Everything you need to know about safety, verification, and payments.
+          <p className="mt-3 text-sm text-muted">
+            Everything you need to know about CreatorHub, creators, brands, payments, and verified metrics.
           </p>
         </div>
 
         <div className="space-y-3">
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="rounded-xl border border-zinc-200 bg-white shadow-xs overflow-hidden transition-colors"
-            >
-              <button
-                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full p-5 text-left flex items-center justify-between gap-4 font-semibold text-sm text-zinc-900 hover:text-zinc-700 cursor-pointer"
-              >
-                <span>{faq.q}</span>
-                <ChevronDown
-                  className={`w-4 h-4 text-zinc-500 shrink-0 transition-transform ${
-                    openFaq === idx ? 'rotate-180 text-zinc-900' : ''
-                  }`}
-                />
-              </button>
-              {openFaq === idx && (
-                <div className="px-5 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-100 pt-3">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
+          {faqs.map((faq, index) => {
+            const isOpen = openFaq === index;
+            return (
+              <div key={index} className="rounded-xl border border-white/10 bg-[#0c1416] overflow-hidden transition-colors">
+                <button
+                  onClick={() => setOpenFaq(isOpen ? null : index)}
+                  className="flex w-full items-center justify-between p-4 text-left text-xs font-semibold text-white hover:text-pink transition cursor-pointer"
+                >
+                  <span className="pr-4">{faq.q}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-pink' : ''
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 pt-1 text-xs leading-relaxed text-muted border-t border-white/5 animate-in fade-in duration-150">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* Final Call to Action */}
-      <section className="py-20 relative">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-zinc-950 text-white p-10 sm:p-16 rounded-3xl border border-zinc-800 text-center relative overflow-hidden shadow-xl">
-            <div className="max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-                Ready to Build Local Partnerships?
-              </h2>
-              <p className="text-zinc-400 text-sm sm:text-base leading-relaxed mb-8">
-                Join verified local businesses and creators driving genuine neighborhood influence with full escrow safety.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  to="/creator/register"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-zinc-950 hover:bg-zinc-100 font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                >
-                  Join as Creator <ArrowRight className="w-4 h-4 text-zinc-950" />
-                </Link>
-                <Link
-                  to="/brand/register"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all"
-                >
-                  Join as Brand <ArrowRight className="w-4 h-4 text-zinc-400" />
-                </Link>
-              </div>
+      {/* 10. FINAL CALL TO ACTION BANNER */}
+      <section className="relative overflow-hidden bg-[#10191a] border-t border-white/10">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-15" />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-0">
+          <div>
+            <h2 className="font-heading text-3xl font-semibold text-white sm:text-4xl">
+              Ready to Build Local Partnerships?
+            </h2>
+            <p className="mt-3 text-sm text-muted max-w-md">
+              Join verified local businesses and creators driving growth through authentic, high-impact collaborations.
+            </p>
+          </div>
+          <div>
+            <p className="mb-3 text-[10px] text-muted font-medium">Where is CreatorHub going?</p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/creator/register"
+                className="rounded-full bg-pink px-6 py-3 text-[11px] font-semibold text-[#181012] hover:bg-[#ff4d79] transition flex items-center shadow-lg"
+              >
+                Join as Creator <ArrowRight className="ml-2 h-3.5 w-3.5" />
+              </Link>
+              <Link
+                to="/brand/register"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-[11px] font-semibold transition hover:border-pink hover:text-pink"
+              >
+                Join as Brand <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 };

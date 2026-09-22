@@ -1,0 +1,32 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct browser access to sensitive configuration, database & log files
+    <FilesMatch "^\.(env|git)|(\.sql|\.sqlite|\.log|composer\.json|package\.json|tsconfig\.json)$">
+        <IfModule mod_authz_core.c>
+            Require all denied
+        </IfModule>
+        <IfModule !mod_authz_core.c>
+            Order allow,deny
+            Deny from all
+        </IfModule>
+    </FilesMatch>
+
+    # 1. API Route Handler (forward all /api requests to api/index.php)
+    RewriteRule ^api(/.*)?$ api/index.php [QSA,L]
+
+    # 2. Allow direct access to real existing files and folders (CSS, JS, Images, uploads)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3. Single Page Application (SPA) & Dynamic Page Fallback
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
