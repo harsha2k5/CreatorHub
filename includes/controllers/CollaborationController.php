@@ -51,7 +51,7 @@ class CollaborationController {
         $user = AuthMiddleware::authenticate();
         AuthMiddleware::requireCreator($user);
 
-        $liveUrl = trim($body['live_post_url'] ?? $body['live_url'] ?? $body['deliverable_url'] ?? '');
+        $liveUrl = trim($body['live_post_url'] ?? $body['content_url'] ?? $body['live_url'] ?? $body['deliverable_url'] ?? $body['url'] ?? $body['post_url'] ?? '');
         $notes = trim($body['notes'] ?? $body['proof_notes'] ?? $body['submission_notes'] ?? '');
         $platform = trim($body['platform'] ?? 'instagram');
         $caption = trim($body['caption'] ?? '');
@@ -88,7 +88,7 @@ class CollaborationController {
         AuthMiddleware::requireBrand($user);
 
         $decision = strtoupper($body['action'] ?? $body['decision'] ?? 'APPROVE');
-        $feedback = trim($body['feedback'] ?? '');
+        $feedback = trim($body['feedback'] ?? $body['reason'] ?? '');
 
         if (!in_array($decision, ['APPROVE', 'REVISION'], true)) {
             Response::error('Action must be either APPROVE or REVISION.', 400);

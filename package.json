@@ -11,12 +11,12 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "C:/xampp/php/php.exe -S 0.0.0.0:5000 router.php",
-    "server:php": "C:/xampp/php/php.exe -S 0.0.0.0:5000 router.php",
+    "server": "php -S 0.0.0.0:5000 router.php",
+    "server:php": "php -S 0.0.0.0:5000 router.php",
     "server:node:deprecated": "node server/index.cjs",
-    "start": "C:/xampp/php/php.exe -S 0.0.0.0:5000 router.php",
+    "start": "php -S 0.0.0.0:5000 router.php",
     "test": "npm run test:php",
-    "test:php": "C:/xampp/php/php.exe includes/tests/test_php_api.php && C:/xampp/php/php.exe includes/tests/test_escrow_payment_enforcement.php && C:/xampp/php/php.exe includes/tests/verify_all_logins.php && C:/xampp/php/php.exe includes/tests/test_instagram_integration.php"
+    "test:php": "php includes/tests/test_php_api.php && php includes/tests/test_escrow_payment_enforcement.php && php includes/tests/verify_all_logins.php && php includes/tests/test_instagram_integration.php"
   },
   "keywords": [],
   "author": "",

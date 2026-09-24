@@ -211,9 +211,17 @@ export const api = {
 
   // Escrow & Payments
   getEscrowConfig: () => request('/payments/config'),
-  createEscrowOrder: (collabId: string) =>
-    request(`/payments/create-escrow-order`, { method: 'POST', body: JSON.stringify({ collaboration_id: collabId }) }),
+  createEscrowOrder: (payload: string | { collaboration_id: string }) => {
+    const collaboration_id = typeof payload === 'string' ? payload : payload.collaboration_id;
+    return request(`/payments/create-escrow-order`, { method: 'POST', body: JSON.stringify({ collaboration_id }) });
+  },
+  createPaymentOrder: (payload: string | { collaboration_id: string }) => {
+    const collaboration_id = typeof payload === 'string' ? payload : payload.collaboration_id;
+    return request(`/payments/create-escrow-order`, { method: 'POST', body: JSON.stringify({ collaboration_id }) });
+  },
   verifyEscrowPayment: (payload: any) =>
+    request('/payments/verify-escrow', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyPayment: (payload: any) =>
     request('/payments/verify-escrow', { method: 'POST', body: JSON.stringify(payload) }),
   releaseEscrow: (collabId: string) =>
     request(`/payments/release-escrow`, { method: 'POST', body: JSON.stringify({ collaboration_id: collabId }) }),
