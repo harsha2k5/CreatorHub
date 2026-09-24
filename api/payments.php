@@ -3,13 +3,15 @@
  * CreatorHub PHP Backend - Payments & Escrow Routes
  */
 
+declare(strict_types=1);
+
 require_once dirname(__DIR__) . '/config/database.php';
 require_once dirname(__DIR__) . '/includes/controllers/PaymentController.php';
 
 use CreatorHub\Controllers\PaymentController;
 use CreatorHub\Utils\Response;
 
-function handlePaymentsRoute(string $action, string $method, array $body) {
+function handlePaymentsRoute(string $action, string $method, array $body): void {
     if ($action === 'config' && $method === 'GET') {
         PaymentController::config();
         return;
@@ -20,13 +22,19 @@ function handlePaymentsRoute(string $action, string $method, array $body) {
         return;
     }
 
-    if ($action === 'create-order' && $method === 'POST') {
+    if (($action === 'create-order' || $action === 'create-escrow-order') && $method === 'POST') {
         PaymentController::createOrder($body);
         return;
     }
 
-    if ($action === 'verify' && $method === 'POST') {
+    if (($action === 'verify' || $action === 'verify-escrow') && $method === 'POST') {
         PaymentController::verify($body);
+        return;
+    }
+
+    if (($action === 'release' || $action === 'release-escrow') && $method === 'POST') {
+        $collabId = $body['collaboration_id'] ?? ($body['id'] ?? '');
+        PaymentController::release($collabId);
         return;
     }
 

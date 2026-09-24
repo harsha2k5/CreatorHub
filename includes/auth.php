@@ -86,8 +86,8 @@ class AuthMiddleware {
     /**
      * Authenticate and enforce specific roles
      */
-    public static function requireRole(string|array $roles): array {
-        $user = self::authenticate();
+    public static function requireRole(string|array $roles, ?array $user = null): array {
+        $user = $user ?? self::authenticate();
         $allowed = is_array($roles) ? $roles : [$roles];
 
         if (!in_array($user['role'], $allowed, true)) {
@@ -97,16 +97,16 @@ class AuthMiddleware {
         return $user;
     }
 
-    public static function requireAdmin(): array {
-        return self::requireRole('admin');
+    public static function requireAdmin(?array $user = null): array {
+        return self::requireRole('admin', $user);
     }
 
-    public static function requireBrand(): array {
-        return self::requireRole('brand');
+    public static function requireBrand(?array $user = null): array {
+        return self::requireRole('brand', $user);
     }
 
-    public static function requireCreator(): array {
-        return self::requireRole('creator');
+    public static function requireCreator(?array $user = null): array {
+        return self::requireRole('creator', $user);
     }
 
     private static function extractBearerToken(): ?string {
